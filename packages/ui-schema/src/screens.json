@@ -1,0 +1,81 @@
+{
+  "trip": {
+    "version": 1,
+    "title": "Trip planning",
+    "singular": "trip",
+    "fields": [
+      {
+        "name": "title",
+        "label": "Trip name",
+        "kind": "text",
+        "required": true
+      },
+      {
+        "name": "date",
+        "label": "Trip date",
+        "kind": "date"
+      },
+      {
+        "name": "route",
+        "label": "Route and terrain",
+        "kind": "textarea"
+      },
+      {
+        "name": "notes",
+        "label": "Weather, conditions, and planning notes",
+        "kind": "textarea"
+      }
+    ]
+  },
+  "daily": {
+    "version": 1,
+    "title": "Daily process",
+    "singular": "daily record",
+    "fields": [
+      {
+        "name": "title",
+        "label": "Daily briefing title",
+        "kind": "text",
+        "required": true
+      },
+      {
+        "name": "date",
+        "label": "Date",
+        "kind": "date"
+      },
+      {
+        "name": "notes",
+        "label": "Information review, plan, and follow-up",
+        "kind": "textarea"
+      }
+    ]
+  },
+  "observation": {
+    "version": 1,
+    "title": "Observation reporting",
+    "singular": "observation",
+    "fields": [
+      {
+        "name": "title",
+        "label": "Observation title",
+        "kind": "text",
+        "required": true
+      },
+      {
+        "name": "date",
+        "label": "Observation date",
+        "kind": "date"
+      },
+      {
+        "name": "location",
+        "label": "Location",
+        "kind": "text"
+      },
+      {
+        "name": "notes",
+        "label": "Field notes and source details",
+        "kind": "textarea"
+      }
+    ]
+  }
+}

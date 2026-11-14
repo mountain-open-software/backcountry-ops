@@ -1,0 +1,12 @@
+{
+  "name": "@open-mountain/storage-pouchdb",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.js",
+  "dependencies": {
+    "events": "^3.3.0",
+    "pouchdb-browser": "^9.0.0"
+  },
+  "license": "Apache-2.0"
+}
