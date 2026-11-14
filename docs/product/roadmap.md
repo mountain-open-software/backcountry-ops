@@ -34,8 +34,9 @@ Objective: Deliver the first useful field application.
 Deliverables:
 
 - User and trip management.
+- Planned routes supplied by upload or external link; no in-app route drawing.
 - Trip planning: [day trips](use-cases/day-trip-planning.md) and [multi-day trips](use-cases/multi-day-trip-planning.md).
-- GPS tracking.
+- Recorded-track upload or external links; live GPS tracking remains in participants' own apps.
 - Offline maps.
 - Voice recording.
 - Manual observations.
@@ -163,3 +164,7 @@ Basic synchronization is a Phase 1 acceptance gate and requires a defined remote
 The [leadership requirements](expedition-leadership-human-factors.md) and [community/trip model](../architecture/community-trip-model.md) apply across phases rather than waiting for professional operations. Phase 0 must define community/group membership, trip participants and leader roles, linked day trips, day-specific daily processes and observations, self-guided/guided configuration, and privacy contracts in the canonical model. Phase 1 introduces offline group participation workflows with authenticated delivery deferred until a transport exists. Phase 3 agents must obey participant visibility, preserve evidence, and never decide for the group. Phase 4 extends the common daily lifecycle with professional vocabulary, teams, and responsibilities; it does not introduce a separate professional-only domain.
 
 The seven human-factor use cases remain planned. Their definitions of done require tested privacy and delivery behavior before completion can be claimed. The current generic PWA forms, local profile switching, and all-data backup do not satisfy those requirements.
+
+## Route and track scope update
+
+The [agreed daily-process plan](daily-process-plan.txt) supersedes earlier live GPS tracking scope. Open Mountain accepts planned routes and recorded tracks by upload or external link (for example Strava or Outmap). It does not record live tracks or require provider-specific APIs. Imported route/track data must remain exportable; an external link alone does not satisfy offline availability.

@@ -20,6 +20,10 @@ Applies to a community/group day trip, including a day trip linked to a multi-da
 6. The plan is adjusted where appropriate.
 7. The system records the agreed outcome.
 
+## Private reflection and group contribution
+
+The participant's own [human-factor assessment](../human-factor-assessment.md) is private to them. Sharing a practical concern or readiness statement creates a separate contribution; it does not grant access to the private assessment. Group/leader views never automatically expose private responses. The leader writes the public version; a separately authorized AI process may read private summaries solely to assess human-bias risk, as specified in the linked requirements. Existing references to sharing choices below apply to those separate contributions, not to opening the private assessment to other users.
+
 ## Requirements
 
 - Participants can respond independently.

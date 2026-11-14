@@ -17,6 +17,10 @@ A community (the existing organization workspace) contains groups and trips. Use
 
 Every day trip, including one linked to a multi-day trip, owns its daily process and observations. See the [community and trip model](../../architecture/community-trip-model.md) and [leadership requirements](../expedition-leadership-human-factors.md).
 
+## OperationalDay composition
+
+The multi-day trip starts with one OperationalDay per trip date, including rest days. If a group splits, copy the affected day into distinct same-date group days, each with its own participants, leader, daily process, and observations. Each linked day-trip itinerary entry resolves to that day's OperationalDay, which owns its daily process, observations, and activities. Linking a day trip must reconcile ownership without duplicating an OperationalDay or its field records. See [daily-process ownership](daily-process.md#operationalday-ownership).
+
 ## Workflow
 
 1. Select the active user and organization; create or reopen a multi-day trip.
@@ -27,11 +31,15 @@ Every day trip, including one linked to a multi-day trip, owns its daily process
 6. Save and reopen the complete plan offline; record progress, tracks, observations, and itinerary changes during the trip.
 7. Review and export the whole trip or individual stages after completion.
 
+## Route and track inputs
+
+Each day's planned route and actual recorded track are supplied by upload or external link (Strava, Outmap, or another app). No in-app route drawing or GPS track recording is in scope. Preserve source, original files, and explicit day associations without inventing missing timestamps or segmenting across days silently. Imported files remain accessible offline; links alone cannot guarantee offline content.
+
 ## Scope and boundaries
 
 Use [day-trip planning](day-trip-planning.md) for trips planned to start and finish on the same local calendar day without an overnight stay. Both trip variants share the canonical trip model and core capabilities; multi-day planning links ordered day trips rather than copying their daily processes or observations into the parent.
 
-Phase 1 covers offline planning and field execution, maps, GPS tracks, observations, and GPX export. Phase 2 adds stage-specific weather and recent observation context. Each itinerary stage links a day trip with its own [daily process](daily-process.md)/OperationalDay context and observation collection; professional OperationalDay features extend that shared daily lifecycle. Field evidence follows [observation reporting](observation-reporting.md).
+Phase 1 covers offline planning and field execution, maps, uploaded/linked GPS tracks, observations, and GPX export. Phase 2 adds stage-specific weather and recent observation context. Each itinerary stage links a day trip with its own [daily process](daily-process.md)/OperationalDay context and observation collection; professional OperationalDay features extend that shared daily lifecycle. Field evidence follows [observation reporting](observation-reporting.md).
 
 Local planning and capture must remain independent of remote services. Synchronization is added without making it a prerequisite for using the itinerary.
 
@@ -63,7 +71,7 @@ Local planning and capture must remain independent of remote services. Synchroni
 
 - The user can download map coverage for all stages, see readiness per stage, and distinguish incomplete coverage before departure.
 - Maps and saved planning information remain accessible offline across the full itinerary, including after application restart.
-- Tracking can be started/stopped across multiple days without overwriting earlier segments. Coordinates and timestamps persist locally and are linked to the trip and applicable stage.
+- Participants record tracks with their own apps, then upload files or attach external links. Imported multi-day tracks preserve their original coordinates, timestamps, and segment boundaries, with explicit links to the trip and relevant days. Open Mountain does not record live tracks.
 - Observations and attachments can be linked to the trip and a stage without requiring a network connection.
 - The user can revise remaining stages offline without losing original captured tracks or observations.
 - Whole-trip and stage-level GPX exports open in an independent consumer and preserve track coordinates, timestamps, and segment boundaries.
@@ -77,4 +85,4 @@ Local planning and capture must remain independent of remote services. Synchroni
 
 ## Current implementation gap
 
-The PWA currently creates, lists, deletes, and backs up basic local trip records. Multi-day classification, date ranges/time zones, itinerary stages, overnight locations, editing, participant management, map coverage, GPS tracking, GPX export, environmental integrations, and synchronization remain unimplemented.
+The PWA currently creates, lists, deletes, and backs up basic local trip records. Multi-day classification, date ranges/time zones, itinerary stages, overnight locations, editing, participant management, map coverage, route/track upload and external links, GPX export, environmental integrations, and synchronization remain unimplemented.

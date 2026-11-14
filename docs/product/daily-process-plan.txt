@@ -1,0 +1,114 @@
+OPEN MOUNTAIN — AGREED DAILY PROCESS PLAN
+
+Status: Product and architecture requirements, not a claim of implementation.
+
+1. Trip and day structure
+Communities contain groups and trips. Users can belong to multiple communities
+and groups and hold trip-scoped leader roles. A single-day trip starts with one
+OperationalDay; a multi-day trip starts with one for each date, including rest
+days. Each OperationalDay owns its daily process, observations, and decisions.
+Multi-day itinerary links resolve to their corresponding operational days.
+
+2. Group split
+The original group continues its existing day. The second group gets a complete
+point-in-time copy of everything recorded at the split. Preserve original
+history, evidence, authorship, timestamps, and privacy rules. Subsequent events,
+observations, decisions, and field reports are independent. Record the split
+and role/participant changes as events. Do not double-count inherited evidence.
+
+3. Morning briefing
+Record the day's objective and strategic operating mindset, Plan A and its
+hazards, Plan B and its hazards, and conditions triggering a plan change.
+Everyone, including the leader, records an individual assessment before the
+group combines them. Retain differing views and unresolved concerns.
+
+4. Avalanche assessment
+For each avalanche problem, record type, terrain location, likelihood, and
+expected destructive size/range, with source evidence and uncertainty.
+Keep multiple problems separate. Use versioned vocabulary and confirm the
+primary CMAH references and scale definitions before standards implementation.
+
+5. Strategic mindset
+Use the seven supplied core entries: Assessment, Stepping Out, Status Quo,
+Stepping Back, Entrenchment, Open Season, and Spring Diurnal. Keep Maintenance
+and High Alert identified as extensions. Record rationale, evidence, terrain
+implications, and change triggers. Mindset is not mood or a safety guarantee.
+Verify primary framework attribution and terminology before publication.
+
+6. Human factors and privacy
+All assessments are public within the authorized trip/group except each
+person's own human-factor section. That section is private, including the
+leader's. Consider readiness, comfort, fatigue, pressure, communication, and
+bias without diagnosing participants. Separate group discussion contributions
+from private reflections.
+AI may read private summaries solely to assess human-bias/group-dynamics risk.
+The resulting privacy-preserving risk indicator is visible to everyone.
+No private quotations or identifiable explanations may leak through it.
+Do not reuse private summaries for ordinary reports or general AI context.
+Score format, thresholds, processing consent, and privacy implementation still
+need definition. This indicator is not an overall mountain-safety judgment.
+
+7. Combined proposal and approvals
+AI drafts a combined proposal for everyone to review and correct. Every
+participant must approve its exact version before it becomes accepted. One
+phone may record an event attesting to the full group's explicit approval;
+separate devices/signatures are not required. Record recorder, participants,
+proposal/roster versions, and times. Missing responses are not approval.
+Manual proposals remain possible without AI.
+The leader may approve actions within the accepted plan and agreed triggers.
+Going against what was agreed requires unanimous approval of the revision.
+No vote or approval overrides a person's choice not to participate.
+
+8. Voice-first and events
+Voice-to-text is the primary interaction. Forms are optional for targeted
+corrections. Input becomes validated commands and durable events; application
+data is updated from those events. Record attribution, event time, recorded
+time, revisions, and lineage. Support deterministic replay and idempotency.
+Capture useful available context automatically: user, trip/day, time, and
+permitted point location/accuracy. Missing or stale context remains explicit.
+Save recordings offline even when transcription is queued. No continuous
+ambient recording or hidden location tracking is implied.
+
+9. Routes and tracks: external apps only
+Open Mountain does not record live GPS tracks or provide in-app route drawing.
+Participants use their own navigation/tracking apps. Planned routes and recorded
+tracks enter Open Mountain only through file uploads or external links, such
+as Strava, Outmap, or another provider. No provider-specific live API connection
+is assumed. Preserve source, uploader, intended-versus-recorded distinction,
+trip/day linkage, coordinates/times when present, and original files.
+External links alone are not an offline route package. Imported files must
+remain usable offline and exportable. Point GPS metadata on an observation is
+distinct from continuous track recording and remains permission-dependent.
+
+10. Field reporting
+Each participant, including the leader, records and submits their own
+observations. Saving alone is not submission. A person may explicitly submit
+nothing to add; the leader does not silently submit on others' behalf.
+At closing, AI summarizes submitted reports, preserving originals, sources,
+differences, and uncertainty. Exclude private human-factor content. The closing
+summary's review/approval rule remains open.
+
+11. Debrief
+Support individual debriefs, a team debrief recorded together on one phone,
+or both. Record actual participants and recorder without overwriting personal
+reflections. Cover expected versus observed conditions, planned versus actual
+activity, human factors at play, what went well, and what needs to change.
+The leader confirms the debrief is done.
+
+12. Closing and later updates
+The leader explicitly confirms day closing after all required individual
+submissions and the debrief are done. Record a closing event; never close
+automatically. The day can close offline while its AI summary is queued.
+Each split group's day closes independently.
+Participants may add or correct observations afterward without reopening the
+day. Show those events in the timeline at recorded time, with observation time
+separately visible. Preserve originals. Mark outdated summaries and queue a
+refresh; summary failure does not reopen the day.
+
+13. Delivery boundary
+The existing PWA is a local-only scaffold using forms and direct PouchDB writes.
+Voice input, event-driven projections, protected personal assessments, group
+approval, route/track uploads, external-link handling, AI, and closing workflow
+remain planned. An API is not required for local operation. React Native,
+SQLite, CouchDB/synchronization, and authenticated collaboration remain future
+work as described in the roadmap and architecture documents.

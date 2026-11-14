@@ -17,6 +17,43 @@ A community (the existing organization workspace) contains groups and trips. Use
 
 Every day trip, including one linked to a multi-day trip, owns its daily process and observations. See the [community and trip model](../../architecture/community-trip-model.md) and [leadership requirements](../expedition-leadership-human-factors.md).
 
+## Meaning of field reporting
+
+Field reporting is each participant recording their own observations, including the leader's observations. There is no required separate narrative field report or leader approval of each observation. Voice-to-text is primary; accepted events update structured records, and forms support targeted corrections. Preserve the distinction between observer and recorder when one phone is used to record another person's account.
+
+The OperationalDay's field reporting is the collection of these attributed observations. At closing, AI summarizes the submitted individual reports while preserving the source observations. External submission is distinct from capturing and submitting a report within the trip. Personal human-factor sections remain private. Each person submits their own report explicitly; recording observations alone is not submission. A nothing-to-add submission is explicit, not inferred. Preserve participant, day, submitted revision, and submission time as an event. The leader also submits their own report and does not silently submit for others.
+
+The closing AI summary references submitted report revisions and preserves attribution, uncertainty, differences, and original evidence. It cannot read private human-factor sections or the summaries reserved for human-bias assessment. The day may close offline after all individual submissions and the debrief are complete; queue the AI summary for later processing. Summary failure or delay does not block closure or invalidate submissions. Summary approval remains to be decided.
+
+## Automatic context capture
+
+Minimize manual entry by automatically capturing as much relevant, available context as possible for a voice observation:
+
+- Active user/observer and recorder, community, trip, OperationalDay, and applicable plan/assessment version.
+- Recording/entry time, device time zone, and observation time when stated. Keep inferred/default time distinct from an explicitly reported event time.
+- Available device location, location timestamp, horizontal accuracy, and altitude/vertical accuracy where supported. Do not present unavailable or stale GPS as a current precise location.
+- Original audio reference, transcript, extraction status, and links to nearby relevant track points, recorded events, or plan-change triggers where available. Suggested associations remain distinguishable from confirmed facts.
+- Relevant cached environmental data with source, retrieval time, and applicable location/time. Device context or a forecast must not be silently substituted for a person's field observation.
+
+Request device permissions transparently and respect refusal. Capture continues with explicit missing context when permissions, sensors, battery, or connectivity are unavailable. Do not require GPS or transcription success before saving audio or a manual observation. Ask concise follow-up questions only for required or ambiguous details, with optional targeted editing.
+
+Open Mountain does not record live GPS tracks. Participants upload recorded tracks from their own apps or attach external links. Permission-based point location on an observation is separate from continuous tracking. Context collection must show its status and controls. This requirement does not authorize continuous ambient microphone recording, hidden tracking, or inference of private psychological states. Background collection limits and battery tradeoffs must be defined and tested per platform rather than assumed to work when the app is suspended.
+
+### Context-capture definition of done
+
+- Voice observations can be saved with automatically available metadata, source/accuracy information, and clearly identified gaps, entirely offline.
+- Users can inspect and correct inferred values without losing their origin or event history.
+- Tests cover permission denial/revocation, unavailable/stale GPS, missing altitude, ambiguous reported time, offline transcription, interruption, and context changes between recording and saving.
+- Capturing context never changes the observation's author, operating day, or group silently after a context switch.
+
+## Observations after day closing
+
+Participants can add or correct observations after the leader closes the OperationalDay, without reopening it. All changes appear in the OperationalDay timeline, including post-close additions and corrections. The timeline shows the actor, action, recorded time, and affected observation, with the original observation/event time separately visible. A late entry is not silently backdated into the earlier timeline or hidden by replacing the original record.
+
+All changes pass through domain validation and are persisted as attributable events; corrections preserve the original values/evidence and observation time alongside correction time. Existing visibility and author permissions continue to apply.
+
+Mark an AI closing summary based on older observation revisions as out of date and queue a refresh. Preserve previous summary versions and their source references. A pending or failed refresh does not change the day's closed status. Tests cover late additions, corrections, offline restart, event replay, and summary revision consistency.
+
 ## Workflow
 
 1. Select the active organization and optional trip/daily context.

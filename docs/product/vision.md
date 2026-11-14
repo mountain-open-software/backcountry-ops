@@ -54,7 +54,7 @@ Core capabilities include:
 - Terrain and mapping integration.
 - Weather forecasts and environmental context.
 - Field recording and personal observations.
-- GPS-based activity and location capture.
+- Activity tracks supplied by upload or external link, with optional permission-based point location capture for observations.
 - Trip history and review.
 - Offline-first operation and synchronization.
 - Planning, briefing and information presentation.

@@ -10,6 +10,14 @@ Improve group learning and future decision-making.
 
 Applies to a community/group day trip, including a day trip linked to a multi-day trip. Self-guided is the default operating mode; guided mode uses the same entities with explicitly configured responsibilities. See [leadership and human-factor requirements](../expedition-leadership-human-factors.md).
 
+## Place in the daily debrief
+
+The [daily debrief](daily-process.md#debrief-content) covers expected versus observed conditions, planned versus actual activity, human factors at play, what went well, and what needs to change. This use case supplies the human-factor reflection within that broader review. Private personal reflections remain separate from the public record of the group discussion.
+
+## Individual and team formats
+
+Participants may record their own debriefs, and the group may also record a team debrief together, such as in the car. Either format or both are supported. A shared-phone recording identifies the recorder and actual participants; it is not evidence that absent participants contributed. Personal human-factor reflections remain private, while the team discussion is a distinct group record. Neither format overwrites the other. The leader reviews the individual/team debrief records, confirms debrief completion, and explicitly confirms day closing. This does not create debrief contributions for people who did not make them or replace their required individual observation submissions.
+
 ## Workflow
 
 1. Participants review the day’s decisions.

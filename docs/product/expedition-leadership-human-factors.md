@@ -93,7 +93,7 @@ A group may have accurate weather forecasts, reliable avalanche observations and
 
 Open Mountain should therefore evaluate the group’s decision-making conditions alongside environmental and terrain conditions.
 
-Human factors should not be reduced to a numerical safety score.
+Human factors should not be reduced to an overall numerical safety score. The later [human-factor assessment requirements](human-factor-assessment.md) permit a purpose-limited AI human-bias risk indicator from private summaries, separate from the leader-authored public assessment. That indicator is not a safety judgment or psychological diagnosis.
 
 ### 4.1 Key human factors
 

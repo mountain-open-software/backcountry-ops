@@ -10,6 +10,10 @@ The first workflows are [day-trip planning, multi-day trip planning, daily proce
 
 The PWA should support installation and offline use. Cache the application shell with a service worker and store domain data in PouchDB. Application updates and local data migrations must preserve existing records. Mapping and other external data need explicit offline availability rules; caching the application shell alone does not make those resources available offline.
 
+## Voice and event foundation
+
+[Voice-first interaction and event-driven state](events-and-voice.md) is the required direction: speech is transcribed into validated commands, durable accepted events update projected application data, and forms remain optional for targeted corrections. Single-phone unanimous group approval is supported as an attributable event. The existing form-driven direct PouchDB writes are an initial scaffold and must be refactored before claiming this architecture is implemented.
+
 ## JSON-driven rendering
 
 Use versioned JSON definitions to describe screens, forms, and workflow presentation. A React renderer maps supported definition types to a controlled component registry. Keep business rules, permissions, and persistence behind shared interfaces rather than embedding them in presentation definitions.

@@ -17,6 +17,10 @@ A community (the existing organization workspace) contains groups and trips. Use
 
 Every day trip, including one linked to a multi-day trip, owns its daily process and observations. See the [community and trip model](../../architecture/community-trip-model.md) and [leadership requirements](../expedition-leadership-human-factors.md).
 
+## OperationalDay composition
+
+A standalone single-day trip starts with one OperationalDay. If the group splits, copy that day so each group has an independent OperationalDay on the same date. That day owns the daily process, observations, and activities. When linked into a multi-day itinerary, its day view resolves to the corresponding OperationalDay owned by the multi-day trip rather than creating duplicate daily records. See [daily-process ownership](daily-process.md#operationalday-ownership).
+
 ## Workflow
 
 1. Select the active user and organization.
@@ -26,11 +30,15 @@ Every day trip, including one linked to a multi-day trip, owns its daily process
 5. Prepare the required maps and information for offline use.
 6. Save the plan, reopen it in the field, and export it when needed.
 
+## Route and track inputs
+
+Planned routes and recorded tracks are supplied only by file upload or external link to the participant's chosen app. No in-app route drawing, live GPS tracking, or provider API is required. Preserve uploader/source and distinguish planned routes from actual tracks. External links require network access; show this limitation rather than claiming the linked content is cached offline. Validate imported files and preserve original data for independent export.
+
 ## Scope and boundaries
 
 A day trip has no planned overnight stay. Trips with an overnight stay or a planned finish on a later local calendar day use [multi-day trip planning](multi-day-trip-planning.md). Record the trip time zone so dates and times remain consistent when device settings change.
 
-Phase 1 covers trip management, planning, offline maps, field execution, GPS tracking, and GPX export. Phase 2 enriches planning with preserved weather forecasts and recent observations. Observation capture and reporting are specified in [observation reporting](observation-reporting.md); daily review is specified in [daily process](daily-process.md).
+Phase 1 covers trip management, planning, offline maps, field execution, uploaded/linked recorded tracks, and GPX export. Phase 2 enriches planning with preserved weather forecasts and recent observations. Observation capture and reporting are specified in [observation reporting](observation-reporting.md); daily review is specified in [daily process](daily-process.md).
 
 The initial local-only application must remain usable without a backend. Environmental integrations and synchronization add capabilities without becoming prerequisites for opening or editing a local trip.
 
@@ -59,7 +67,7 @@ The initial local-only application must remain usable without a backend. Environ
 
 - A user can associate participants, a route, GPS tracks, and observations with the trip.
 - A user can explicitly download an offline map area, see whether it is ready, and use it with the network disabled. Missing map coverage is clearly indicated.
-- A user can start and stop tracking; recorded locations and timestamps remain available after restart. Permission denial or interrupted capture is visible.
+- Users record GPS tracks in their own apps, then upload a track file or attach an external link (such as Strava or Outmap). Open Mountain does not start/stop tracking. Imported coordinates, timestamps, source, and original file remain available after restart.
 - A trip can be planned and executed without connectivity; captured tracks and observations are persisted locally.
 - Exported GPX opens in an independent GPX consumer and preserves track coordinates and timestamps.
 - Once synchronization is implemented, queued trip changes synchronize after connectivity returns, with visible pending/error/conflict states and no silent data loss.
@@ -72,4 +80,4 @@ The initial local-only application must remain usable without a backend. Environ
 
 ## Current implementation gap
 
-The PWA currently creates, lists, deletes, and backs up basic local trip records. Explicit day-trip classification, trip time zones, departure/return validation, editing, participant management, route geometry, offline maps, GPS tracking, GPX export, environmental integrations, and synchronization remain unimplemented. A cached offline shell is not an offline map package.
+The PWA currently creates, lists, deletes, and backs up basic local trip records. Explicit day-trip classification, trip time zones, departure/return validation, editing, participant management, route/track upload and external links, offline maps, GPX export, environmental integrations, and synchronization remain unimplemented. A cached offline shell is not an offline map package.
