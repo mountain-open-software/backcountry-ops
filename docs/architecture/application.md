@@ -28,9 +28,9 @@ Provide a separate native component registry and platform adapters for storage, 
 
 ## Local persistence now; synchronization later
 
-Use PouchDB with browser-local storage for the PWA. Keep storage access behind repository interfaces so domain logic is independent of database details.
+Use PouchDB with browser-local storage for the PWA. The confirmed target is separate databases per user and per community, with local offline copies; see [database scopes](database-scopes.md). The current single local database is only a scaffold and needs migration. Keep storage access behind repository interfaces so domain logic is independent of database details.
 
-Plan for a future CouchDB backend and PouchDB synchronization. Backend deployment, remote authentication, authorization, replication, conflict resolution, and server-side organization isolation are deferred. There is no remote synchronization or account service in the initial phase.
+The next phase adds [CouchDB collaboration](couchdb-collaboration.md) using its built-in users/authentication, user-set passwords, database security, and PouchDB synchronization. Backend deployment, remote authentication, authorization, replication, conflict resolution, and server-side organization isolation are deferred. There is no remote synchronization or account service in the initial phase.
 
 Use stable record identifiers, explicit organization ownership, schema versions, and source metadata from the start. Keep local storage migrations separate from future API or replication compatibility policies. Define conflict handling, deletion propagation, database topology, and authorized replication scope before enabling synchronization.
 

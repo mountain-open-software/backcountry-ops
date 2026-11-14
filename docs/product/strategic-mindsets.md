@@ -36,7 +36,7 @@ Maintenance is available only through an explicitly configured professional expe
 - Participants may propose an individual mindset alongside their hazard assessment. The group records its selected operating mindset and retains differing proposals and rationale.
 - A mindset is not inferred automatically from a hazard rating or produced by averaging individual responses.
 - Plan A, Plan B, and change triggers must be reviewable alongside the mindset. The user records how the posture affects the plan; selecting a label alone is not a completed briefing.
-- Record a mindset change as an event, preserving the prior value and the evidence/decision that prompted the change. Copying a day preserves the mindset and its historical rationale at the split.
+- Record a mindset change as an event, preserving the prior value and the evidence/decision that prompted the change. Changes preserve the mindset and its historical rationale in the shared day timeline.
 - Missing selection is `not recorded`, not an implicit Status Quo or declaration that conditions are acceptable.
 
 ## Definition of done
@@ -45,4 +45,4 @@ Maintenance is available only through an explicitly configured professional expe
 - The UI distinguishes strategic mindset, individual readiness, and the [structured avalanche assessment](avalanche-hazard-assessment.md).
 - Selection, rationale, evidence, implications, and change triggers persist offline and survive export/import and day copying.
 - Individual proposals remain distinct from the group selection; changes preserve authorship, timestamps, prior versions, and disagreements.
-- Tests cover unsupported vocabulary values, profile configuration, offline persistence, independent proposals, change history, and split-copy lineage. No selection generates an automatic safety claim or terrain authorization.
+- Tests cover unsupported vocabulary values, profile configuration, offline persistence, independent proposals, change history, and day ownership. No selection generates an automatic safety claim or terrain authorization.

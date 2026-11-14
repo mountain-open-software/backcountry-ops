@@ -107,7 +107,7 @@ Objective: Support structured professional workflows.
 
 Deliverables:
 
-- OperationalDay.
+- Professional extensions to the shared OperationalDay foundation.
 - Team management.
 - Participant assignments.
 - Operational briefing.
@@ -122,7 +122,7 @@ Deliverables:
 
 Acceptance criteria:
 
-- Multiple teams can operate within one OperationalDay.
+- Each trip has exactly one OperationalDay per local date. All participants record on that day; separate operating groups require separate trips.
 - Activities and observations can be associated with teams.
 - Professional assessments and decisions are traceable.
 - Professional and recreational modes share the same canonical domain model.
@@ -151,7 +151,7 @@ Acceptance criteria:
 
 ## Relationship to the current scaffold
 
-The repository currently provides a local-only React/Vite PWA, browser PouchDB persistence, JSON screen definitions, shared JavaScript packages, basic local records, organization memberships, backup import/export, and initial automated checks. API and React Native directories are placeholders. Phase 0 is not complete: runnable native/API applications, a complete canonical model and shared type contracts, experience profiles, contribution guidance, and reproducible migration tooling remain to be delivered.
+The repository currently provides a local-only React/Vite PWA, browser PouchDB persistence, JSON screen definitions, shared JavaScript packages, basic local records, organization memberships, backup import/export, and initial automated checks. API and React Native directories are placeholders. Phase 0 is not complete: runnable native/API applications, a complete canonical model and shared type contracts, experience profiles and reproducible migration tooling remain to be delivered. Contribution guidance and CI have been added locally in the monorepo structure review.
 
 The PWA must continue to run without an API. Future locally runnable API services are optional for the web app; API availability must not become a condition for local field capture.
 
@@ -168,3 +168,19 @@ The seven human-factor use cases remain planned. Their definitions of done requi
 ## Route and track scope update
 
 The [agreed daily-process plan](daily-process-plan.txt) supersedes earlier live GPS tracking scope. Open Mountain accepts planned routes and recorded tracks by upload or external link (for example Strava or Outmap). It does not record live tracks or require provider-specific APIs. Imported route/track data must remain exportable; an external link alone does not satisfy offline availability.
+
+## Pre-implementation review
+
+The [process and architecture review](../architecture/process-architecture-review.md) identifies unresolved ownership/link representation, event-storage contracts, participant privacy, report revision semantics, trip/date uniqueness, and voice/offline limits. It separates confirmed product decisions from proposed engineering steps. Basic voice recording may precede Phase 3 transcription/agents; full Phase 0/1 acceptance still requires the deliverables above, including runnable mobile/API foundations (which remain optional dependencies for the PWA) and a defined synchronization transport.
+
+## Deferred day merge
+
+When a confirmed day-trip move encounters an existing destination day/date, merging is the intended future option, labeled **Coming soon**. It is not part of the initial implementation: preserve both records unchanged and prevent a partial move or duplicate day. Schedule merge separately after its history and conflict-resolution contract is defined. See [decision D5](../architecture/review-decisions.md#d5--merge-is-a-coming-soon-feature).
+
+## First-version solo boundary
+
+The [first-version scope](version-one-local.md) is solo, API-free, and has no synchronization. Users maintain independent local copies and manually re-enter information. Group collaboration and synchronization remain future server-phase work. This narrows the first delivery; it does not claim completion of the broader Phase 0/1 acceptance gates, including native/API foundations and synchronization.
+
+## Next delivery milestone — CouchDB collaboration
+
+After the solo local version, add user passwords and collaboration using CouchDB's built-in authentication and database security. Keep per-user private and per-community shared databases, with authorized replication and server-side validation of roles/events. See [the collaboration architecture](../architecture/couchdb-collaboration.md). This milestone specifies delivery order without claiming the broader numbered phases are complete.

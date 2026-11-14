@@ -12,7 +12,7 @@ This monorepo contains a working local-only PWA, shared packages, documentation,
 - [Community and trip model](docs/architecture/community-trip-model.md)
 - [Phased roadmap](docs/product/roadmap.md)
 - [Documentation index](docs/README.md)
-- [Monorepo structure proposal](docs/architecture/monorepo.md)
+- [Monorepo structure](docs/architecture/monorepo.md)
 - [Application architecture](docs/architecture/application.md)
 - [Architecture decisions](docs/architecture/decisions/README.md)
 
@@ -23,19 +23,18 @@ Licensed under the [Apache License 2.0](LICENSE).
 Requires Node.js 22 or newer.
 
 ```sh
-npm install
+npm ci
 npm run dev
 ```
 
 The PWA works entirely in the browser with local PouchDB storage. No API or backend setup is required.
 
 ```sh
-npm test
-npm run build
+npm run check
 npm run preview
 ```
 
-See the [PWA guide](projects/pwa/README.md) for offline testing and backups.
+See the [PWA guide](projects/pwa/README.md) for offline testing and backups, and [CONTRIBUTING.md](CONTRIBUTING.md) for package boundaries and verification commands.
 
 ## Workspace
 
@@ -46,3 +45,7 @@ See the [PWA guide](projects/pwa/README.md) for offline testing and backups.
 - `packages/application`: organization membership and record scoping.
 - `packages/ui-schema`: versioned JSON-compatible screen definitions.
 - `packages/storage-pouchdb`: browser-local persistence.
+
+- `tools`: repository structure checks.
+- `tests`: browser scenarios spanning the application and shared packages.
+- `.github/workflows`: automated verification.

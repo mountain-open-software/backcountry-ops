@@ -23,7 +23,7 @@ Field reporting is each participant recording their own observations, including 
 
 The OperationalDay's field reporting is the collection of these attributed observations. At closing, AI summarizes the submitted individual reports while preserving the source observations. External submission is distinct from capturing and submitting a report within the trip. Personal human-factor sections remain private. Each person submits their own report explicitly; recording observations alone is not submission. A nothing-to-add submission is explicit, not inferred. Preserve participant, day, submitted revision, and submission time as an event. The leader also submits their own report and does not silently submit for others.
 
-The closing AI summary references submitted report revisions and preserves attribution, uncertainty, differences, and original evidence. It cannot read private human-factor sections or the summaries reserved for human-bias assessment. The day may close offline after all individual submissions and the debrief are complete; queue the AI summary for later processing. Summary failure or delay does not block closure or invalidate submissions. Summary approval remains to be decided.
+The closing AI summary references submitted report revisions and preserves attribution, uncertainty, differences, and original evidence. It cannot read private human-factor sections or the summaries reserved for human-bias assessment. The day may close offline after all individual submissions and the debrief are complete; queue the AI summary for later processing. Summary failure or delay does not block closure or invalidate submissions. The assigned leader approves the original and revised closing summaries; pending revisions remain distinct from the last approved version.
 
 ## Automatic context capture
 
@@ -52,7 +52,7 @@ Participants can add or correct observations after the leader closes the Operati
 
 All changes pass through domain validation and are persisted as attributable events; corrections preserve the original values/evidence and observation time alongside correction time. Existing visibility and author permissions continue to apply.
 
-Mark an AI closing summary based on older observation revisions as out of date and queue a refresh. Preserve previous summary versions and their source references. A pending or failed refresh does not change the day's closed status. Tests cover late additions, corrections, offline restart, event replay, and summary revision consistency.
+A post-close correction automatically amends the participant's report without requiring a separate resubmission. Mark an AI closing summary based on older observation revisions as out of date and queue a refresh. Label the new summary revised with a notice of edits after closing, while preserving access to previous approved summaries and source report versions. Generation alone does not approve the revision. Preserve previous summary versions and their source references. A pending or failed refresh does not change the day's closed status. Tests cover late additions, corrections, offline restart, event replay, and summary revision consistency.
 
 ## Workflow
 

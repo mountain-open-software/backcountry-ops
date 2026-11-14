@@ -19,7 +19,7 @@ Every day trip, including one linked to a multi-day trip, owns its daily process
 
 ## OperationalDay composition
 
-The multi-day trip starts with one OperationalDay per trip date, including rest days. If a group splits, copy the affected day into distinct same-date group days, each with its own participants, leader, daily process, and observations. Each linked day-trip itinerary entry resolves to that day's OperationalDay, which owns its daily process, observations, and activities. Linking a day trip must reconcile ownership without duplicating an OperationalDay or its field records. See [daily-process ownership](daily-process.md#operationalday-ownership).
+The multi-day trip has exactly one OperationalDay per trip date, including rest days. All participants record on the shared day; group splits and same-date copies within the trip are not supported. Separate operating groups need separate trips. Each linked day-trip itinerary entry resolves to that day's OperationalDay, which owns its daily process, observations, and activities. Linking a day trip must reconcile ownership without duplicating an OperationalDay or its field records. See [daily-process ownership](daily-process.md#operationalday-ownership).
 
 ## Workflow
 
@@ -30,6 +30,10 @@ The multi-day trip starts with one OperationalDay per trip date, including rest 
 5. Review available environmental information for each stage and prepare maps and information covering the entire itinerary.
 6. Save and reopen the complete plan offline; record progress, tracks, observations, and itinerary changes during the trip.
 7. Review and export the whole trip or individual stages after completion.
+
+## Moving an existing day trip
+
+Adding an existing standalone day trip moves it into this trip/expedition after an explicit confirmation. It does not create an independent copy. Cancel leaves it unchanged. Preserve observations and history, record the ownership/reference change as an event, and avoid partial moves. Exact reference/migration and unlinking contracts remain to be specified. The move must not create a duplicate destination trip/date day. When that date already exists, leave both records unchanged and show **Merge — Coming soon**. Merge is deferred, not an initial implementation requirement. Non-conflicting moves retain the confirmation flow.
 
 ## Route and track inputs
 

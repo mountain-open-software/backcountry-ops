@@ -1,6 +1,8 @@
 # Architecture decision records
 
-Record significant technical decisions here once they have been evaluated. The [monorepo structure](../monorepo.md) remains a proposal.
+Record significant technical decisions here once they have been evaluated. The [monorepo structure](../monorepo.md) describes the current workspace layout and remaining planned components.
+
+- [ADR 0001 — Workspace boundaries and verification](0001-workspace-boundaries-and-verification.md): accepted.
 
 Use filenames such as `0001-short-decision-title.md` and include:
 

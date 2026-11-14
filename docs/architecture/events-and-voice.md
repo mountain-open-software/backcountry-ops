@@ -2,6 +2,10 @@
 
 Status: Required direction; not implemented by the current PWA
 
+## Version-one scope
+
+The [API-free first version](../product/version-one-local.md) is solo: one active local participant/leader, independent local copies, manual re-entry, and no synchronization. Group approval, shared-phone group attestation, and collaborative permissions below are future server-phase requirements. Version-one commands still record distinct local approval, submission, debrief, closing, and correction events.
+
 ## Primary interaction
 
 Voice-to-text is the primary way to use the application. A user speaks an observation, assessment contribution, plan change, decision, or group approval; the app transcribes it, prepares a structured action, and records the corresponding event. Forms remain optional for targeted edits, such as correcting one location, value, or sentence. Typed fallback remains available when speaking is impractical.
@@ -20,6 +24,10 @@ Capture available user, trip/day, time, GPS/accuracy, and evidence context autom
 
 The OperationalDay timeline presents accepted events, including late observations and corrections after closure. Recorded time establishes when the update entered the system; event/observation time remains separately visible. Preserve actor, action, affected records, previous values, and source lineage. Projecting updated state must not erase the original event or hide a later correction by backdating it.
 
+## Review resolutions
+
+The [confirmed review decisions](review-decisions.md) require a confirmation event before moving an existing day trip, separate local-capable user/community databases, server-side AI, and no PINs, and automatic post-close report amendments. Keep approved summary versions accessible; refreshed versions are labeled revised and note the post-close edits. Local public workflows still require no server. These decisions supersede earlier server-only-private-storage wording and explicit resubmission after a correction.
+
 ## Events are the source of state changes
 
 The system records domain events and updates application data from those events. Forms and voice submit commands through the same validation and event path; neither directly overwrites projected state.
@@ -32,7 +40,7 @@ The system records domain events and updates application data from those events.
 
 An event includes event/schema version, event ID/type, community and owning trip/OperationalDay, recorder/actor, event time, recorded time, command/idempotency identifier, affected entity identifiers, expected revision where relevant, and payload or protected evidence references. Record the difference between the person entering an event and people whose responses that event reports.
 
-Event examples: plan revised, observation recorded/corrected, individual assessment recorded, group proposal generated/revised, unanimous approval recorded, approval superseded, group split, and field report revised. Final names and contracts require a domain decision.
+Event examples: plan revised, observation recorded/corrected, individual assessment recorded, group proposal generated/revised, unanimous approval recorded, approval superseded, day created, and field report revised. Final names and contracts require a domain decision.
 
 Reducers must replay deterministically, apply the same event only once, and produce equivalent state after restart. A correction is a new event referencing the prior record/event. Define event version migration, causal ordering, concurrent changes, projection checkpoints, and privacy-aware retention/deletion before production use. This design does not require a particular event-store framework, API, or backend.
 
@@ -65,7 +73,9 @@ A leader approval event references the accepted agreement/version, relevant trig
 
 A departure proposal records the changed terms and obtains unanimous approval against its exact version and applicable roster, which can be captured on a single phone. Until that event is accepted, the proposed departure is not shown as approved. Changes in participation require explicit roster events and reconciliation of approval scope; a person cannot be removed merely to bypass their disagreement.
 
-A copied day retains approval history as a historical snapshot. Subsequent actions must be checked against the applicable agreement and actual group context rather than treating copied approvals as new responses. Record proposal revisions, authority decisions, leader approvals, group approvals, and resulting state updates as events. No approval prevents a participant from declining, stopping, or raising a concern.
+A trip has exactly one OperationalDay per date; all participants continue recording within it. Separate operating groups require separate trips. Record proposal revisions, authority decisions, leader approvals, group approvals, and resulting state updates as events. No approval prevents a participant from declining, stopping, or raising a concern.
+
+Day creation and moves must enforce owning-trip/local-date uniqueness under retries and future concurrent synchronization. This requires a concrete storage consistency strategy; querying first and inserting later alone is insufficient to guarantee it.
 
 ## Individual and team debrief events
 
@@ -75,9 +85,9 @@ Support individual debriefs and a team debrief, or both. A team conversation can
 
 Field reporting means each person recording their observations, not a separate narrative document. Observation events preserve observer and recorder attribution. Each participant explicitly submits their own report or nothing-to-add response as an event tied to the applicable day roster and submitted revision. No observations does not automatically mean finished.
 
-At day closing, AI summarizes submitted reports into a separately versioned, evidence-linked record without changing originals or accessing private human-factor inputs. Record generation, failures, and revisions as events; summary approval remains unresolved. Pending or failed generation never blocks day completion once all participant submissions and the debrief are complete. Persist the generation request offline and retry when processing is available; later generation records a new event without reopening the completed day.
+At day closing, AI summarizes submitted reports into a separately versioned, evidence-linked record without changing originals or accessing private human-factor inputs. Record generation, failures, and revisions as events; the leader approves each original or revised summary version. Pending or failed generation never blocks day completion once all participant submissions and the debrief are complete. Persist the generation request offline and retry when processing is available; later generation records a new event without reopening the completed day.
 
-Record debrief completion and field-reporting completion independently for each OperationalDay. The assigned leader must explicitly confirm day closing through an attributable event referencing the roster, submissions, and debrief records. Neither the last submission nor a debrief event automatically closes the day. A day can transition to complete only when the leader confirms closure and both prerequisites are done; return from the activity or completion of one item is insufficient. Persist the actor, timestamps, and affected versions, and enforce the same rule through commands and replay. Copied group days complete independently. Participants may add or correct observations after closing without reopening the day. Corrections remain events preserving prior versions and distinct observation/recording times. Mark affected AI summaries out of date and queue refresh against the updated observation revisions; retain prior summaries and source references, and prevent in-flight older summaries from appearing current. Completion does not imply publication or disclosure of private material.
+Record debrief completion and field-reporting completion independently for each OperationalDay. The assigned leader must explicitly confirm day closing through an attributable event referencing the roster, submissions, and debrief records. Neither the last submission nor a debrief event automatically closes the day. A day can transition to complete only when the leader confirms closure and both prerequisites are done; return from the activity or completion of one item is insufficient. Persist the actor, timestamps, and affected versions, and enforce the same rule through commands and replay. Different trips' days complete independently. Participants may add or correct observations after closing without reopening the day. Corrections remain events preserving prior versions and distinct observation/recording times. Mark affected AI summaries out of date and queue refresh against the updated observation revisions; retain prior summaries and source references, and prevent in-flight older summaries from appearing current. Completion does not imply publication or disclosure of private material.
 
 ## Definition of done
 
@@ -89,7 +99,7 @@ Record debrief completion and field-reporting completion independently for each 
 - A single-phone unanimous approval event accounts for the exact full roster and exact proposal version, preserving recorder attribution.
 - Tests reject partial approval, ambiguous roster/proposal, and stale approval for departures or changed membership; they distinguish group attestation from independently authenticated approval.
 - Tests permit leader approval of actions within agreed alternatives/triggers and reject leader-only approval of departures. Agreement references, rationale, and trigger evidence survive replay.
-- Tests cover replay, idempotency, revisions/corrections, split lineage, private payload isolation, and export/import of permitted event history.
+- Tests cover replay, idempotency, revisions/corrections, trip/day ownership and uniqueness, private payload isolation, and export/import of permitted event history.
 
 ## Current implementation gap
 

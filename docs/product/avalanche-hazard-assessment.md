@@ -61,8 +61,8 @@ Individual avalanche assessments and the combined group assessment are public to
 - Validation covers known vocabulary, aspects/bands, size bounds/order, and separate likelihood/size fields. Incomplete entries remain identifiable drafts and cannot masquerade as complete assessments.
 - Original individual avalanche assessments remain visible to trip/group participants after group consolidation and later revisions. No automatic group safety score or route-safe result is calculated.
 - The combined assessment identifies its contributors, versions, missing input, rationale, and unresolved differences.
-- Field changes and day copies preserve original evidence, timestamps, and history; copied pre-split problems are not misrepresented as new independent observations.
-- Automated checks cover multiple problems, unknown versus assessed absence, geographic/elevation context, size-range validation, likelihood vocabulary, participant permissions, offline persistence, split copies, and preservation of disagreement.
+- Field changes preserve original evidence, timestamps, and history. Multiple participants record on the same trip/date day, with each contribution attributable.
+- Automated checks cover multiple problems, unknown versus assessed absence, geographic/elevation context, size-range validation, likelihood vocabulary, participant permissions, offline persistence, trip/day uniqueness, and preservation of disagreement.
 
 ## Scope boundary
 

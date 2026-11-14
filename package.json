@@ -11,13 +11,16 @@
     "dev": "npm run dev -w @open-mountain/pwa",
     "build": "npm run build -w @open-mountain/pwa",
     "preview": "npm run preview -w @open-mountain/pwa",
-    "test": "node --test packages/application/test/*.test.js",
-    "test:e2e": "playwright test"
+    "test": "npm run test --workspaces --if-present",
+    "test:e2e": "npm run build && playwright test",
+    "check:structure": "node tools/check-structure.mjs",
+    "check": "npm run check:structure && npm test && npm run build"
   },
   "engines": {
     "node": ">=22"
   },
   "devDependencies": {
     "@playwright/test": "^1.65.1"
-  }
+  },
+  "license": "Apache-2.0"
 }

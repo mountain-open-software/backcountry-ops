@@ -5,7 +5,11 @@ Status: Planned; basic local daily records implemented
 
 ## Goal
 
-A user can follow a repeatable daily cycle: review current information, record expectations, prepare a plan or briefing, capture changes during the day, and close the day with a traceable review. When a group splits, copying the OperationalDay gives each group its own daily process.
+A user can follow a repeatable daily cycle: review current information, record expectations, prepare a plan or briefing, capture changes during the day, and close the day with a traceable review. All participants continue recording against the same OperationalDay. Separate operating groups require separate trips.
+
+## Version-one delivery boundary
+
+The [first version](../version-one-local.md) assumes solo operation with one active local participant/leader. Each user maintains an independent copy and manually retypes information where needed. No synchronization or collaboration is required until a server exists. Apply the daily workflow to the sole local user; retain multi-person rules below as future collaboration requirements rather than blocking initial delivery.
 
 ## Actors and context
 
@@ -21,39 +25,25 @@ Every day trip, including one linked to a multi-day trip, owns its daily process
 
 A trip owns its OperationalDays, whether it is single-day or multi-day:
 
-- A single-day trip starts with one OperationalDay; a group split creates an additional day record by copying it.
-- A multi-day trip starts with an OperationalDay for each trip date, including rest days; separate groups may have distinct OperationalDays on the same date.
+- A single-day trip has exactly one OperationalDay.
+- A multi-day trip has exactly one OperationalDay for each trip date, including rest days. Enforce uniqueness of owning trip plus local date in the trip time zone.
 - Each OperationalDay belongs to exactly one owning trip and contains that day's daily process, observations, activities, assessments, concerns, decisions, and debrief.
-- When the group splits, copy the OperationalDay and assign participants and a trip leader to each resulting group/day. Both records belong to the same trip and may have the same date; their subsequent changes are independent.
+- Group splitting within a trip is not supported. Participants keep adding their own events and observations to the same day. A separately operating group requires a separate trip, not a copied same-date day within this trip.
 - Linked day-trip itinerary views resolve to the corresponding OperationalDay; they must not create a second daily process or duplicate observations.
 
 The trip holds overall objectives and itinerary. The OperationalDay holds the dated preparation, briefing, execution, reassessment, and review. A multi-day summary aggregates its days without replacing their records.
 
-## Copy a day when the group splits
+## Shared day and recorded events
 
-1. The first group continues using the original OperationalDay without resetting its progress or history.
-2. At the split, create a full point-in-time copy for the second group within the same trip and date. Copy everything recorded at that point: plan, route, briefing, participants and roles, readiness, assessments, concerns, decisions, observations, evidence/attachments, process state, field reports, and event history.
-3. Give the copied day and its independently editable records new identifiers. Preserve source identifiers, source versions, original authorship/event times, and the split/copy time and actor. Attachment bytes may be reused through immutable references provided they remain available offline independently of later source changes.
-4. Record the split/copy event and any subsequent participant or leader changes. Existing readiness, decisions, and acknowledgements remain historical facts at their original times; copying does not represent a new response or fresh acknowledgement.
-5. Each group then records its own events, observations, decisions, daily-process updates, and field report. Later changes to either day do not automatically update the other.
+All participants record into the same OperationalDay for a given trip/date. Events retain individual observer/actor and recorder attribution; separate submissions or personal debriefs do not create additional days. Every accepted event, including post-close additions and corrections, appears in the day timeline with event time and recorded time distinguished.
 
-Everything in the source day is included in the snapshot; copying retains existing participant-controlled visibility and recipient permissions rather than granting the second group new access to private material. Copied history is identified as inherited, not as newly performed work.
+No split/copy command creates a second same-date OperationalDay within a trip. Separate operating groups use separate trips. The earlier full-snapshot group-split design is superseded.
 
-### Recorded events
+Acceptance checks reject duplicate trip/date days, keep different participants' observations independently attributable within the shared day, and keep separately created trips' histories distinct. Event replay, interrupted writes, and future synchronization must preserve the same uniqueness rule.
 
-Expose recorded events in the OperationalDay timeline. Show post-close additions and corrections after the closing event at their recorded time, retaining the original event/observation time as separate context. Users can inspect what changed, who recorded it, and the prior version; an edit does not silently erase timeline history.
+## Date conflicts when moving a day
 
-Record the split and subsequent changes with stable event identifiers, owning day, actor, event time, recorded time, affected record identifiers, and source lineage where applicable. Record plan revisions, role/participant changes, observations, decisions, process transitions, and field-report revisions. Corrections retain the prior event history rather than silently rewriting it. This requirement does not prescribe a particular event-sourcing framework.
-
-Shared pre-split events and evidence retain their original provenance. A combined trip report can distinguish inherited history from each group's post-split events and must not count the same original observation twice simply because it appears in both snapshots.
-
-### Definition of done for a split
-
-- Copying works offline and captures a consistent source state at the split, including records and attachments. A failed or interrupted copy is not presented as a complete day.
-- The original day continues unchanged apart from the recorded split event; its existing field report and progress are preserved.
-- The second day contains the full state and historical events recorded at the split, with copy lineage and unchanged visibility rules.
-- Later events and field reports belong to their respective group days and remain independent after restart, export/import, and eventual synchronization.
-- Automated checks verify complete snapshot copying, consistent handling of concurrent source edits, independent later edits/deletions, preserved authorship and event times, attachment availability, access rules, and prevention of double-counting inherited observations in aggregated reports.
+If the destination expedition already has an OperationalDay on that date, show **Merge — Coming soon** and leave both days unchanged. Merge is future scope, not a current implementation task. Never create a second day for the same trip/date or perform a partial move.
 
 ## External routes and tracks
 
@@ -78,6 +68,10 @@ Voice-to-text is the primary interaction for briefing contributions, field repor
 All assessments are public to the trip/group except the personal human-factor section. Individual avalanche/hazard assessments, their evidence and uncertainty, strategic mindset proposals, and the combined group assessment are visible to trip participants; independence means each person forms their assessment before reviewing others, not that those assessments remain confidential.
 
 The exception is each participant's personal human-factor section. It stays private to its author. The leader has their own personal assessment under the same privacy rules as everyone else. AI creates a combined proposal, including a human-bias indicator visible to all participants; the group reviews and approves the exact version before acceptance. AI may read private summaries only to assess human-bias/group-dynamics risk under the purpose limitation below. Public means the authorized trip/group audience, not internet publication or external sharing.
+
+## Confirmed review decisions
+
+[Review resolutions](../../architecture/review-decisions.md) define confirmed movement of existing day trips (with confirmation), separate local-capable user/community databases, server AI, and no PINs, and automatic post-close report amendments with separate approved/revised summary versions. Those rules supersede the earlier server-only-private-storage interpretation.
 
 ## Human-factor assessment privacy
 
@@ -154,11 +148,11 @@ The application can prepare an evidence-linked draft from permitted events and o
 
 A field report is each person's recorded observations for the OperationalDay. Each person submits their own field report. It is not a separate leader-authored narrative or a publication step. AI summarizes the submitted reports at day closing; the summary is a derived record, not a replacement for individual reports. Each participant, including the leader, records observations primarily by voice, with optional targeted corrections. Accepted events update the observation records, preserving observer, recorder where different, location/time, evidence, and revision history.
 
-The day's field reporting consists of these attributed individual observations. The debrief remains the separate group review of expectations, actual activity, human factors, successes, and changes. Public observations do not expose private personal human-factor sections. After a group split, new observations are attributed to the appropriate group's OperationalDay; inherited observations retain their pre-split provenance.
+The day's field reporting consists of these attributed individual observations. The debrief remains the separate group review of expectations, actual activity, human factors, successes, and changes. Public observations do not expose private personal human-factor sections. All participants’ observations remain attributed within the same trip/date OperationalDay; another trip has its own separate day history.
 
 Each participant, including the leader, submits their own report through a recorded submission event identifying the participant, OperationalDay, and submitted observation/report revision. The leader cannot silently submit for everyone. Merely saving observations is not submission. A participant with nothing to add can explicitly submit that outcome; a missing submission remains pending and never means no hazards or agreement.
 
-At day closing, AI summarizes the submitted individual reports. The summary references the exact submitted revisions, preserves source attribution, important differences, uncertainty, and missing information, and excludes private human-factor content and private summaries. Individual observations, evidence, and submissions remain unchanged and available alongside it. Summary generation/failure/revisions are recorded as events. A pending or failed AI summary does not block day completion. The day can close offline once everyone has submitted and the debrief is done; summary generation remains queued until processing is available. Approval requirements for the closing summary remain open.
+At day closing, AI summarizes the submitted individual reports. The summary references the exact submitted revisions, preserves source attribution, important differences, uncertainty, and missing information, and excludes private human-factor content and private summaries. Individual observations, evidence, and submissions remain unchanged and available alongside it. Summary generation/failure/revisions are recorded as events. A pending or failed AI summary does not block day completion. The day can close offline once everyone has submitted and the debrief is done; summary generation remains queued until processing is available. Previously approved summary versions remain accessible; refreshed summaries are labeled revised and explicitly note edits after closing. Generation does not approve a revision. The assigned leader approves original and revised closing summaries against their exact versions; the last approved summary remains accessible while a revision awaits approval.
 
 ## Day completion
 
@@ -169,9 +163,9 @@ An OperationalDay is complete only when **both its debrief and individual field 
 - The leader may close the day even when the summary is pending or failed, provided the debrief and all required individual submissions are complete. Later summary generation does not reopen the day.
 - Only the assigned leader can confirm day closing. Record an explicit day-closing event with leader, recorder where different, timestamps, applicable participant roster, individual submission references, and debrief references.
 - Accept that event only when the debrief is confirmed done and every required participant has submitted their own report or explicit nothing-to-add response. Leader closing confirmation does not fabricate or replace those submissions. Replaying the events must reproduce that state; repeated events must not complete the day twice.
-- After a group split, each group completes its own debrief and field report. One group's completion does not close the other group's day.
+- Each trip/date day has its own completion state. Closing a day does not close a different trip's day on the same date.
 - Participants can add or correct observations after closing without reopening the day. Persist the change as a new attributable event, preserving prior values, original observation time, entry/correction time, and the day-closing event.
-- A post-close observation change marks any existing AI summary based on older revisions as out of date and queues a refreshed summary. Keep earlier summary versions and their source revisions; generation failure does not reopen the day. If a summary request is already pending, ensure processing includes the new accepted revisions or visibly queues a later refresh.
+- A post-close observation change automatically amends that person's report without a separate resubmission, marks any existing AI summary based on older revisions as out of date, and queues a refreshed summary labeled revised with a post-close-edit notice. Previously approved summary/report versions remain accessible. Keep earlier summary versions and their source revisions; generation failure does not reopen the day. If a summary request is already pending, ensure processing includes the new accepted revisions or visibly queues a later refresh.
 - Completion does not automatically publish observations, share private human-factor content, or imply approval of every decision made during the day.
 
 ### Completion definition of done
@@ -179,14 +173,14 @@ An OperationalDay is complete only when **both its debrief and individual field 
 - The UI distinguishes debrief pending, participant submissions pending, AI summary pending/generated/failed, and day complete. Each participant's submission status is explicit.
 - A completion command requires explicit assigned-leader confirmation and is rejected if the debrief or any required participant submission is unfinished; offline event persistence and replay preserve the same result.
 - Tests reject non-leader closure and automatic closure after the final submission, and preserve leader/recorder attribution through offline replay.
-- Tests cover both completion orders, missing participant submissions, explicit nothing-to-add submissions, duplicate events, restart/replay, and independent completion of copied group days.
+- Tests cover both completion orders, missing participant submissions, explicit nothing-to-add submissions, duplicate events, restart/replay, and independent completion of different trips’ days.
 - Tests verify post-close additions/corrections, preserved original evidence and correction history, unchanged closed status, and stale-summary detection/refresh against exact input revisions.
 - Tests verify offline closure with a queued summary, persistence of the queue after restart, later generation without reopening the day, and failure/retry without losing submissions.
 - Tests verify that the AI summary uses submitted revisions only, retains attributable differences and uncertainty, preserves originals, excludes private content, and displays provider failure/offline status without losing reports.
 
 ## Scope and boundaries
 
-The local baseline is a daily planning and review record. Phase 2 adds weather expectations, observations, comparisons, summaries, and briefing presentation. OperationalDay is a shared foundation for both trip variants. Phase 4 extends it with multiple teams, participant assignments, professional assessments, decisions, and reporting.
+The local baseline is a daily planning and review record. Phase 2 adds weather expectations, observations, comparisons, summaries, and briefing presentation. OperationalDay is a shared foundation for both trip variants. Phase 4 extends it with professional participant assignments, professional assessments, decisions, and reporting.
 
 Every day trip has a daily lifecycle/OperationalDay context. The initial generic daily record does not yet implement that relationship or the full professional workflow. Shared domain concepts must support both recreational and professional experience profiles.
 
@@ -203,11 +197,11 @@ Every day trip has a daily lifecycle/OperationalDay context. The initial generic
 ### Local daily workflow baseline
 
 - A user can create, reopen, edit, and delete a daily record with a date, title, information review, objectives/plan, briefing notes, and end-of-day review.
-- Each OperationalDay has a stable identifier, one owning trip, and a local date in the trip time zone. Trip/date is not unique: copied group days have distinct stable identifiers.
-- Single-day trips begin with one day; multi-day trips begin with one for each date in their range, including rest days. Group splits may add same-date copies.
+- Each OperationalDay has a stable identifier, one owning trip, and a local date in the trip time zone. Owning trip plus local date is unique, alongside each day's stable identifier.
+- Single-day trips begin with one day; multi-day trips begin with one for each date in their range, including rest days. No same-date copies are allowed within a trip.
 - Observations and activities reference their OperationalDay without losing provenance.
 - Changing trip dates requires explicit reconciliation of affected days; existing field records are not silently deleted or reassigned.
-- Automated tests allow distinct same-date group days, reject duplicate identifiers and invalid cross-trip observation links, and verify independent edits after copying.
+- Automated tests reject duplicate trip/date days, duplicate identifiers, and invalid cross-trip observation links, and preserve attribution for multiple people recording into one day.
 - Each record retains organization, author, schema version, and creation/update timestamps.
 - Required fields and invalid references are rejected; references cannot silently cross organization boundaries.
 - The complete local cycle works after an offline reload, persists after restart, and is included in export/import.
@@ -222,7 +216,7 @@ Every day trip has a daily lifecycle/OperationalDay context. The initial generic
 
 ### Phase 4 professional completion
 
-- A group split creates separate OperationalDays by copying; each has explicit participants and a leader within the same trip and organization.
+- A trip has one operating group and one OperationalDay per date, with explicit participants and leader. Separate operating groups use separate trips.
 - Activities and observations are associated with the responsible team and OperationalDay within their owning trip; an OperationalDay does not contain multiple trips.
 - Briefings, assessments, and decisions retain author, time, supporting evidence, and revision history.
 - Professional vocabulary and validation are applied through the professional experience profile while retaining the shared canonical domain model.

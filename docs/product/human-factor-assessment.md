@@ -49,13 +49,13 @@ Before enabling this processing, make its purpose and data access clear to parti
 6. Mark the combined assessment accepted only when the agreed group approval rule is satisfied. Pending, rejected, or superseded proposals remain distinguishable from accepted assessments. Every participant must approve, including the leader. One recorder may enter the group's explicit unanimous approval from one phone as a single event containing the full participant roster and exact proposal version. This records group attestation rather than separate authenticated signatures.
 7. Changes that go against the accepted agreement require a revised proposal and unanimous approval. The leader may approve actions within the agreed plan, alternatives, and trigger conditions, recording the authority and rationale as events. See the [field-change approval rules](../architecture/events-and-voice.md#field-changes-and-delegated-leader-approval). Neither approval nor a vote overrides a participant's choice not to proceed.
 
-AI is optional: offline capture and a manually prepared group proposal remain possible without a provider. A missing AI indicator is displayed as unavailable, never as low risk. Proposal generation, revisions, review responses, acceptance, and supersession are recorded as events and preserved in day-copy history.
+AI is optional: offline capture and a manually prepared group proposal remain possible without a provider. A missing AI indicator is displayed as unavailable, never as low risk. Proposal generation, revisions, review responses, acceptance, and supersession are recorded as events and preserved in day history.
 
 See [event-driven state and voice-first interaction](../architecture/events-and-voice.md) for durable event handling and the single-phone unanimous-approval contract. Voice-to-text is primary; targeted form edits are optional.
 
 ## Definition of done
 
-- A participant can create, revise, and reopen their assessment offline with author and OperationalDay context retained.
+- Private assessments can be created/revised offline in the owning user's database, retaining author and OperationalDay context. AI runs on the server when available; private records never enter the community database.
 - Only the participant can access the private assessment through application features. Leader/admin/editor roles do not override that restriction.
 - Group views, reports, exports, and synchronization to other participants exclude private assessment content and private summaries. General group AI context excludes them; only the purpose-limited human-bias assessment may read private summaries.
 - The leader can record a personal assessment with the same public/private boundaries as other participants; role assignment grants no access to their private sections.
@@ -63,10 +63,12 @@ See [event-driven state and voice-first interaction](../architecture/events-and-
 - Tests verify visibility to all group participants, private-section isolation including the leader, proposal versioning, group approval enforcement, approval scope for revisions and delegated field actions, and missing-input behavior.
 - Tests verify that the dedicated AI path receives only permitted summaries, cannot repurpose them for reports or unrelated profiling, and does not leak private inputs through its score, explanations, logs, or errors.
 - Define and validate scoring format, uncertainty, missing-input behavior, and processing consent before exposing scores.
-- Copying a day preserves the individual's private history and its restrictions; it does not expose private payloads in the second group's readable snapshot or event stream.
+- Individual private history remains in the owning user database and is never exposed through the community day event stream.
 - A separately raised concern has its own recipients and provenance without automatically copying private notes.
-- Automated tests cover cross-user access denial, role escalation attempts, reports/exports, split snapshots, event metadata, synchronization scope, and separation of private reflection from group discussion records.
+- Automated tests cover cross-user access denial, role escalation attempts, reports/exports, user/community database boundaries, event metadata, synchronization scope, and separation of private reflection from group discussion records.
 
 ## Implementation boundary
 
-The current PWA uses shared browser storage and unrestricted local profile switching; that is not a privacy boundary. Before implementing sensitive assessments, define participant-specific protected storage, access controls, key handling, backup behavior, and device-sharing constraints. Do not store confidential assessments in the existing all-data backup or claim privacy from UI filtering alone.
+Each user has a separate database for private human-factor data, with a local version available offline. Each community has its own database for shared trip/day data. Scope synchronization by owning user ID or community membership, with future server authorization enforcing that scope. AI runs on the server and reads only permitted private summaries for human-bias assessment. No PINs are introduced.
+
+Local database separation and user filtering are the initial application isolation model, not encryption against direct access to shared browser storage. Keep private events, recordings/transcripts, attachments, and backups in the user scope rather than the community scope. User/session mapping, database naming, recovery, and remote authorization still need concrete contracts. See [decision D2](../architecture/review-decisions.md#d2--separate-user-and-community-databases) and the [database scope plan](../architecture/database-scopes.md).

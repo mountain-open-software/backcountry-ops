@@ -19,7 +19,7 @@ Every day trip, including one linked to a multi-day trip, owns its daily process
 
 ## OperationalDay composition
 
-A standalone single-day trip starts with one OperationalDay. If the group splits, copy that day so each group has an independent OperationalDay on the same date. That day owns the daily process, observations, and activities. When linked into a multi-day itinerary, its day view resolves to the corresponding OperationalDay owned by the multi-day trip rather than creating duplicate daily records. See [daily-process ownership](daily-process.md#operationalday-ownership).
+A standalone single-day trip has exactly one OperationalDay. All participants record on that day; separate operating groups need separate trips. That day owns the daily process, observations, and activities. When linked into a multi-day itinerary, its day view resolves to the corresponding OperationalDay owned by the multi-day trip rather than creating duplicate daily records. See [daily-process ownership](daily-process.md#operationalday-ownership).
 
 ## Workflow
 

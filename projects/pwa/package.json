@@ -19,5 +19,6 @@
   "devDependencies": {
     "vite": "^6.0.0",
     "vite-plugin-pwa": "^1.0.0"
-  }
+  },
+  "license": "Apache-2.0"
 }

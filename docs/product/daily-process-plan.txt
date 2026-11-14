@@ -9,12 +9,11 @@ OperationalDay; a multi-day trip starts with one for each date, including rest
 days. Each OperationalDay owns its daily process, observations, and decisions.
 Multi-day itinerary links resolve to their corresponding operational days.
 
-2. Group split
-The original group continues its existing day. The second group gets a complete
-point-in-time copy of everything recorded at the split. Preserve original
-history, evidence, authorship, timestamps, and privacy rules. Subsequent events,
-observations, decisions, and field reports are independent. Record the split
-and role/participant changes as events. Do not double-count inherited evidence.
+2. One shared day, no group splits
+A trip has exactly one OperationalDay per date. All participants continue
+recording their own observations and events on that shared day. Group splitting
+within a trip and same-date day copies are not supported. Separate operating
+groups must use separate trips. This supersedes the earlier split-copy plan.
 
 3. Morning briefing
 Record the day's objective and strategic operating mindset, Plan A and its
@@ -86,7 +85,7 @@ observations. Saving alone is not submission. A person may explicitly submit
 nothing to add; the leader does not silently submit on others' behalf.
 At closing, AI summarizes submitted reports, preserving originals, sources,
 differences, and uncertainty. Exclude private human-factor content. The closing
-summary's review/approval rule remains open.
+original and revised summaries are approved by the leader.
 
 11. Debrief
 Support individual debriefs, a team debrief recorded together on one phone,
@@ -99,7 +98,7 @@ The leader confirms the debrief is done.
 The leader explicitly confirms day closing after all required individual
 submissions and the debrief are done. Record a closing event; never close
 automatically. The day can close offline while its AI summary is queued.
-Each split group's day closes independently.
+Different trips' days close independently.
 Participants may add or correct observations afterward without reopening the
 day. Show those events in the timeline at recorded time, with observation time
 separately visible. Preserve originals. Mark outdated summaries and queue a
@@ -112,3 +111,40 @@ approval, route/track uploads, external-link handling, AI, and closing workflow
 remain planned. An API is not required for local operation. React Native,
 SQLite, CouchDB/synchronization, and authenticated collaboration remain future
 work as described in the roadmap and architecture documents.
+
+14. Confirmed review resolutions
+Adding an existing standalone day trip moves it into the expedition only after
+explicit confirmation, preserving observations/history rather than copying.
+Each user and community have separate databases, including local copies.
+Private sections remain in the owning user database and work offline. Sync is
+scoped by user ID/community membership. AI runs on the server; no PINs.
+Local workflows remain usable without a backend. Remote authorization and
+user/session/database mapping still require definition.
+Post-close edits automatically amend the report without resubmission and queue
+an updated AI summary. Mark it revised with a post-close-edit notice. Preserve
+previous approved summaries and source report revisions. Generating a revision
+does not approve it; the leader approves original and revised summaries.
+
+15. Day-date conflicts and future merge
+Offer merge when a destination expedition already has a day on that date,
+but label it Coming soon. Merge is deferred, not implemented in the initial
+scope. Leave both records unchanged and do not partially move or duplicate a
+day. Non-conflicting moves still ask for confirmation.
+
+16. API-free first version
+The user sets their own local username profile; keep a stable internal user ID.
+No remote login, API, AI server, or synchronization is required for local use.
+Server AI is visibly not configured rather than presented as running. Manual
+proposals and local capture remain available; missing AI does not block closing.
+Version one assumes solo operation. Each user keeps an independent local copy
+and manually retypes information where necessary. No synchronization or
+shared-device collaboration is required. Server-backed collaboration comes
+later. The sole local participant/leader records their own approval, submission,
+debrief, and explicit closing; those do not act for users on other copies.
+
+17. Next phase: collaboration
+After solo local use, enable collaboration using CouchDB built-in users,
+authentication, and database security. Users can then set passwords. Keep
+private user databases and shared community databases separate, explicitly map
+local profiles to authenticated accounts, and enforce role/event write rules
+on the server. Version one remains password-free and requires no server.
