@@ -1,0 +1,23 @@
+{
+  "name": "open-mountain",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": [
+    "projects/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @open-mountain/pwa",
+    "build": "npm run build -w @open-mountain/pwa",
+    "preview": "npm run preview -w @open-mountain/pwa",
+    "test": "node --test packages/application/test/*.test.js",
+    "test:e2e": "playwright test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1"
+  }
+}

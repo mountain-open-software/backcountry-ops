@@ -1,0 +1,23 @@
+{
+  "name": "@open-mountain/pwa",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@open-mountain/domain": "*",
+    "@open-mountain/application": "*",
+    "@open-mountain/ui-schema": "*",
+    "@open-mountain/storage-pouchdb": "*"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0",
+    "vite-plugin-pwa": "^1.0.0"
+  }
+}
