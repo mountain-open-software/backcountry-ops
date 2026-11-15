@@ -17,7 +17,7 @@ Each participant's own human-factor assessment is private to that participant. T
 Reflection prompts may cover:
 
 - Fatigue, physical limitations, stress, and equipment concerns.
-- Comfort with Plan A and Plan B, need for more information, or a choice not to proceed.
+- Comfort with each proposed plan, need for more information, or a choice not to proceed.
 - Objective fixation, commitment bias, time pressure, social pressure, authority gradients, and reluctance to speak.
 - Personal concerns and uncertainty about the proposed activity.
 

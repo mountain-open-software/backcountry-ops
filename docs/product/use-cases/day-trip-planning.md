@@ -1,7 +1,7 @@
 # Use case 1 — Day-trip planning
 
 Priority: 1  
-Status: Planned; basic local trip records implemented
+Status: Local trip/day planning implemented; full field/environmental integrations remain planned
 
 ## Goal
 
@@ -78,6 +78,8 @@ The initial local-only application must remain usable without a backend. Environ
 - The user can distinguish unavailable, stale, forecast, and observed information.
 - Environmental context is filtered and compared using the trip's geographic, elevation, and time context.
 
-## Current implementation gap
+## Current implementation and remaining gap
 
-The PWA currently creates, lists, deletes, and backs up basic local trip records. Explicit day-trip classification, trip time zones, departure/return validation, editing, participant management, route/track upload and external links, offline maps, GPX export, environmental integrations, and synchronization remain unimplemented. A cached offline shell is not an offline map package.
+See the [solo implementation guide](../solo-version-implementation.md) for the implemented React/TypeScript workflows, event history, databases, recordings, GPX/links, backups, and their limits. Only the sole local participant/leader is represented; no synchronization or server is required.
+
+The broader acceptance criteria above include future collaboration, environmental information, provider integration, protected remote access, native storage, and AI capabilities. Those remain planned. No offline map package, live GPS track recording, automatic transcription guarantee, or generated AI summary is claimed. JSON view customization and day merging are deferred.

@@ -1,6 +1,6 @@
 # Application architecture
 
-Status: Initial local-only PWA scaffold implemented; native app and backend deferred
+Status: Solo React/TypeScript PWA implemented; Expo native app added; backend and JSON customization deferred
 
 ## Initial application
 
@@ -12,19 +12,19 @@ The PWA should support installation and offline use. Cache the application shell
 
 ## Voice and event foundation
 
-[Voice-first interaction and event-driven state](events-and-voice.md) is the required direction: speech is transcribed into validated commands, durable accepted events update projected application data, and forms remain optional for targeted corrections. Single-phone unanimous group approval is supported as an attributable event. The existing form-driven direct PouchDB writes are an initial scaffold and must be refactored before claiming this architecture is implemented.
+[Voice-first interaction and event-driven state](events-and-voice.md) is the required direction: speech is transcribed into validated commands, durable accepted events update projected application data, and forms remain optional for targeted corrections. Single-phone unanimous group approval is supported as an attributable event. The solo app now validates commands, appends accepted events to scoped PouchDB journals, and reconstructs data by replay. The event engine and shared TypeScript contracts are independent of React. Optional browser dictation and offline audio capture provide the current voice path; server extraction remains unavailable.
 
-## JSON-driven rendering
+## Current rendering and future customization
 
-Use versioned JSON definitions to describe screens, forms, and workflow presentation. A React renderer maps supported definition types to a controlled component registry. Keep business rules, permissions, and persistence behind shared interfaces rather than embedding them in presentation definitions.
+Use normal React components with TypeScript and Vite in the current mobile/desktop PWA. This follows the user's latest direction to defer the JSON renderer for simplicity. Reusable React planning/debrief fields stay separate from domain command validation. The old UI-schema package is reserved but is not imported by the app.
 
-Validate definitions before rendering. Treat definitions as data rather than executable code, and provide a clear fallback for unsupported definition versions or component types. The definition schema and renderer library remain to be selected.
+Community and personal JSON-configured views remain future scope. If reintroduced, user overrides should take precedence over community defaults, with controlled component registries and no bypass of domain approval/privacy rules. See [ADR 0002](decisions/0002-solo-event-journals-and-react-ui.md).
 
-## React Native direction
+## Expo native application
 
-Plan for a future React Native application using the same domain model, application services, and JSON presentation definitions where practical.
+The Expo/React Native/TypeScript app in `projects/mobile` implements the solo workflow using shared domain/application packages and a native SQLite adapter. Audio, local files, document picking, sharing, and point location use Expo modules. Metro exports iOS/Android bundles; signed binaries and hardware testing remain separate. See [ADR 0003](decisions/0003-expo-native-sqlite-adapter.md) and the [native guide](../../projects/mobile/README.md).
 
-Provide a separate native component registry and platform adapters for storage, navigation, location, and other device capabilities. Web components, browser APIs, and service workers belong in the PWA project. Validate a suitable native persistence adapter before assuming the browser PouchDB setup can be reused unchanged.
+Platform-specific native and React web components remain separate. The browser persistence package is not imported into native code. Future server synchronization still needs its own contract; native SQLite does not automatically replicate with CouchDB.
 
 ## Local persistence now; synchronization later
 
@@ -65,21 +65,22 @@ Apply the [monorepo proposal](monorepo.md) incrementally:
 ```text
 projects/
   pwa/                     # React, Vite, service worker, web components
-  mobile/                  # Future React Native application
+  mobile/                  # Expo/React Native solo app
 packages/
   domain/                  # Domain types, identifiers, and membership model
   application/             # Use cases and platform-independent services
   ui-schema/               # JSON definitions, versions, and validation
-  storage-pouchdb/          # Local persistence adapter
+  storage-pouchdb/          # Browser persistence adapter
+  storage-sqlite/           # Expo native SQLite adapter
 deploy/                    # Static hosting now; backend deployment later
 ```
 
-The PWA and shared packages are scaffolded; mobile and API directories contain documentation placeholders. Add further directories with their implementation. Keep platform-specific renderers in their application until shared code has a demonstrated consumer.
+The PWA and Expo native app are implemented for solo local use; only the API directory remains a documentation placeholder. Add further directories with their implementation. Keep platform-specific renderers in their application until shared code has a demonstrated consumer.
 
 ## Delivery phases
 
 The [phased roadmap](../product/roadmap.md) defines delivery phases 0–5 and their acceptance gates. The [use cases](../product/use-cases.md) define the goals and definitions of done for day-trip planning, multi-day trip planning, daily process, and observation reporting.
 
-The current local-only PWA is an initial foundation, not a completed Phase 0 or Phase 1. API and native applications still need runnable foundations. The PWA remains independent of the API.
+The current local-only PWA is an initial foundation, not a completed Phase 0 or Phase 1. The API still needs a runnable foundation, and native device verification remains outstanding. The PWA remains independent of the API.
 
-Phase 1 introduces local SQLite and basic synchronization. Before implementing them, record the storage and synchronization design, including native/browser differences, attachment handling, migrations, conflict resolution, and how SQLite relates to the planned CouchDB backend. The existing browser PouchDB adapter does not satisfy the SQLite or reproducible migration requirements.
+Native SQLite journals, transactional schema migration, and attachment indexing are implemented in ADR 0003. Future synchronization still needs a contract for native/browser differences, conflicts, and the CouchDB relationship. Neither SQLite nor PouchDB alone supplies those domain-level synchronization rules.

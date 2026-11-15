@@ -1,0 +1,42 @@
+/* Generated from @open-mountain/design-system. Run npm run design:generate. */
+:root {
+  --om-color-primary: #173f36;
+  --om-color-on-primary: #ffffff;
+  --om-color-primary-hover: #285b4a;
+  --om-color-primary-container: #e3ecd9;
+  --om-color-on-primary-container: #2d4d31;
+  --om-color-background: #f4f3ed;
+  --om-color-surface: #fffef9;
+  --om-color-surface-variant: #eef1e6;
+  --om-color-field: #fffefa;
+  --om-color-text: #223d36;
+  --om-color-muted: #5f705f;
+  --om-color-outline: #788973;
+  --om-color-outline-variant: #d6ddcf;
+  --om-color-focus: #a36b18;
+  --om-color-error: #7e3020;
+  --om-color-on-error: #ffffff;
+  --om-color-error-container: #f4dfd6;
+  --om-space-xs: 4px;
+  --om-space-sm: 8px;
+  --om-space-md: 12px;
+  --om-space-lg: 16px;
+  --om-space-xl: 20px;
+  --om-space-xxl: 24px;
+  --om-space-section: 32px;
+  --om-space-page: 40px;
+  --om-radius-small: 8px;
+  --om-radius-medium: 12px;
+  --om-radius-large: 16px;
+  --om-radius-pill: 999px;
+  --om-type-label: 13px;
+  --om-type-body: 16px;
+  --om-type-supporting: 14px;
+  --om-type-caption: 12px;
+  --om-type-title: 24px;
+  --om-type-display: 38px;
+  --om-control-min-height: 48px;
+  --om-control-focus-width: 3px;
+  --om-opacity-disabled: 0.45;
+  --om-opacity-pressed: 0.7;
+}

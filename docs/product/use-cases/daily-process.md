@@ -1,7 +1,7 @@
 # Use case 3 — Daily process
 
 Priority: 3  
-Status: Planned; basic local daily records implemented
+Status: Solo event-driven daily workflow implemented; collaborative/server requirements remain planned
 
 ## Goal
 
@@ -83,8 +83,8 @@ The morning process must capture:
 
 1. **Objective for the day:** What the group wants to do or achieve, distinct from the route chosen to achieve it.
 2. **Strategic mindset:** Record the day's operating posture using the [strategic mindset vocabulary](../strategic-mindsets.md), with rationale, evidence, terrain implications, and change triggers. This is distinct from personal readiness, mood, and human-factor reflections. Individual mindset proposals can differ from the selected group posture.
-3. **Plan A — where we go:** The intended destination, route/terrain, timing, and relevant hazards, with the supporting conditions information and uncertainty.
-4. **Plan B:** A concrete alternative destination/route or course of action, with its hazards and limitations. It must not be labeled safe simply because it is an alternative.
+3. **Ordered plans — where we go:** Maintain one or more plans in preference order, labeled A, B, C, D and onward. Each records its destination, route/terrain, timing or course of action, hazards, limitations and uncertainty.
+4. **Manage alternatives:** Add, remove and move plans up/down. Labels follow their current order; stable plan IDs keep content and hazards attached to the same option. No alternative is labeled safe simply because it is an alternative. At least one plan remains. Review change conditions after reordering; saving a changed order invalidates the previous approval.
 5. **Conditions that trigger a plan change:** Explicit observed or expected conditions, thresholds where appropriate, or timing/readiness concerns that cause the group to reconsider Plan A. Record the intended response, such as reassess, switch to Plan B, turn back, or stop; a trigger is not an automated safety decision.
 6. **Individual hazard assessments:** Each participant independently records their assessment of the proposed plans and conditions before viewing the combined assessment. For avalanche hazards, use the [four-question CMAH structure](../avalanche-hazard-assessment.md): problem type, location, likelihood, and destructive size for each problem. Preserve author, time, relevant plan/briefing version, evidence, uncertainty, and concerns. Unsubmitted or unavailable responses remain explicitly missing.
 7. **Combined group assessment:** Bring together the public individual hazard assessments, discuss agreement and differences, and record the group's assessment, selected plan, rationale, and unresolved concerns. Combining does not average hazard ratings, erase disagreement, or imply that every participant agreed to proceed.
@@ -107,7 +107,7 @@ Acceptance checks distinguish an agreed Plan B transition from a departure beyon
 - Accepted events update the read model; targeted form corrections use the same domain validation and event path. Replay/idempotency and interrupted-write recovery are tested.
 
 
-- Objective, mindset contributions, Plan A with hazards, Plan B with hazards, and explicit plan-change triggers can be recorded and reopened offline for the OperationalDay.
+- Objective, mindset contributions, an ordered list of plans with their individual hazards, and explicit plan-change triggers can be recorded and reopened offline for the OperationalDay.
 - Strategic mindset uses a versioned operating vocabulary rather than a psychological score; individual proposals and the group selection remain distinct.
 - Avalanche assessments support multiple problems with separate type, location, likelihood, and size estimates; missing information is explicit. Other mountain hazards retain their own appropriate structure.
 - Each participant can privately reflect on readiness, comfort, and human factors; the group cannot view or automatically combine those private records. Group discussion contributions are separate records. The leader has a personal assessment like every participant. AI prepares a combined proposal visible to everyone; purpose-limited AI may use private summaries for human-bias risk assessment only. The group reviews and approves the proposal before it becomes accepted.
@@ -229,6 +229,16 @@ Every day trip has a daily lifecycle/OperationalDay context. The initial generic
 - Independent assessments, readiness checks, concerns, checkpoint decisions, disagreements, and debriefs meet the linked human-factor use-case definitions of done.
 - Shared reports exclude private material unless explicitly authorized; editor publication does not imply all participants agreed with every decision.
 
-## Current implementation gap
+## Current implementation and remaining gap
 
-The PWA currently creates, lists, deletes, and backs up daily records containing a title, date, and notes. Editing, structured daily stages, links to trips/observations, weather review, OperationalDay, teams, and traceable professional decisions remain unimplemented.
+See the [solo implementation guide](../solo-version-implementation.md) for the implemented React/TypeScript workflows, event history, databases, recordings, GPX/links, backups, and their limits. Only the sole local participant/leader is represented; no synchronization or server is required.
+
+The broader acceptance criteria above include future collaboration, environmental information, provider integration, protected remote access, native storage, and AI capabilities. Those remain planned. No offline map package, live GPS track recording, automatic transcription guarantee, or generated AI summary is claimed. JSON view customization and day merging are deferred.
+
+### Ordered-plan acceptance checks
+
+- Native and PWA support the same Add plan, Move up/down and Remove actions; one plan cannot be removed until another exists.
+- Reordering updates letters A/B/C onward without detaching hazards from their plan. Shared change-trigger text remains intact for review.
+- Draft order recovers offline; saving a changed list creates a new briefing version requiring explicit approval.
+- Legacy A/B records and drafts open as two ordered plans; original historical events remain unchanged.
+- Current local storage supports up to 100 plans per briefing, subject to the existing total event-size cap. All plans must include content and hazards (or an explicit unknown) before approval.

@@ -1,6 +1,6 @@
 # Version one — Local operation without an API
 
-Status: Confirmed solo/local runtime boundary; delivery slice proposed, implementation pending
+Status: Solo local slice implemented; see [implementation and limits](solo-version-implementation.md) for exact coverage.
 
 ## Confirmed runtime boundary
 
@@ -12,21 +12,21 @@ Use the confirmed separate user/community database topology. A username alone do
 
 The local user is the sole active participant and leader for this version. Their explicit approval satisfies the one-person roster; their own submission, debrief, and leader closing remain distinct events. This does not approve anything on behalf of people using other local copies or claim the wider group has consented.
 
-Morning objectives, hazard assessment, Plan A/Plan B, mindset, observations, and debrief remain useful in solo mode. Full group proposals, unanimous multi-person approvals, delegated shared-phone recording, team debrief attendance, and multi-user authorization are retained as future collaboration requirements, not first-version acceptance gates.
+Morning objectives, hazard assessment, ordered plans, mindset, observations, and debrief remain useful in solo mode. Full group proposals, unanimous multi-person approvals, delegated shared-phone recording, team debrief attendance, and multi-user authorization are retained as future collaboration requirements, not first-version acceptance gates.
 
 Do not add a replication scheduler, synchronization configuration, automatic reconciliation, or cross-device account flow now. Manual re-entry is the initial workflow. Backup/export remains for local recovery and independent data use, not a promised collaborative merge mechanism.
 
-## Recommended first-version slice
+## Agreed first-version slice
 
 - Local profile and community setup; create a trip and its date-scoped OperationalDays.
 - Individual assessments and a manually prepared plan/proposal approved by the sole local participant; retain the future multi-person rules in the domain plan without requiring collaboration UI now.
-- Plan A, Plan B, strategic mindset, hazards, and agreed change triggers.
+- Ordered plans, strategic mindset, hazards, and agreed change triggers.
 - Attributed observation recording and timeline, primarily voice capture with typed/targeted edits when transcription is unavailable.
 - Own report submission, personal debrief, and explicit local leader closing. Post-close corrections preserve history and do not reopen the day.
 - Route/track file upload or external links; no live GPS track recording or route drawing.
 - Scoped export/import and attachment backups so local browser data is recoverable.
 
-This is a proposed delivery slice, not a declaration that the current scaffold implements it or that the full roadmap's Phase 0/1 acceptance gates are met.
+The [implemented slice](solo-version-implementation.md) uses normal React/TypeScript components. JSON view customization is deferred. This does not complete the full roadmap's Phase 0/1 acceptance gates, native/API foundations, or synchronization.
 
 ## Server-dependent features
 

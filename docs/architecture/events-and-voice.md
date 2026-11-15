@@ -1,6 +1,6 @@
 # Event-driven state and voice-first interaction
 
-Status: Required direction; not implemented by the current PWA
+Status: Solo command/event journals and timeline implemented; server AI and collaboration deferred
 
 ## Version-one scope
 
@@ -101,6 +101,6 @@ Record debrief completion and field-reporting completion independently for each 
 - Tests permit leader approval of actions within agreed alternatives/triggers and reject leader-only approval of departures. Agreement references, rationale, and trigger evidence survive replay.
 - Tests cover replay, idempotency, revisions/corrections, trip/day ownership and uniqueness, private payload isolation, and export/import of permitted event history.
 
-## Current implementation gap
+## Current implementation and remaining gap
 
-The PWA currently uses forms and directly writes PouchDB documents. It does not yet implement voice capture/transcription, validated domain commands, an authoritative event log, replayable projections, or group approval events. PouchDB revision history alone does not satisfy these requirements.
+The solo PWA uses validated commands and durable per-user/per-community event journals with replay, versioned solo approvals, own submissions, debrief, leader closing, and post-close correction events. It captures audio offline and optionally uses browser dictation; server extraction and collaborative approvals remain unimplemented. The local storage consistency/backup limits are defined in [ADR 0002](decisions/0002-solo-event-journals-and-react-ui.md), and the [implementation guide](../product/solo-version-implementation.md) distinguishes available behavior from future requirements.

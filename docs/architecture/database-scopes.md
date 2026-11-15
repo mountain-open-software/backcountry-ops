@@ -1,6 +1,6 @@
 # User and community database scopes
 
-Status: User-confirmed topology; storage contracts and implementation pending
+Status: Separate local user/community databases implemented; server security and synchronization pending
 
 ## Version-one boundary
 

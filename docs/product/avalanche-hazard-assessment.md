@@ -51,7 +51,7 @@ Individual avalanche assessments and the combined group assessment are public to
 3. Consolidate public individual hazard assessments; exclude private human-factor content. Retain each original assessment and identify missing responses.
 4. Compare problem types, locations, likelihoods, sizes, and differing interpretations side by side. Do not replace disagreement with an average, majority rating, or safety score.
 5. The group discusses the differences and records its combined assessment with rationale and source contribution/version references. Record unresolved disagreement explicitly.
-6. Link the combined assessment to the selected mindset, Plan A/Plan B hazards, terrain implications, and conditions triggering a plan change. Those are related but distinct records.
+6. Link the combined assessment to the selected mindset, each ordered plan’s hazards, terrain implications, and conditions triggering a plan change. Those are related but distinct records.
 7. Field observations can prompt a revision. Preserve prior assessments and record the change and resulting decision as events.
 
 ## Definition of done

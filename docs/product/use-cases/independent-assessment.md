@@ -13,7 +13,7 @@ Applies to a community/group day trip, including a day trip linked to a multi-da
 ## Workflow
 
 1. The group receives the same conditions briefing.
-2. Each participant independently records an individual hazard assessment for Plan A and Plan B, with evidence, uncertainty, and concerns.
+2. Each participant independently records an individual hazard assessment for each proposed plan, with evidence, uncertainty, and concerns.
 3. The application combines public hazard assessments, retaining each original contribution and identifying missing responses. Personal human-factor sections remain excluded.
 4. Areas of agreement and disagreement are presented.
 5. The group discusses the differences.
@@ -48,7 +48,7 @@ Follow the [proposal review and group approval lifecycle](../human-factor-assess
 - A participant can save an independent assessment offline without first viewing other responses.
 - Public hazard-assessment consolidation preserves disagreement and does not imply consensus from missing responses.
 - The combined assessment references the specific versions of contributions and alternatives without overwriting independent originals, averaging them into a group safety score, or treating a missing response as agreement.
-- Plan A and Plan B have explicit hazards. Plan-change conditions and intended responses are retained alongside the selected plan.
+- Each ordered plan has explicit hazards. Plan-change conditions and intended responses are retained alongside the selected plan.
 - Strategic mindset is an explicit operating-posture selection with rationale, not an inferred psychological state. Personal readiness and human-factor reflections remain separate and follow participant-controlled visibility.
 - Automated checks verify domain validation, organization/community scope, offline save/reopen, and the use case’s access and sharing rules. Multi-device delivery is verified only once an authenticated transport exists.
 

@@ -1,6 +1,6 @@
 # Community, group, and trip model
 
-Status: Proposed domain requirements; not implemented
+Status: Solo trip/day ownership implemented; groups and server collaboration remain planned
 
 ## Ownership and participation
 

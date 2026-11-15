@@ -35,7 +35,7 @@ Maintenance is available only through an explicitly configured professional expe
 - Individual strategic mindset proposals and hazard assessments are public to the authorized trip/group; personal human-factor sections remain private.
 - Participants may propose an individual mindset alongside their hazard assessment. The group records its selected operating mindset and retains differing proposals and rationale.
 - A mindset is not inferred automatically from a hazard rating or produced by averaging individual responses.
-- Plan A, Plan B, and change triggers must be reviewable alongside the mindset. The user records how the posture affects the plan; selecting a label alone is not a completed briefing.
+- Ordered plans and change triggers must be reviewable alongside the mindset. The user records how the posture affects the plan; selecting a label alone is not a completed briefing.
 - Record a mindset change as an event, preserving the prior value and the evidence/decision that prompted the change. Changes preserve the mindset and its historical rationale in the shared day timeline.
 - Missing selection is `not recorded`, not an implicit Status Quo or declaration that conditions are acceptable.
 

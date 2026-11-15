@@ -16,8 +16,10 @@ within a trip and same-date day copies are not supported. Separate operating
 groups must use separate trips. This supersedes the earlier split-copy plan.
 
 3. Morning briefing
-Record the day's objective and strategic operating mindset, Plan A and its
-hazards, Plan B and its hazards, and conditions triggering a plan change.
+Record the day's objective and strategic operating mindset, an ordered list
+of plans (A, B, C onward), each plan's hazards, and conditions triggering
+a plan change. Plans can be added, removed and reordered; saving a change
+requires renewed approval. Existing A/B records remain readable.
 Everyone, including the leader, records an individual assessment before the
 group combines them. Retain differing views and unresolved concerns.
 
@@ -148,3 +150,18 @@ authentication, and database security. Users can then set passwords. Keep
 private user databases and shared community databases separate, explicitly map
 local profiles to authenticated accounts, and enforce role/event write rules
 on the server. Version one remains password-free and requires no server.
+
+18. Rendering and implementation update
+Use normal React components with TypeScript and Vite for mobile and desktop.
+Community/personal JSON view rendering is deferred for simplicity. The solo
+event-driven workflow is now implemented locally; see solo-version-implementation.md
+for exact coverage, recording/backup limits, and features still deferred.
+Server AI, collaboration, synchronization, native builds, and merging remain
+unavailable; this does not complete all Phase 0/1 roadmap gates.
+
+19. Expo native companion
+An Expo/React Native/TypeScript app now shares the solo command/event engine.
+Native SQLite implements one database per user/community; local files retain
+audio and GPX evidence. iOS/Android bundles export, but signed binaries and
+actual device testing are not provided by this cloud workspace. No server, AI,
+synchronization, JSON renderer, or day merging is introduced.
