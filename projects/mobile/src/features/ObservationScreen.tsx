@@ -1,3 +1,5 @@
+import { useDraft } from '../useDraft';
+import { DraftStatus } from '../components/DraftStatus';
 import { tokens } from '@open-mountain/design-system';
 import React, { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
@@ -55,17 +57,21 @@ export function ObservationScreen({
     audioId: null,
     audioName: null,
   });
-  const [values, setValues] = useState<Observation>(blank),
+  const [values, setValues, draft, draftSession] = useDraft<Observation>(
+      storage,
+      data.userId,
+      `${data.communityId}:${day.id}:observation`,
+      blank(),
+    ),
     [audio, setAudio] = useState<{ uri: string; name: string; mime: string } | null>(null),
-    [locating, setLocating] = useState(false);
+    [locating, setLocating] = useState(false),
+    [audioSaving, setAudioSaving] = useState(false);
   const update = <K extends keyof Observation>(key: K, value: Observation[K]) =>
     setValues((v) => ({ ...v, [key]: value }));
   async function save() {
     const ok = await run(
       async () => {
-        const audioId = audio
-          ? await storage.putFile('community', data.communityId, audio.uri, audio.name, audio.mime)
-          : values.audioId;
+        const audioId = values.audioId;
         await command(values.id ? 'ObservationCorrected' : 'ObservationRecorded', {
           ...values,
           dayId: day.id,
@@ -80,8 +86,42 @@ export function ObservationScreen({
         : 'Observation saved. Submit your report when done.',
     );
     if (ok) {
-      setValues(blank());
+      await draftSession.reset(blank());
       setAudio(null);
+    }
+  }
+  useEffect(() => {
+    let active = true;
+    if (values.audioId && !audio)
+      storage
+        .fileUri('community', data.communityId, values.audioId)
+        .then((file) => {
+          if (active) setAudio({ uri: file.uri, name: file.name, mime: file.mime });
+        })
+        .catch((error) => {
+          if (active) setError(`Draft recording is missing: ${error.message}`);
+        });
+    return () => {
+      active = false;
+    };
+  }, [values.audioId, data.communityId]);
+  async function stageAudio(asset: { uri: string; name: string; mime: string }) {
+    setAudioSaving(true);
+    try {
+      const audioId = await storage.putFile(
+        'community',
+        data.communityId,
+        asset.uri,
+        asset.name,
+        asset.mime,
+      );
+      const file = await storage.fileUri('community', data.communityId, audioId);
+      setValues((value) => ({ ...value, audioId, audioName: asset.name }));
+      setAudio({ ...asset, uri: file.uri });
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setAudioSaving(false);
     }
   }
   async function locate() {
@@ -120,25 +160,33 @@ export function ObservationScreen({
   return (
     <View style={styles.section}>
       <Card>
-        <Heading>{values.id ? 'Correct observation' : 'Capture observation'}</Heading>
+        <Heading>{values.id ? 'Correct an observation' : 'Capture observation'}</Heading>
         <Note>
           {day.closedAt
             ? 'Day closed. Late additions/corrections appear in its timeline.'
             : 'Your own offline field report.'}{' '}
           Author: {data.personal.profile!.username}.
         </Note>
+        <DraftStatus draft={draft} />
+        {audioSaving && <Note>Saving audio preview…</Note>}
         <RecordingCapture
-          disabled={busy}
+          disabled={busy || audioSaving}
           onError={setError}
           onCapture={(uri) =>
-            setAudio({ uri, name: `observation-${Date.now()}.m4a`, mime: 'audio/mp4' })
+            void stageAudio({ uri, name: `observation-${Date.now()}.m4a`, mime: 'audio/mp4' })
           }
         />
         {audio && (
           <View style={styles.section}>
             <Note>Unsaved audio preview: {audio.name}. Save the observation to keep it.</Note>
             <AudioPlayback uri={audio.uri} />
-            <Button title="Remove new recording" onPress={() => setAudio(null)} />
+            <Button
+              title="Remove new recording"
+              onPress={() => {
+                setAudio(null);
+                setValues((value) => ({ ...value, audioId: null, audioName: null }));
+              }}
+            />
           </View>
         )}
         <Button
@@ -152,7 +200,11 @@ export function ObservationScreen({
               });
               if (!picked.canceled) {
                 const file = picked.assets[0];
-                setAudio({ uri: file.uri, name: file.name, mime: file.mimeType || 'audio/mp4' });
+                await stageAudio({
+                  uri: file.uri,
+                  name: file.name,
+                  mime: file.mimeType || 'audio/mp4',
+                });
               }
             })
           }
@@ -188,14 +240,14 @@ export function ObservationScreen({
         <Button
           primary
           title={values.id ? 'Save correction' : 'Save observation'}
-          disabled={busy}
+          disabled={busy || audioSaving}
           onPress={() => void save()}
         />
         {values.id && (
           <Button
             title="Cancel correction"
             onPress={() => {
-              setValues(blank());
+              void draftSession.reset(blank());
               setAudio(null);
             }}
           />

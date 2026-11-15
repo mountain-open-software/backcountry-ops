@@ -77,16 +77,19 @@ export function Button({
   onPress,
   disabled = false,
   primary = false,
+  selected,
 }: {
   title: string;
   onPress: () => void;
   disabled?: boolean;
   primary?: boolean;
+  selected?: boolean;
 }) {
   return (
     <PaperButton
       mode={primary ? 'contained' : 'outlined'}
       accessibilityLabel={title}
+      accessibilityState={{ selected, disabled }}
       disabled={disabled}
       onPress={onPress}
       style={styles.button}

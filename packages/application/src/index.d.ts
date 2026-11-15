@@ -43,3 +43,38 @@ export function requireMembership(
   userId: string,
   organizationId: string,
 ): void;
+export interface DraftRecord {
+  revision: number;
+  value: unknown;
+  updatedAt: string;
+}
+export interface DraftStore {
+  readDraft(userId: string, key: string): Promise<DraftRecord | null>;
+  writeDraft(
+    userId: string,
+    key: string,
+    value: unknown,
+    expectedRevision: number,
+  ): Promise<DraftRecord>;
+}
+export interface DraftSnapshot<T> {
+  value: T;
+  status: 'loading' | 'clean' | 'recovered' | 'saving' | 'saved' | 'error';
+  recovered: boolean;
+  error: string;
+}
+export interface DraftSession<T> {
+  getSnapshot(): DraftSnapshot<T>;
+  subscribe(listener: () => void): () => void;
+  set(value: T | ((old: T) => T)): void;
+  clear(): Promise<void>;
+  reset(value: T): Promise<void>;
+  flush(): Promise<void>;
+  ready: Promise<void>;
+}
+export function createDraftSession<T>(
+  storage: DraftStore,
+  userId: string,
+  key: string,
+  initialValue: T,
+): DraftSession<T>;

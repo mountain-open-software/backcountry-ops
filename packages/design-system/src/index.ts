@@ -25,3 +25,13 @@ export const tokens = {
   control: { minHeight: 48, focusWidth: 3 },
   opacity: { disabled: 0.45, pressed: 0.7 },
 } as const;
+
+/** Identical navigation order and labels on phone, native and desktop. */
+export const dailyScreens = [
+  { id: 'briefing', label: 'Briefing' },
+  { id: 'observations', label: 'Observations' },
+  { id: 'debrief', label: 'Debrief & close' },
+  { id: 'timeline', label: 'Timeline' },
+  { id: 'routes', label: 'Routes & exports' },
+] as const;
+export type DailyScreen = (typeof dailyScreens)[number]['id'];

@@ -269,7 +269,7 @@ p {
 }
 .workflow-nav {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 6px;
   margin: 0 0 24px;
 }
@@ -657,7 +657,7 @@ summary {
     display: none;
   }
 }
-@media (max-width: 720px) {
+@media (max-width: 899px) {
   .shell {
     padding: 0 16px;
   }
@@ -730,7 +730,7 @@ summary {
     font-size: 29px;
   }
   .workflow-nav {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 4px;
     position: sticky;
     top: 0;
@@ -828,5 +828,97 @@ summary {
   textarea,
   select {
     font-size: 16px;
+  }
+}
+
+/* Browser windows, installed PWAs, and API full screen share the same layout. */
+html,
+body,
+#root {
+  min-height: 100%;
+  width: 100%;
+}
+body {
+  min-height: 100svh;
+}
+:fullscreen {
+  background: var(--om-color-background);
+  overflow: auto;
+}
+.fullscreen-control {
+  display: flex;
+  align-items: center;
+  gap: var(--om-space-sm);
+}
+.fullscreen-control button {
+  font-size: 12px;
+  white-space: nowrap;
+}
+@media (max-width: 899px) {
+  header {
+    flex-wrap: wrap;
+    padding-top: env(safe-area-inset-top);
+  }
+  .header-meta {
+    flex-wrap: wrap;
+  }
+  .shell {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+  footer {
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+}
+@media (display-mode: standalone), (display-mode: fullscreen) {
+  .shell {
+    min-height: 100svh;
+  }
+  header {
+    padding-top: max(12px, env(safe-area-inset-top));
+  }
+}
+
+@media (max-width: 899px) {
+  h1,
+  h2 {
+    font-family: inherit;
+    letter-spacing: normal;
+    font-weight: 600;
+  }
+  p,
+  .hint,
+  .meta {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  label,
+  button {
+    font-size: 14px;
+  }
+  .workflow-nav button {
+    font-size: 14px;
+    min-height: 48px;
+    padding: 10px;
+    display: flex;
+  }
+  .nav-index {
+    display: none;
+  }
+  .workflow-nav button:last-child {
+    grid-column: 1 / -1;
+  }
+  .trip-list {
+    display: grid;
+    overflow: visible;
+  }
+  .trip-choice {
+    max-width: none;
+    min-width: 0;
+  }
+  .extras {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
   }
 }

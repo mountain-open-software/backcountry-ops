@@ -1,3 +1,5 @@
+import { dailyScreens, type DailyScreen } from '@open-mountain/design-system';
+import { FullscreenToggle } from './components/FullscreenToggle';
 import { Button, Panel } from './components/ui';
 import React, { useState } from 'react';
 import { useWorkspace } from './useWorkspace';
@@ -17,7 +19,7 @@ export default function App() {
   const { data, loading, busy, error, message, run, createProfile, restore, command } = workspace;
   const [tripId, setTripId] = useState(''),
     [date, setDate] = useState(''),
-    [tab, setTab] = useState('briefing');
+    [tab, setTab] = useState<DailyScreen>('briefing');
   const [tripDates, setTripDates] = useState({ start: today(), end: today() });
   const trips = Object.values(data?.state?.trips || {}).filter((t) => !t.movedTo);
   const trip = trips.find((t) => t.id === tripId) || trips[0];
@@ -33,6 +35,7 @@ export default function App() {
           △ <span>OPEN MOUNTAIN</span>
         </a>
         <div className="header-meta">
+          <FullscreenToggle />
           <span className="status-dot" /> Solo · local only
           {data && <span className="user-chip">{data.personal.profile!.username}</span>}
         </div>
@@ -298,14 +301,7 @@ export default function App() {
                     </label>
                   </section>
                   <nav className="workflow-nav" aria-label="Daily workflow">
-                    {(
-                      [
-                        { id: 'briefing', label: 'Briefing' },
-                        { id: 'observations', label: 'Observations' },
-                        { id: 'debrief', label: 'Debrief & close' },
-                        { id: 'timeline', label: 'Timeline' },
-                      ] as const
-                    ).map((item, index) => (
+                    {dailyScreens.map((item, index) => (
                       <Button
                         key={item.id}
                         aria-current={tab === item.id ? 'page' : undefined}
@@ -338,71 +334,72 @@ export default function App() {
                       username={data.personal.profile!.username}
                     />
                   )}
-                  <details className="extras">
-                    <summary>Routes, exports & trip moves</summary>
-                    <Routes day={day} workspace={featureWorkspace} />
-                    <div className="panel">
-                      <h2>Portable field records</h2>
-                      <Button
-                        onClick={() =>
-                          download(`open-mountain-${day.date}.json`, {
-                            version: 2,
-                            trip,
-                            day,
-                            events: data.events.filter((event) => event.payload.dayId === day.id),
-                            source: 'Open Mountain local copy',
-                          })
-                        }
-                      >
-                        Export this day — public data only
-                      </Button>
-                      <p className="hint">
-                        Private human-factor notes are not included. Use a full local backup for
-                        audio files and private recovery.
-                      </p>
-                      {trip.startDate === trip.endDate && (
-                        <form
-                          onSubmit={(e) => {
-                            e.preventDefault();
-                            const targetId = new FormData(e.currentTarget).get('target');
-                            if (
-                              window.confirm(
-                                'Move this day trip and its history into the selected expedition? Its date range will extend if necessary. A conflicting day is not merged.',
-                              )
-                            )
-                              run(
-                                () =>
-                                  command('TripMoved', {
-                                    sourceId: trip.id,
-                                    targetId: String(targetId),
-                                    confirmed: true,
-                                  }),
-                                'Day trip moved.',
-                              );
-                          }}
+                  {tab === 'routes' && (
+                    <section className="extras" aria-label="Routes, exports & trip moves">
+                      <Routes day={day} workspace={featureWorkspace} />
+                      <div className="panel">
+                        <h2>Portable field records</h2>
+                        <Button
+                          onClick={() =>
+                            download(`open-mountain-${day.date}.json`, {
+                              version: 2,
+                              trip,
+                              day,
+                              events: data.events.filter((event) => event.payload.dayId === day.id),
+                              source: 'Open Mountain local copy',
+                            })
+                          }
                         >
-                          <label>
-                            Move into an expedition
-                            <select aria-label="Move into an expedition" name="target" required>
-                              <option value="">Choose an expedition</option>
-                              {trips
-                                .filter((t) => t.id !== trip.id && t.startDate !== t.endDate)
-                                .map((t) => (
-                                  <option key={t.id} value={t.id}>
-                                    {t.title}
-                                  </option>
-                                ))}
-                            </select>
-                          </label>
-                          <Button disabled={busy}>Confirm move</Button>
-                          <p className="hint">
-                            If that date already has a day: Merge — Coming soon. Both trips stay
-                            unchanged.
-                          </p>
-                        </form>
-                      )}
-                    </div>
-                  </details>
+                          Export day — public data only
+                        </Button>
+                        <p className="hint">
+                          Private human-factor notes are not included. Use a full local backup for
+                          audio files and private recovery.
+                        </p>
+                        {trip.startDate === trip.endDate && (
+                          <form
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              const targetId = new FormData(e.currentTarget).get('target');
+                              if (
+                                window.confirm(
+                                  'Move this day trip and its history into the selected expedition? Its date range will extend if necessary. A conflicting day is not merged.',
+                                )
+                              )
+                                run(
+                                  () =>
+                                    command('TripMoved', {
+                                      sourceId: trip.id,
+                                      targetId: String(targetId),
+                                      confirmed: true,
+                                    }),
+                                  'Day trip moved.',
+                                );
+                            }}
+                          >
+                            <label>
+                              Move into an expedition
+                              <select aria-label="Move into an expedition" name="target" required>
+                                <option value="">Choose an expedition</option>
+                                {trips
+                                  .filter((t) => t.id !== trip.id && t.startDate !== t.endDate)
+                                  .map((t) => (
+                                    <option key={t.id} value={t.id}>
+                                      {t.title}
+                                    </option>
+                                  ))}
+                              </select>
+                            </label>
+                            <Button disabled={busy}>Confirm move</Button>
+                            <p className="hint">
+                              If that date already has a day: Merge — Coming soon. Both trips stay
+                              unchanged.
+                            </p>
+                          </form>
+                        )}
+                      </div>
+                    </section>
+                  )}
                 </>
               )}
             </main>

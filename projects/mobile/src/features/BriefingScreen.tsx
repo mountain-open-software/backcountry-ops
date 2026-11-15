@@ -1,3 +1,5 @@
+import { useDraft } from '../useDraft';
+import { DraftStatus } from '../components/DraftStatus';
 import { tokens } from '@open-mountain/design-system';
 import React, { useState } from 'react';
 import { View, Text, Switch } from 'react-native';
@@ -28,19 +30,32 @@ export function BriefingScreen({
   day: OperationalDay;
   workspace: ReadyWorkspace;
 }) {
-  const { data, busy, run, command, personalCommand } = workspace;
-  const [values, setValues] = useState<Briefing>(day.briefing || initial),
-    [reflection, setReflection] = useState(
+  const { data, busy, run, command, personalCommand, storage } = workspace;
+  const [values, setValues, briefingDraft, briefingSession] = useDraft<Briefing>(
+      storage,
+      data.userId,
+      `${data.communityId}:${day.id}:briefing:${day.briefing?.version || 0}`,
+      day.briefing || initial,
+    ),
+    [reflection, setReflection, reflectionDraft, reflectionSession] = useDraft(
+      storage,
+      data.userId,
+      `${data.communityId}:${day.id}:reflection`,
       data.personal.reflections[`${data.communityId}:${day.id}`]?.text || '',
     );
-  const [decision, setDecision] = useState<FieldDecision>({
-    dayId: day.id,
-    authority: 'within',
-    action: '',
-    rationale: '',
-    trigger: '',
-    soloApproval: false,
-  });
+  const [decision, setDecision, decisionDraft, decisionSession] = useDraft<FieldDecision>(
+    storage,
+    data.userId,
+    `${data.communityId}:${day.id}:decision:${day.briefing?.version || 0}`,
+    {
+      dayId: day.id,
+      authority: 'within',
+      action: '',
+      rationale: '',
+      trigger: '',
+      soloApproval: false,
+    },
+  );
   const approved = Boolean(
       day.approval && day.briefing && day.approval.planVersion === day.briefing.version,
     ),
@@ -51,6 +66,7 @@ export function BriefingScreen({
     <View style={styles.section}>
       <Card>
         <Heading>Morning briefing</Heading>
+        <DraftStatus draft={briefingDraft} />
         <Note>
           {approved ? 'Plan approved' : 'Draft / review needed'} · Your own solo assessment. No
           other person’s approval is implied.
@@ -199,10 +215,10 @@ export function BriefingScreen({
           primary
           disabled={busy || closed}
           onPress={() =>
-            void run(
-              () => command('BriefingSaved', { ...values, dayId: day.id }),
-              'Briefing saved. Review and approve this version.',
-            )
+            void run(async () => {
+              await command('BriefingSaved', { ...values, dayId: day.id });
+              await briefingSession.clear();
+            }, 'Briefing saved. Review and approve this version.')
           }
         />
         <Button
@@ -218,6 +234,7 @@ export function BriefingScreen({
       </Card>
       <Card>
         <Heading>Private human factors</Heading>
+        <DraftStatus draft={reflectionDraft} />
         <Note>
           Saved only in your user database. Excluded from community timelines/exports. This app does
           not provide a PIN or encrypted user switching. AI is not configured.
@@ -232,20 +249,20 @@ export function BriefingScreen({
           title="Save private reflection"
           disabled={busy}
           onPress={() =>
-            void run(
-              () =>
-                personalCommand('ReflectionSaved', {
-                  dayId: day.id,
-                  communityId: data.communityId,
-                  text: reflection,
-                }),
-              'Private reflection saved.',
-            )
+            void run(async () => {
+              await personalCommand('ReflectionSaved', {
+                dayId: day.id,
+                communityId: data.communityId,
+                text: reflection,
+              });
+              await reflectionSession.clear();
+            }, 'Private reflection saved.')
           }
         />
       </Card>
       <Card>
-        <Heading>Field decision</Heading>
+        <Heading>Record a field decision</Heading>
+        <DraftStatus draft={decisionDraft} />
         <View style={styles.row}>
           <Button
             title="Within agreed plan"
@@ -295,7 +312,10 @@ export function BriefingScreen({
           title="Record decision"
           disabled={busy || closed}
           onPress={() =>
-            void run(() => command('FieldDecisionRecorded', decision), 'Decision recorded.')
+            void run(async () => {
+              await command('FieldDecisionRecorded', decision);
+              await decisionSession.clear();
+            }, 'Decision recorded.')
           }
         />
       </Card>

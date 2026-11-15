@@ -1,3 +1,4 @@
+import type { DraftStore } from '@open-mountain/application';
 import type { JournalAdapter } from '@open-mountain/domain';
 export interface LocalBackup {
   format: 'open-mountain-local';
@@ -6,7 +7,7 @@ export interface LocalBackup {
   exportedAt: string;
   stores: unknown[];
 }
-export interface WorkspaceStorage extends JournalAdapter {
+export interface WorkspaceStorage extends JournalAdapter, DraftStore {
   putFile(scope: 'user' | 'community', id: string, file: File): Promise<string>;
   getFile(scope: 'user' | 'community', id: string, fileId: string): Promise<Blob>;
   legacy(): Promise<Record<string, unknown>[]>;

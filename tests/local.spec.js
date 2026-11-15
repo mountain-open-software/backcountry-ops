@@ -106,9 +106,9 @@ test('versioned briefing approval and personal database isolation', async ({ pag
   await page.getByLabel('Plan A — where we go', { exact: true }).fill('Revised ridge');
   await page.getByRole('button', { name: 'Save briefing draft', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Approve my plan', exact: true })).toBeEnabled();
-  await page.getByText('Routes, exports & trip moves', { exact: true }).click();
+  await page.getByRole('button', { name: 'Routes & exports', exact: false }).click();
   const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Export this day — public data only' }).click();
+  await page.getByRole('button', { name: 'Export day — public data only' }).click();
   const exported = await readFile(await (await downloadPromise).path(), 'utf8');
   expect(exported).not.toContain('Private fatigue reflection');
   await page.reload();
@@ -124,7 +124,7 @@ test('multiple dates and communities stay isolated; conflicting merge is unavail
   await page.getByLabel('Operational day').selectOption('2026-11-15');
   await expect(page.getByRole('heading', { name: 'Day one evidence', exact: true })).toHaveCount(0);
   await trip(page, 'Standalone', '2026-11-15');
-  await page.getByText('Routes, exports & trip moves', { exact: true }).click();
+  await page.getByRole('button', { name: 'Routes & exports', exact: false }).click();
   await page.getByLabel('Move into an expedition').selectOption({ label: 'Expedition' });
   page.once('dialog', (dialog) => dialog.accept());
   await page.getByRole('button', { name: 'Confirm move', exact: true }).click();
@@ -146,7 +146,7 @@ test('GPX import, scoped export, and full backup restore retain offline evidence
   await setup(page);
   await trip(page);
   await observation(page, 'Recorded evidence');
-  await page.getByText('Routes, exports & trip moves', { exact: true }).click();
+  await page.getByRole('button', { name: 'Routes & exports', exact: false }).click();
   await page.getByLabel('Route title', { exact: true }).fill('Planned ridge');
   const gpx =
     '<?xml version="1.0"?><gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg><trkpt lat="50.2" lon="-120.1"><time>2026-11-14T10:00:00Z</time></trkpt></trkseg></trk></gpx>';
@@ -174,7 +174,7 @@ test('GPX import, scoped export, and full backup restore retain offline evidence
   await expect(
     restored.getByRole('heading', { name: 'Recorded evidence', exact: true }),
   ).toBeVisible();
-  await restored.getByText('Routes, exports & trip moves', { exact: true }).click();
+  await restored.getByRole('button', { name: 'Routes & exports', exact: false }).click();
   const routeDownload = restored.waitForEvent('download');
   await restored.getByRole('button', { name: 'Download original GPX', exact: true }).click();
   expect(await readFile(await (await routeDownload).path(), 'utf8')).toBe(gpx);
@@ -218,7 +218,7 @@ test('microphone failure and invalid GPX never block typed offline-capable captu
   await page.getByRole('button', { name: '● Record observation', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('Permission denied');
   await observation(page, 'Typed fallback');
-  await page.getByText('Routes, exports & trip moves', { exact: true }).click();
+  await page.getByRole('button', { name: 'Routes & exports', exact: false }).click();
   await page.getByLabel('Route title', { exact: true }).fill('Invalid route');
   await page.getByLabel('Or upload GPX').setInputFiles({
     name: 'bad.gpx',
@@ -236,7 +236,7 @@ test('confirmed move into non-overlapping expedition dates preserves observation
   await trip(page, 'Expedition', '2026-11-14', '2026-11-16');
   await trip(page, 'Later day', '2026-11-17');
   await observation(page, 'Keep this evidence');
-  await page.getByText('Routes, exports & trip moves', { exact: true }).click();
+  await page.getByRole('button', { name: 'Routes & exports', exact: false }).click();
   await page
     .getByLabel('Move into an expedition', { exact: true })
     .selectOption({ label: 'Expedition' });
@@ -244,8 +244,99 @@ test('confirmed move into non-overlapping expedition dates preserves observation
   await page.getByRole('button', { name: 'Confirm move', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Expedition', exact: true })).toBeVisible();
   await page.getByLabel('Operational day').selectOption('2026-11-17');
+  await page
+    .getByRole('navigation', { name: 'Daily workflow' })
+    .getByRole('button', { name: 'Observations' })
+    .click();
   await expect(
     page.getByRole('heading', { name: 'Keep this evidence', exact: true }),
   ).toBeVisible();
   await expect(page.getByLabel('Operational day').locator('option')).toHaveCount(4);
+});
+test('unsaved text and stopped-audio drafts recover after view changes and offline reload', async ({
+  page,
+  context,
+}) => {
+  await setup(page);
+  await trip(page);
+  await page.getByLabel('Objective for the day', { exact: true }).fill('Recover this unsaved plan');
+  await expect(
+    page
+      .getByText('Draft saved on this device. Not submitted or approved.', { exact: true })
+      .first(),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Observations', exact: false }).click();
+  await page.getByLabel('Observation title', { exact: true }).fill('Unsaved observation');
+  await page.getByLabel('Observation notes / transcript').fill('Draft evidence');
+  await page.getByRole('button', { name: '● Record observation', exact: true }).click();
+  await page.waitForTimeout(1200);
+  await page.getByRole('button', { name: '■ Stop recording', exact: true }).click();
+  await expect(page.getByLabel('Recording preview')).toBeVisible();
+  await expect(
+    page.getByText('Draft saved on this device. Not submitted or approved.', { exact: true }),
+  ).toBeVisible();
+  await offline(page, context);
+  await expect(page.getByLabel('Objective for the day', { exact: true })).toHaveValue(
+    'Recover this unsaved plan',
+  );
+  await expect(page.getByRole('button', { name: 'Approve my plan', exact: true })).toBeDisabled();
+  await page.getByRole('button', { name: 'Observations', exact: false }).click();
+  await expect(page.getByLabel('Observation title', { exact: true })).toHaveValue(
+    'Unsaved observation',
+  );
+  await expect(page.getByLabel('Recording preview')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Unsaved observation', exact: true })).toHaveCount(
+    0,
+  );
+  await page.getByRole('button', { name: 'Save observation', exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Unsaved observation', exact: true }),
+  ).toBeVisible();
+  await page.reload();
+  await page.getByRole('button', { name: 'Observations', exact: false }).click();
+  await expect(page.getByLabel('Observation title', { exact: true })).toHaveValue('');
+});
+test('PWA works resized and can enter/exit full screen without losing the workflow', async ({
+  page,
+}) => {
+  await setup(page);
+  await trip(page);
+  for (const width of [320, 768, 1200]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    ).toBe(true);
+    await expect(page.getByRole('heading', { name: 'Morning briefing' })).toBeVisible();
+  }
+  if (await page.evaluate(() => document.fullscreenEnabled)) {
+    await page.getByRole('button', { name: 'Full screen', exact: true }).click();
+    await expect.poll(() => page.evaluate(() => Boolean(document.fullscreenElement))).toBe(true);
+    await page.getByRole('button', { name: 'Exit full screen', exact: true }).click();
+    await expect.poll(() => page.evaluate(() => Boolean(document.fullscreenElement))).toBe(false);
+  }
+  await page.getByRole('button', { name: 'Observations', exact: false }).click();
+  await expect(page.getByLabel('Observation title', { exact: true })).toBeVisible();
+});
+
+test('every mobile destination remains available after resizing to desktop', async ({ page }) => {
+  await setup(page);
+  await trip(page);
+  const destinations = [
+    ['Briefing', 'Morning briefing'],
+    ['Observations', 'Capture an observation'],
+    ['Debrief & close', 'Reflect on the day'],
+    ['Timeline', 'Day timeline'],
+    ['Routes & exports', 'Routes & tracks'],
+  ];
+  for (const width of [360, 1280]) {
+    await page.setViewportSize({ width, height: 800 });
+    for (const [label, heading] of destinations) {
+      await page
+        .getByRole('navigation', { name: 'Daily workflow' })
+        .getByRole('button', { name: label, exact: false })
+        .click();
+      await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
+    }
+    await expect(page.getByRole('button', { name: 'Export day — public data only' })).toBeVisible();
+  }
 });

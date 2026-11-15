@@ -1,7 +1,9 @@
+import { useDraft } from '../useDraft';
+import { DraftStatus } from '../components/DraftStatus';
 import { Button, Panel } from '../components/ui';
 import type { Observation } from '@open-mountain/domain';
 import type { DayProps } from '../types';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { VoiceCapture, AudioPreview } from '../components/VoiceCapture';
 import { download } from '../files';
 function localTime(iso = new Date().toISOString()) {
@@ -19,9 +21,15 @@ export function Observations({ day, workspace }: DayProps) {
     audioId: null,
     audioName: null,
   });
-  const [form, setForm] = useState(blank),
+  const [form, setForm, draft, draftSession] = useDraft(
+      storage,
+      data.userId,
+      `${data.communityId}:${day.id}:observation`,
+      blank(),
+    ),
     [file, setFile] = useState<File | null>(null),
-    [locating, setLocating] = useState(false);
+    [locating, setLocating] = useState(false),
+    [audioSaving, setAudioSaving] = useState(false);
   const observations = Object.values(day.observations).sort((a, b) =>
     (b.createdAt || '').localeCompare(a.createdAt || ''),
   );
@@ -32,9 +40,7 @@ export function Observations({ day, workspace }: DayProps) {
     e.preventDefault();
     const ok = await run(
       async () => {
-        const audioId = file
-          ? await storage.putFile('community', data.communityId, file)
-          : form.audioId;
+        const audioId = form.audioId;
         await command(form.id ? 'ObservationCorrected' : 'ObservationRecorded', {
           ...form,
           dayId: day.id,
@@ -50,8 +56,39 @@ export function Observations({ day, workspace }: DayProps) {
         : 'Observation saved locally. Submit your report when finished.',
     );
     if (ok) {
-      setForm(blank());
+      await draftSession.reset(blank());
       setFile(null);
+    }
+  }
+  useEffect(() => {
+    let active = true;
+    if (form.audioId && !file)
+      storage
+        .getFile('community', data.communityId, form.audioId)
+        .then((blob) => {
+          if (active)
+            setFile(new File([blob], form.audioName || 'recording.webm', { type: blob.type }));
+        })
+        .catch((error) => {
+          if (active)
+            setError(
+              `Draft recording is missing: ${error.message}. Restore a backup or remove the missing attachment.`,
+            );
+        });
+    return () => {
+      active = false;
+    };
+  }, [form.audioId, data.communityId]);
+  async function stageAudio(selected: File) {
+    setAudioSaving(true);
+    try {
+      const audioId = await storage.putFile('community', data.communityId, selected);
+      setForm((value) => ({ ...value, audioId, audioName: selected.name }));
+      setFile(selected);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setAudioSaving(false);
     }
   }
   function locate() {
@@ -96,13 +133,15 @@ export function Observations({ day, workspace }: DayProps) {
             : 'Your own field report, saved offline.'}
         </p>
         <VoiceCapture
-          disabled={busy}
+          disabled={busy || audioSaving}
           onError={setError}
-          onCapture={setFile}
+          onCapture={(file) => void stageAudio(file)}
           onTranscript={(text) => update('notes', [form.notes, text].filter(Boolean).join('\n'))}
         />
+        <DraftStatus draft={draft} />
+        {audioSaving && <p role="status">Saving audio preview…</p>}
         <form onSubmit={save}>
-          <fieldset className="fields" disabled={busy}>
+          <fieldset className="fields" disabled={busy || audioSaving}>
             <label>
               Observation title
               <input
@@ -152,7 +191,8 @@ export function Observations({ day, workspace }: DayProps) {
                 type="file"
                 accept="audio/*"
                 onChange={(e) => {
-                  setFile(e.target.files?.[0] || null);
+                  const selected = e.target.files?.[0];
+                  if (selected) void stageAudio(selected);
                   e.target.value = '';
                 }}
               />
@@ -163,7 +203,13 @@ export function Observations({ day, workspace }: DayProps) {
                   {file.name} · {(file.size / 1024).toFixed(0)} KB
                 </p>
                 <AudioPreview file={file} />
-                <Button type="button" onClick={() => setFile(null)}>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setFile(null);
+                    setForm((value) => ({ ...value, audioId: null, audioName: null }));
+                  }}
+                >
                   Remove new recording
                 </Button>
               </div>
@@ -176,7 +222,7 @@ export function Observations({ day, workspace }: DayProps) {
                 <Button
                   type="button"
                   onClick={() => {
-                    setForm(blank());
+                    void draftSession.reset(blank());
                     setFile(null);
                   }}
                 >

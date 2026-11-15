@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
-import { File } from 'expo-file-system';
+import { File, Paths } from 'expo-file-system';
 import type { ReadyWorkspace } from '../useWorkspace';
 import { shareJSON } from '../nativeStorage';
 import { Button, Card, Field, Heading, Note, styles } from '../components/Controls';
@@ -12,7 +12,7 @@ export function SettingsScreen({ workspace }: { workspace: ReadyWorkspace }) {
   return (
     <View style={styles.section}>
       <Card>
-        <Heading>Profile & communities</Heading>
+        <Heading>Local identity</Heading>
         <Field label="Username" value={username} onChangeText={setUsername} maxLength={80} />
         <Button
           title="Update username"
@@ -24,9 +24,9 @@ export function SettingsScreen({ workspace }: { workspace: ReadyWorkspace }) {
             )
           }
         />
-        <Field label="New community name" value={community} onChangeText={setCommunity} />
+        <Field label="New local community" value={community} onChangeText={setCommunity} />
         <Button
-          title="Create local community"
+          title="Create community"
           disabled={busy}
           onPress={() => void run(() => addCommunity(community.trim()), 'Community created.')}
         />
@@ -36,7 +36,13 @@ export function SettingsScreen({ workspace }: { workspace: ReadyWorkspace }) {
         </Note>
       </Card>
       <Card>
-        <Heading>Full local backups</Heading>
+        <Heading>Backup & restore</Heading>
+        <Note>{`Device space available: ${(Paths.availableDiskSpace / 1048576).toFixed(0)} MB. Export before uninstalling or clearing app data. Autosaved text drafts are local recovery data, not part of portable backups; save records first.`}</Note>
+        {Paths.availableDiskSpace < 100 * 1048576 && (
+          <Note>
+            Low device space: export recordings and a backup before continuing large captures.
+          </Note>
+        )}
         <Note>
           Backups include private notes, all communities, original recordings, and GPX. Keep them
           private. Restore does not merge divergent histories. Save/export before uninstalling this

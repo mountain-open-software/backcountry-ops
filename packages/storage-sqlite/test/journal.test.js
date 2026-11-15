@@ -126,3 +126,25 @@ test('native SQL persists the shared solo submission/debrief/closing lifecycle',
     f.cleanup();
   }
 });
+test('user draft migration preserves journals and stale writers cannot overwrite drafts',async()=>{
+ const f=fixture();try{
+  const first=createSqliteJournal(f.open);await first.append('user','user-1',null,event);
+  const saved=await first.writeDraft('user-1','day:notes',{text:'Unsaved'},0);
+  const second=createSqliteJournal(f.open);assert.equal((await second.readDraft('user-1','day:notes')).value.text,'Unsaved');
+  assert.equal((await second.readJournal('user','user-1')).events.length,1);
+  await assert.rejects(second.writeDraft('user-1','day:notes',{text:'Stale'},0),/Draft changed/);
+  await second.writeDraft('user-1','day:notes',null,saved.revision);assert.equal((await first.readDraft('user-1','day:notes')).value,null);
+  assert.equal(await second.readDraft('user-2','day:notes'),null);
+ }finally{f.cleanup();}
+});
+test('upgrading a schema-1 database adds drafts without changing existing events',async()=>{
+ const f=fixture();try{
+  const db=await f.open('open-mountain-user-user-1.db');
+  await db.execAsync('CREATE TABLE journal (id INTEGER PRIMARY KEY, revision INTEGER NOT NULL, events TEXT NOT NULL); CREATE TABLE attachments (id TEXT PRIMARY KEY, name TEXT, mime TEXT, size INTEGER, uri TEXT); PRAGMA user_version=1;');
+  await db.runAsync('INSERT INTO journal VALUES (1,1,?)',JSON.stringify([event]));
+  const storage=createSqliteJournal(f.open);assert.deepEqual((await storage.readJournal('user','user-1')).events,[event]);
+  await storage.writeDraft('user-1','notes','Recovered after upgrade',0);
+  assert.equal((await storage.readDraft('user-1','notes')).value,'Recovered after upgrade');
+  assert.equal((await db.getFirstAsync('PRAGMA user_version')).user_version,2);
+ }finally{f.cleanup();}
+});

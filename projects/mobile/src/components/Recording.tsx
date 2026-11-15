@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, AppState } from 'react-native';
 import {
   RecordingPresets,
@@ -19,17 +19,23 @@ export function RecordingCapture({
   onError: (text: string) => void;
   disabled: boolean;
 }) {
+  const lastDelivered = useRef<string | null>(null);
+  const deliver = (uri: string) => {
+    if (lastDelivered.current === uri) return;
+    lastDelivered.current = uri;
+    onCapture(uri);
+  };
   const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY, (status) => {
     if (status.hasError)
       onError(status.error || 'Recording interrupted. Check available audio before saving.');
-    if (status.isFinished && status.url) onCapture(status.url);
+    if (status.isFinished && status.url) deliver(status.url);
   });
   const status = useAudioRecorderState(recorder);
   const [starting, setStarting] = useState(false);
   async function stop() {
     try {
       await recorder.stop();
-      if (recorder.uri) onCapture(recorder.uri);
+      if (recorder.uri) deliver(recorder.uri);
       await setAudioModeAsync({ allowsRecording: false });
     } catch (e) {
       onError(e instanceof Error ? e.message : String(e));
@@ -44,6 +50,7 @@ export function RecordingCapture({
   async function start() {
     setStarting(true);
     try {
+      lastDelivered.current = null;
       const permission = await requestRecordingPermissionsAsync();
       if (!permission.granted)
         throw new Error('Microphone permission denied. Typed observations still work.');

@@ -1,5 +1,6 @@
 # Documentation
 
+- **Mobile parity:** [Native and mobile PWA experience](architecture/mobile-experience.md) defines shared screens, navigation and feature availability at every window size.
 - **Design system:** [Shared tokens and Material components](../packages/design-system/README.md) defines the common web/native foundation and accessibility checks.
 - **Expo native app:** [Run and verify iOS/Android](../projects/mobile/README.md) describes native SQLite, recordings, backup/restore, and device-test limits.
 - **Implemented solo version:** [Feature and limitation guide](product/solo-version-implementation.md) describes the current React/TypeScript app and verification.

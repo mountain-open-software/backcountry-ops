@@ -10,5 +10,8 @@
     "@open-mountain/domain": "*"
   },
   "license": "Apache-2.0",
-  "types": "./src/index.d.ts"
+  "types": "./src/index.d.ts",
+  "devDependencies": {
+    "@open-mountain/application": "*"
+  }
 }

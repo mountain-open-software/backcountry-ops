@@ -1,3 +1,4 @@
+import { StorageHealth } from '../components/StorageHealth';
 import { Button, Panel } from '../components/ui';
 import type { ReadyWorkspace } from '../types';
 import React, { useEffect, useState } from 'react';
@@ -61,6 +62,7 @@ export function Settings({ workspace }: { workspace: ReadyWorkspace }) {
         </Panel>
         <Panel className="panel">
           <h2>Backup & restore</h2>
+          <StorageHealth />
           <p className="hint">
             Browser data can be cleared. Full backups include all your community data, original
             files/audio, and private notes. Keep backups private. Restore accepts the same history

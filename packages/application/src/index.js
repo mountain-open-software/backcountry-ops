@@ -17,3 +17,4 @@ export function requireMembership(documents, userId, organizationId) {
     throw new Error('User is not a member of this organization');
 }
 export { createWorkspace } from './workspace.js';
+export { createDraftSession } from './drafts.js';

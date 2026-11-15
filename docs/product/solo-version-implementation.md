@@ -27,7 +27,7 @@ The [native app](../../projects/mobile/README.md) now implements the solo workfl
 
 ## Recording, data, and backup limits
 
-Recording needs browser microphone support and permission on HTTPS or localhost. Recording stops after 10 minutes or near the 20 MB attachment cap. Stop and save the preview to persist original audio. Browser/device shutdown can lose an unfinished or unsaved recording. Typed capture stays available after microphone failure. Browser dictation is optional and may use an online browser service; the app does not supply an offline speech model.
+Recording needs browser microphone support and permission on HTTPS or localhost. Recording stops after 10 minutes or near the 20 MB attachment cap. Stopped and attached audio is persisted locally with its draft before observation submission. An in-progress recording can still be lost on browser/device shutdown. Unsaved briefing, observation, decision, reflection and debrief text recovers on returning to the screen; drafts are not approvals or submissions and are excluded from portable backups. Typed capture stays available after microphone failure. Browser dictation is optional and may use an online browser service; the app does not supply an offline speech model.
 
 Each trip is limited to 90 dates. Each journal is limited to 5,000 events / 15 million JSON characters. Attachments are capped at 20 MB each, full backups at 100 MB. Export day records and original files individually if a full backup exceeds the cap. Browser quota limits vary; a failed save is shown as an error, not success.
 
@@ -35,6 +35,12 @@ Backups are plaintext private-inclusive files, explicitly labeled. They restore 
 
 ## Verification
 
-`npm run check` checks package boundaries, TypeScript, package-owned unit tests, and the production build. `npm run test:e2e` builds and runs desktop (1440 px) and mobile/touch (390 px) Chromium scenarios. They exercise offline workflows, approval revisions, database-scope separation, multiple dates, GPX and recording recovery, backups, invalid input, microphone denial, and day moves. Mobile viewport testing is not a claim that every mobile browser supports the same recording/transcription capabilities.
+`npm run check` checks package boundaries, TypeScript, package-owned unit tests, native screen interaction tests, and the production build. `npm run test:e2e` builds and runs desktop (1440 px) and mobile/touch (390 px) Chromium scenarios. They exercise offline workflows, approval revisions, database-scope separation, multiple dates, GPX and recording recovery, backups, invalid input, microphone denial, and day moves. Mobile viewport testing is not a claim that every mobile browser supports the same recording/transcription capabilities.
 
 See [ADR 0002](../architecture/decisions/0002-solo-event-journals-and-react-ui.md) for event append, recovery, and storage tradeoffs.
+
+## Window and storage behavior
+
+The PWA works in a normal resizable browser window, installed standalone mode, and browser-supported fullscreen. The fullscreen control is shown only when supported; installation and fullscreen are optional. Safe-area spacing supports mobile displays. Storage settings show browser quota/persistence information when available; native settings show available disk space. Back up saved records before clearing data or uninstalling. See the [real-device checklist](../device-testing-checklist.md) for pending hardware verification.
+
+Native and mobile PWA follow the [shared mobile experience](../architecture/mobile-experience.md), including the same daily destinations and route/export placement. Desktop retains every destination with a wider layout.

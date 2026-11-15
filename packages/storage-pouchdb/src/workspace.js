@@ -14,6 +14,44 @@ const clean = (doc) => {
   return rest;
 };
 export const workspaceStorage = {
+  async readDraft(userId, key) {
+    try {
+      const doc = await database('user', userId).get(`draft-${encodeURIComponent(key)}`);
+      return { revision: doc.revision, value: doc.value, updatedAt: doc.updatedAt };
+    } catch (error) {
+      if (error.status === 404) return null;
+      throw error;
+    }
+  },
+  async writeDraft(userId, key, value, expectedRevision) {
+    const db = database('user', userId),
+      id = `draft-${encodeURIComponent(key)}`;
+    if (key.length > 500 || JSON.stringify(value).length > 250000)
+      throw new Error('Draft is too large to autosave');
+    let previous;
+    try {
+      previous = await db.get(id);
+    } catch (error) {
+      if (error.status !== 404) throw error;
+    }
+    if ((previous?.revision || 0) !== expectedRevision)
+      throw new Error('Draft changed in another tab. Reload before overwriting it.');
+    const doc = {
+      _id: id,
+      ...(previous?._rev ? { _rev: previous._rev } : {}),
+      revision: expectedRevision + 1,
+      value,
+      updatedAt: new Date().toISOString(),
+    };
+    try {
+      await db.put(doc);
+    } catch (error) {
+      if (error.status === 409)
+        throw new Error('Draft changed in another tab. Reload before overwriting it.');
+      throw error;
+    }
+    return { revision: doc.revision, value, updatedAt: doc.updatedAt };
+  },
   async readJournal(scope, id) {
     try {
       return await database(scope, id).get('journal');
@@ -81,7 +119,7 @@ export const workspaceStorage = {
       const docs = (
         await database(scope, id).allDocs({ include_docs: true, attachments: true })
       ).rows.map((row) => clean(row.doc));
-      stores.push({ scope, id, docs });
+      stores.push({ scope, id, docs: docs.filter((doc) => !doc._id.startsWith('draft-')) });
     }
     const backup = {
       format: 'open-mountain-local',

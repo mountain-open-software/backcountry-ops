@@ -1,3 +1,5 @@
+import { useDraft } from '../useDraft';
+import { DraftStatus } from '../components/DraftStatus';
 import { Button, Panel } from '../components/ui';
 import type { Briefing as BriefingModel, FieldDecision } from '@open-mountain/domain';
 import type { DayProps } from '../types';
@@ -5,8 +7,11 @@ import React, { useState } from 'react';
 import { mindsets, problemTypes } from '@open-mountain/domain';
 import { BriefingFields } from '../components/PlanningFields';
 export function Briefing({ day, workspace }: DayProps) {
-  const { data, busy, run, command, personalCommand } = workspace;
-  const [values, setValues] = useState<BriefingModel>(
+  const { data, busy, run, command, personalCommand, storage } = workspace;
+  const [values, setValues, briefingDraft, briefingSession] = useDraft<BriefingModel>(
+    storage,
+    data.userId,
+    `${data.communityId}:${day.id}:briefing:${day.briefing?.version || 0}`,
     day.briefing || {
       objective: '',
       planA: '',
@@ -19,17 +24,25 @@ export function Briefing({ day, workspace }: DayProps) {
       problems: [],
     },
   );
-  const [reflection, setReflection] = useState(
+  const [reflection, setReflection, reflectionDraft, reflectionSession] = useDraft(
+    storage,
+    data.userId,
+    `${data.communityId}:${day.id}:reflection`,
     data.personal.reflections[`${data.communityId}:${day.id}`]?.text || '',
   );
-  const [decision, setDecision] = useState<FieldDecision>({
-    dayId: day.id,
-    authority: 'within',
-    action: '',
-    rationale: '',
-    trigger: '',
-    soloApproval: false,
-  });
+  const [decision, setDecision, decisionDraft, decisionSession] = useDraft<FieldDecision>(
+    storage,
+    data.userId,
+    `${data.communityId}:${day.id}:decision:${day.briefing?.version || 0}`,
+    {
+      dayId: day.id,
+      authority: 'within',
+      action: '',
+      rationale: '',
+      trigger: '',
+      soloApproval: false,
+    },
+  );
   const update = <K extends keyof BriefingModel>(key: K, value: BriefingModel[K]) =>
     setValues((v) => ({ ...v, [key]: value }));
   const approved = Boolean(
@@ -44,6 +57,7 @@ export function Briefing({ day, workspace }: DayProps) {
             {approved ? 'Plan approved' : 'Draft / review needed'}
           </span>
         </div>
+        <DraftStatus draft={briefingDraft} />
         <p className="hint">
           Your own assessment and plan. Record unknowns explicitly. This is a solo local copy; no
           other person’s approval is implied.
@@ -51,10 +65,10 @@ export function Briefing({ day, workspace }: DayProps) {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            run(
-              () => command('BriefingSaved', { ...values, dayId: day.id }),
-              'Briefing saved. Review and approve this version.',
-            );
+            run(async () => {
+              await command('BriefingSaved', { ...values, dayId: day.id });
+              await briefingSession.clear();
+            }, 'Briefing saved. Review and approve this version.');
           }}
         >
           <fieldset disabled={busy || Boolean(day.closedAt)} className="fields">
@@ -211,6 +225,7 @@ export function Briefing({ day, workspace }: DayProps) {
         <Panel className="panel private-panel">
           <p className="eyebrow">PERSONAL DATABASE</p>
           <h2>Private human factors</h2>
+          <DraftStatus draft={reflectionDraft} />
           <p className="hint">
             Readiness, comfort, pressure, fatigue, or anything you want to reflect on privately.
             These notes are excluded from community exports and timelines. Separate storage is not
@@ -219,15 +234,14 @@ export function Briefing({ day, workspace }: DayProps) {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              run(
-                () =>
-                  personalCommand('ReflectionSaved', {
-                    dayId: day.id,
-                    communityId: data.communityId,
-                    text: reflection,
-                  }),
-                'Private reflection saved in your user database.',
-              );
+              run(async () => {
+                await personalCommand('ReflectionSaved', {
+                  dayId: day.id,
+                  communityId: data.communityId,
+                  text: reflection,
+                });
+                await reflectionSession.clear();
+              }, 'Private reflection saved in your user database.');
             }}
           >
             <label>
@@ -246,6 +260,7 @@ export function Briefing({ day, workspace }: DayProps) {
         </Panel>
         <Panel className="panel">
           <h2>Record a field decision</h2>
+          <DraftStatus draft={decisionDraft} />
           <form
             onSubmit={async (e) => {
               e.preventDefault();
@@ -254,7 +269,7 @@ export function Briefing({ day, workspace }: DayProps) {
                 'Decision recorded in the timeline.',
               );
               if (ok)
-                setDecision({
+                void decisionSession.reset({
                   ...decision,
                   action: '',
                   rationale: '',

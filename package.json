@@ -14,26 +14,33 @@
     "test": "npm run test --workspaces --if-present",
     "test:e2e": "npm run build && playwright test",
     "check:structure": "node tools/check-structure.mjs",
-    "check": "npm run check:structure && npm run check:design && npm run typecheck && npm test && npm run build",
+    "check": "npm run check:structure && npm run check:design && npm run typecheck && npm test && npm run test:native-ui && npm run build",
     "typecheck": "tsc --noEmit && npm run typecheck -w @open-mountain/mobile",
     "format": "prettier --write projects/pwa/src projects/mobile/src packages/domain/src packages/application/src packages/storage-pouchdb/src packages/storage-sqlite/src tests packages/design-system/src/index.ts packages/design-system/test",
     "dev:mobile": "npm start -w @open-mountain/mobile",
     "build:mobile": "npm run export -w @open-mountain/mobile",
     "check:mobile": "npm run typecheck -w @open-mountain/mobile && npm run build:mobile",
     "design:generate": "node tools/generate-design-css.mjs",
-    "check:design": "node tools/generate-design-css.mjs --check"
+    "check:design": "node tools/generate-design-css.mjs --check",
+    "test:native-ui": "npm run test:ui -w @open-mountain/mobile"
   },
   "engines": {
     "node": "^22.18.0 || ^24.3.0 || >=26.0.0"
   },
   "devDependencies": {
+    "@open-mountain/design-system": "*",
     "@playwright/test": "^1.65.1",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "prettier": "^3.10.1",
-    "typescript": "^7.0.2",
-    "@open-mountain/design-system": "*"
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "typescript": "^7.0.2"
   },
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "overrides": {
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  }
 }

@@ -1,16 +1,24 @@
+import { useDraft } from '../useDraft';
+import { DraftStatus } from '../components/DraftStatus';
 import { Button, Panel } from '../components/ui';
 import type { DayProps } from '../types';
 import React, { useState } from 'react';
 import { blankDebrief } from '@open-mountain/domain';
 import { DebriefFields } from '../components/PlanningFields';
 export function Debrief({ day, workspace }: DayProps) {
-  const { busy, run, command } = workspace;
-  const [values, setValues] = useState(day.debrief || blankDebrief);
+  const { data, storage, busy, run, command } = workspace;
+  const [values, setValues, draft, draftSession] = useDraft(
+    storage,
+    data.userId,
+    `${data.communityId}:${day.id}:debrief:${day.debrief?.completedAt || 'new'}`,
+    day.debrief || blankDebrief,
+  );
   const ready = day.debrief && day.submission?.observationVersion === day.observationVersion;
   return (
     <div className="feature-grid">
       <Panel className="panel">
         <h2>Reflect on the day</h2>
+        <DraftStatus draft={draft} />
         <p className="hint">
           Your personal debrief. Record what you learned; write “not discussed” or “unknown” where
           appropriate. Put sensitive personal reflections in your private notes, not this public
@@ -19,10 +27,10 @@ export function Debrief({ day, workspace }: DayProps) {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            run(
-              () => command('DebriefSaved', { ...values, dayId: day.id }),
-              'Debrief completed. Closing remains a separate leader action.',
-            );
+            run(async () => {
+              await command('DebriefSaved', { ...values, dayId: day.id });
+              await draftSession.clear();
+            }, 'Debrief completed. Closing remains a separate leader action.');
           }}
         >
           <DebriefFields

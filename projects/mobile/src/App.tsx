@@ -1,5 +1,6 @@
+import { DailyNavigation } from './components/DailyNavigation';
 import { PaperProvider } from 'react-native-paper';
-import { tokens } from '@open-mountain/design-system';
+import { type DailyScreen, tokens } from '@open-mountain/design-system';
 import { nativeTheme } from './theme';
 import React, { useState } from 'react';
 import {
@@ -30,7 +31,6 @@ const today = () => {
   const date = new Date();
   return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 };
-type Tab = 'briefing' | 'observations' | 'debrief' | 'timeline' | 'routes';
 function WorkspaceApp() {
   const workspace = useWorkspace();
   const { data, loading, busy, error, message, run, createProfile, command, refresh, storage } =
@@ -43,7 +43,7 @@ function WorkspaceApp() {
     [showCreate, setShowCreate] = useState(false);
   const [tripId, setTripId] = useState(''),
     [dayId, setDayId] = useState(''),
-    [tab, setTab] = useState<Tab>('briefing'),
+    [tab, setTab] = useState<DailyScreen>('briefing'),
     [settings, setSettings] = useState(false),
     [moveTarget, setMoveTarget] = useState('');
   const { width } = useWindowDimensions();
@@ -75,7 +75,7 @@ function WorkspaceApp() {
     }
   }
   const body = loading ? (
-    <Note>Opening your local SQLite workspace…</Note>
+    <Note>Opening your local only workspace…</Note>
   ) : !data ? (
     <View style={styles.section}>
       <Text style={local.hero}>Your next day{`\n`}starts here.</Text>
@@ -122,7 +122,7 @@ function WorkspaceApp() {
   ) : (
     <View style={styles.section}>
       <Text style={local.hero}>Make a plan.{`\n`}Keep a field record.</Text>
-      <Note>{data.personal.profile!.username} · Solo · local SQLite</Note>
+      <Note>{data.personal.profile!.username} · Solo · local only</Note>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -221,25 +221,7 @@ function WorkspaceApp() {
                   />
                 ))}
               </ScrollView>
-              <ScrollView horizontal contentContainerStyle={local.chips}>
-                {(
-                  [
-                    ['briefing', 'Briefing'],
-                    ['observations', 'Observations'],
-                    ['debrief', 'Debrief & close'],
-                    ['timeline', 'Timeline'],
-                    ['routes', 'Routes'],
-                  ] as const
-                ).map(([id, label]) => (
-                  <Button
-                    key={id}
-                    title={label}
-                    primary={tab === id}
-                    disabled={busy}
-                    onPress={() => setTab(id)}
-                  />
-                ))}
-              </ScrollView>
+              <DailyNavigation active={tab} busy={busy} onChange={setTab} />
               {tab === 'briefing' && (
                 <BriefingScreen
                   key={`${day.id}-${day.briefing?.version || 0}`}
@@ -253,70 +235,72 @@ function WorkspaceApp() {
               {tab === 'debrief' && <DebriefScreen key={day.id} day={day} workspace={ready} />}
               {tab === 'timeline' && <TimelineScreen day={day} workspace={ready} />}
               {tab === 'routes' && <RouteScreen key={day.id} day={day} workspace={ready} />}
-              <Card>
-                <Heading>Portable records</Heading>
-                <Button
-                  title="Export day — public data only"
-                  onPress={() =>
-                    void run(() =>
-                      shareJSON(`open-mountain-${day.date}.json`, {
-                        version: 2,
-                        trip,
-                        day,
-                        events: data.events.filter((e) => e.payload.dayId === day.id),
-                      }),
-                    )
-                  }
-                />
-                <Note>
-                  Private reflections and attachment bytes are excluded. Use full backup for
-                  complete recovery.
-                </Note>
-                {trip.startDate === trip.endDate && (
-                  <View style={styles.section}>
-                    <Note>
-                      Move this day into an expedition (extends its dates when needed). Date
-                      conflicts: Merge — Coming soon.
-                    </Note>
-                    {trips
-                      .filter((t) => t.id !== trip.id && t.startDate !== t.endDate)
-                      .map((t) => (
-                        <Button
-                          key={t.id}
-                          title={t.title}
-                          primary={moveTarget === t.id}
-                          onPress={() => setMoveTarget(t.id)}
-                        />
-                      ))}
-                    <Button
-                      title="Confirm day-trip move"
-                      disabled={!moveTarget || busy}
-                      onPress={() =>
-                        Alert.alert(
-                          'Move day trip?',
-                          'Move its day and history into the destination, extending its date range if needed. Existing date conflicts are not merged.',
-                          [
-                            { text: 'Cancel', style: 'cancel' },
-                            {
-                              text: 'Move',
-                              onPress: () =>
-                                void run(async () => {
-                                  await command('TripMoved', {
-                                    sourceId: trip.id,
-                                    targetId: moveTarget,
-                                    confirmed: true,
-                                  });
-                                  setTripId(moveTarget);
-                                  setDayId(day.id);
-                                }, 'Day trip moved.'),
-                            },
-                          ],
-                        )
-                      }
-                    />
-                  </View>
-                )}
-              </Card>
+              {tab === 'routes' && (
+                <Card>
+                  <Heading>Portable field records</Heading>
+                  <Button
+                    title="Export day — public data only"
+                    onPress={() =>
+                      void run(() =>
+                        shareJSON(`open-mountain-${day.date}.json`, {
+                          version: 2,
+                          trip,
+                          day,
+                          events: data.events.filter((e) => e.payload.dayId === day.id),
+                        }),
+                      )
+                    }
+                  />
+                  <Note>
+                    Private reflections and attachment bytes are excluded. Use full backup for
+                    complete recovery.
+                  </Note>
+                  {trip.startDate === trip.endDate && (
+                    <View style={styles.section}>
+                      <Note>
+                        Move this day into an expedition (extends its dates when needed). Date
+                        conflicts: Merge — Coming soon.
+                      </Note>
+                      {trips
+                        .filter((t) => t.id !== trip.id && t.startDate !== t.endDate)
+                        .map((t) => (
+                          <Button
+                            key={t.id}
+                            title={t.title}
+                            primary={moveTarget === t.id}
+                            onPress={() => setMoveTarget(t.id)}
+                          />
+                        ))}
+                      <Button
+                        title="Confirm day-trip move"
+                        disabled={!moveTarget || busy}
+                        onPress={() =>
+                          Alert.alert(
+                            'Move day trip?',
+                            'Move its day and history into the destination, extending its date range if needed. Existing date conflicts are not merged.',
+                            [
+                              { text: 'Cancel', style: 'cancel' },
+                              {
+                                text: 'Move',
+                                onPress: () =>
+                                  void run(async () => {
+                                    await command('TripMoved', {
+                                      sourceId: trip.id,
+                                      targetId: moveTarget,
+                                      confirmed: true,
+                                    });
+                                    setTripId(moveTarget);
+                                    setDayId(day.id);
+                                  }, 'Day trip moved.'),
+                              },
+                            ],
+                          )
+                        }
+                      />
+                    </View>
+                  )}
+                </Card>
+              )}
             </View>
           )}
         </View>
@@ -338,7 +322,7 @@ function WorkspaceApp() {
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={local.page}>
           <View style={local.header}>
             <Text style={local.brand}>△ OPEN MOUNTAIN</Text>
-            <Text style={styles.small}>Native · offline</Text>
+            <Text style={styles.small}>Solo · local only</Text>
           </View>
           {Boolean(error) && (
             <View accessibilityRole="alert" style={local.error}>
