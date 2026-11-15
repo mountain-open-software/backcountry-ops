@@ -1,3 +1,4 @@
+import { briefingPlans } from './plans.js';
 // State/events are JSON data; this clone also works on Hermes without structuredClone.
 const copyJson = (value) => JSON.parse(JSON.stringify(value));
 export const mindsets = [
@@ -83,6 +84,24 @@ export function validateProblems(problems) {
       throw new Error('Size range is reversed');
   }
 }
+function validatePlans(plans) {
+  if (!Array.isArray(plans) || plans.length < 1 || plans.length > 100)
+    throw new Error('Provide between 1 and 100 plans');
+  const ids = new Set();
+  for (const plan of plans) {
+    if (
+      !plan ||
+      typeof plan !== 'object' ||
+      Object.keys(plan).some((key) => !['id', 'description', 'hazards'].includes(key))
+    )
+      throw new Error('Unsupported plan fields');
+    identifier(plan.id);
+    if (ids.has(plan.id)) throw new Error('Plan IDs must be unique');
+    ids.add(plan.id);
+    validateText(plan.description);
+    validateText(plan.hazards);
+  }
+}
 const payloadKeys = {
   ProfileConfigured: ['username'],
   CommunityAdded: ['id', 'name'],
@@ -93,6 +112,7 @@ const payloadKeys = {
   BriefingSaved: [
     'dayId',
     'objective',
+    'plans',
     'planA',
     'hazardsA',
     'planB',
@@ -225,16 +245,10 @@ export function makeEvent(state, command, context) {
       )
         throw new Error('This day is closed; observations can still be added or corrected');
       if (type === 'BriefingSaved') {
-        for (const key of [
-          'objective',
-          'planA',
-          'hazardsA',
-          'planB',
-          'hazardsB',
-          'triggers',
-          'assessment',
-        ])
-          validateText(payload[key] ?? '');
+        payload.plans = briefingPlans(payload);
+        for (const key of ['planA', 'hazardsA', 'planB', 'hazardsB']) delete payload[key];
+        validatePlans(payload.plans);
+        for (const key of ['objective', 'triggers', 'assessment']) validateText(payload[key] ?? '');
         if (!mindsets.includes(payload.mindset)) throw new Error('Choose a strategic mindset');
         if (payload.mindset === 'Maintenance')
           throw new Error(
@@ -245,15 +259,12 @@ export function makeEvent(state, command, context) {
         const plan = day.briefing;
         if (!plan || payload.planVersion !== plan.version)
           throw new Error('Review the current plan version before approving');
-        for (const key of [
-          'objective',
-          'planA',
-          'hazardsA',
-          'planB',
-          'hazardsB',
-          'triggers',
-          'assessment',
-        ])
+        validatePlans(briefingPlans(plan));
+        for (const item of briefingPlans(plan)) {
+          required(item.description, 'Each plan destination / course of action');
+          required(item.hazards, 'Each plan hazards (or explicit unknown / not assessed)');
+        }
+        for (const key of ['objective', 'triggers', 'assessment'])
           required(plan[key], 'All briefing sections (or explicit unknown / not assessed)');
       } else if (type === 'FieldDecisionRecorded') {
         required(payload.action, 'Decision');
@@ -383,7 +394,7 @@ export function applyCommunity(state, event) {
       }
     }
   } else if (event.type === 'BriefingSaved') {
-    day.briefing = { ...p, version: (day.briefing?.version || 0) + 1 };
+    day.briefing = { ...p, plans: briefingPlans(p), version: (day.briefing?.version || 0) + 1 };
     day.approval = null;
   } else if (event.type === 'PlanApproved')
     day.approval = { planVersion: p.planVersion, eventId: event.id, approvedAt: event.recordedAt };

@@ -28,3 +28,5 @@ export {
   applyUser,
   replay,
 } from './expedition.js';
+
+export { planLabel, briefingPlans, reorderPlans } from './plans.js';

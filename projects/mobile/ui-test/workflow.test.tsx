@@ -147,3 +147,21 @@ test('native navigation exposes every shared destination and changes only on a t
   }
   expect(onChange).toHaveBeenCalledTimes(5);
 });
+
+test('native plans add, reorder and remove with hazards kept on the same plan', async () => {
+  const f = fixture();
+  await render(wrap(<BriefingScreen day={f.day} workspace={f.workspace} />));
+  await waitFor(() => expect(screen.queryAllByText('Recovering draft…')).toHaveLength(0));
+  expect(screen.getByRole('button', { name: 'Remove plan A' })).toBeDisabled();
+  await fireEvent.changeText(screen.getByLabelText('Plan A — where we go'), 'Ridge');
+  await fireEvent.changeText(screen.getByLabelText('Plan A — hazards and uncertainty'), 'Wind');
+  await fireEvent.press(screen.getByRole('button', { name: 'Add plan' }));
+  await fireEvent.changeText(screen.getByLabelText('Plan B — where we go'), 'Forest');
+  await fireEvent.changeText(screen.getByLabelText('Plan B — hazards and uncertainty'), 'Trees');
+  await fireEvent.press(screen.getByRole('button', { name: 'Move plan B up' }));
+  expect(screen.getByLabelText('Plan A — where we go')).toHaveDisplayValue('Forest');
+  expect(screen.getByLabelText('Plan A — hazards and uncertainty')).toHaveDisplayValue('Trees');
+  await fireEvent.press(screen.getByRole('button', { name: 'Remove plan B' }));
+  expect(screen.queryByLabelText('Plan B — where we go')).toBeNull();
+  expect(f.command).not.toHaveBeenCalled();
+});

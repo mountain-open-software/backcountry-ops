@@ -4,7 +4,7 @@ import { Button, Panel } from '../components/ui';
 import type { Briefing as BriefingModel, FieldDecision } from '@open-mountain/domain';
 import type { DayProps } from '../types';
 import React, { useState } from 'react';
-import { mindsets, problemTypes } from '@open-mountain/domain';
+import { briefingPlans, mindsets, problemTypes } from '@open-mountain/domain';
 import { BriefingFields } from '../components/PlanningFields';
 export function Briefing({ day, workspace }: DayProps) {
   const { data, busy, run, command, personalCommand, storage } = workspace;
@@ -14,10 +14,7 @@ export function Briefing({ day, workspace }: DayProps) {
     `${data.communityId}:${day.id}:briefing:${day.briefing?.version || 0}`,
     day.briefing || {
       objective: '',
-      planA: '',
-      hazardsA: '',
-      planB: '',
-      hazardsB: '',
+      plans: [{ id: 'initial-plan-a', description: '', hazards: '' }],
       triggers: '',
       assessment: '',
       mindset: 'Assessment',
@@ -66,7 +63,11 @@ export function Briefing({ day, workspace }: DayProps) {
           onSubmit={(e) => {
             e.preventDefault();
             run(async () => {
-              await command('BriefingSaved', { ...values, dayId: day.id });
+              await command('BriefingSaved', {
+                ...values,
+                plans: briefingPlans(values),
+                dayId: day.id,
+              });
               await briefingSession.clear();
             }, 'Briefing saved. Review and approve this version.');
           }}
@@ -86,7 +87,12 @@ export function Briefing({ day, workspace }: DayProps) {
                   ))}
               </select>
             </label>
-            <BriefingFields values={values} onChange={update} />
+            <BriefingFields
+              values={values}
+              onChange={update}
+              onPlansChange={(plans) => update('plans', plans)}
+              disabled={busy || Boolean(day.closedAt)}
+            />
             <details className="inset">
               <summary>Avalanche problems · CMAH</summary>
               <p className="hint">

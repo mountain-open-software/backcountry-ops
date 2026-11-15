@@ -7,7 +7,7 @@ Status: Local implementation on `feat/solo-daily-process`; not deployed
 - React/TypeScript PWA built with Vite, with desktop and touch-sized mobile layouts.
 - Username onboarding, stable local identity, multiple local community workspaces, separate personal/community PouchDB databases.
 - Day trips and multi-day trips, with exactly one OperationalDay per date and no group splitting.
-- Briefing: objective, Plan A/B and hazards, change triggers, strategic mindset, optional structured avalanche problems, and the user's hazard assessment. Versioned explicit solo approval and approval invalidation on briefing edits.
+- Briefing: objective, an ordered list of plans (A, B, C onward) and their hazards, change triggers, strategic mindset, optional structured avalanche problems, and the user's hazard assessment. Versioned explicit solo approval and approval invalidation on briefing edits.
 - Private personal reflection in the user database, excluded from public timeline and day export. No PIN, encryption, or remote account is implied.
 - Field decisions: record actions within the agreed plan with trigger/rationale, or explicitly approve a departure as the sole participant.
 - Offline audio capture with preview, optional browser dictation, attached recordings, manual observations, and optional permission-based point location. Review text before saving.

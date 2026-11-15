@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {emptyCommunity, emptyUser, makeEvent, applyCommunity, applyUser, replay, dayKey, datesBetween} from '@open-mountain/domain';
+import {emptyCommunity, emptyUser, makeEvent, applyCommunity, applyUser, replay, dayKey, datesBetween, briefingPlans, planLabel, reorderPlans} from '@open-mountain/domain';
 const context = {actorId: 'user-1', scopeId: 'community-1', now: '2026-11-14T10:00:00.000Z'};
 function fixture() {
   let state = emptyCommunity(); const events = [];
@@ -82,4 +82,40 @@ test('a confirmed non-conflicting move preserves the day identity and extends th
   assert.equal(f.state.days[dayId].tripId,'trip-1');assert.equal(f.state.days[dayId].observations['obs-move'].notes,'Keep me');
   assert.equal(f.state.trips['trip-1'].endDate,'2026-11-17');assert.equal(f.state.trips['single-1'].movedTo,'trip-1');
   assert.deepEqual(replay(f.events),f.state);
+});
+
+test('ordered plans retain identities and hazards, invalidate approval, and replay in priority order', () => {
+ const f = fixture(), dayId = f.dayId;
+ const plans = [{id:'ridge',description:'Ridge',hazards:'Wind'}, {id:'forest',description:'Forest',hazards:'Trees'}, {id:'valley',description:'Valley',hazards:'Overhead exposure'}];
+ f.send('BriefingSaved', {...briefing, plans, dayId});
+ f.send('PlanApproved', {dayId,planVersion:1});
+ const reordered = reorderPlans(plans, 2, 0);
+ f.send('BriefingSaved', {...briefing, plans:reordered, dayId});
+ assert.equal(f.state.days[dayId].approval, null);
+ assert.deepEqual(f.state.days[dayId].briefing.plans, [plans[2],plans[0],plans[1]]);
+ assert.deepEqual(plans.map(p=>p.id), ['ridge','forest','valley']);
+ assert.deepEqual(replay(f.events),f.state);
+ assert.equal(planLabel(0),'A'); assert.equal(planLabel(25),'Z'); assert.equal(planLabel(26),'AA');
+ assert.equal(planLabel(99),'CV');
+});
+test('legacy A/B events and drafts retain their original content with deterministic plan IDs', () => {
+ const f=fixture(), dayId=f.dayId;
+ const legacy={id:'legacy-event',version:1,type:'BriefingSaved',scopeId:context.scopeId,actorId:context.actorId,recordedAt:context.now,occurredAt:context.now,payload:{...briefing,dayId}};
+ const restored=applyCommunity(f.state,legacy);
+ assert.deepEqual(restored.days[dayId].briefing.plans, briefingPlans(briefing));
+ assert.equal(restored.days[dayId].briefing.plans[1].hazards, 'Trees');
+ assert.equal(legacy.payload.plans, undefined);
+ const approved=makeEvent(restored,{type:'PlanApproved',payload:{dayId,planVersion:1}},{...context,eventId:'approve-legacy'});
+ assert.equal(approved.type,'PlanApproved');
+});
+test('plans require a nonempty list, unique IDs, supported fields and complete content for approval', () => {
+ const f=fixture(), dayId=f.dayId;
+ const valid={id:'one',description:'Ridge',hazards:'Unknown'};
+ for(const plans of [[],null,'invalid',[valid,valid],[{...valid,privateReflection:'secret'}],[{...valid,description:42}]])
+   assert.throws(()=>f.send('BriefingSaved',{...briefing,plans,dayId}));
+ f.send('BriefingSaved',{...briefing,plans:[{...valid,hazards:''}],dayId});
+ assert.throws(()=>f.send('PlanApproved',{dayId,planVersion:1}));
+ f.send('BriefingSaved',{...briefing,plans:[valid],dayId});
+ f.send('PlanApproved',{dayId,planVersion:2});
+ assert.equal(f.state.days[dayId].approval.planVersion,2);
 });

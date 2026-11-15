@@ -16,8 +16,10 @@ within a trip and same-date day copies are not supported. Separate operating
 groups must use separate trips. This supersedes the earlier split-copy plan.
 
 3. Morning briefing
-Record the day's objective and strategic operating mindset, Plan A and its
-hazards, Plan B and its hazards, and conditions triggering a plan change.
+Record the day's objective and strategic operating mindset, an ordered list
+of plans (A, B, C onward), each plan's hazards, and conditions triggering
+a plan change. Plans can be added, removed and reordered; saving a change
+requires renewed approval. Existing A/B records remain readable.
 Everyone, including the leader, records an individual assessment before the
 group combines them. Retain differing views and unresolved concerns.
 

@@ -87,12 +87,13 @@ test('solo workflow persists offline; post-close corrections remain in timeline'
 test('versioned briefing approval and personal database isolation', async ({ page }) => {
   await setup(page);
   await trip(page);
+  await page.getByRole('button', { name: 'Add plan', exact: true }).click();
   const fields = [
     'Objective for the day',
     'Plan A — where we go',
     'Plan A — hazards and uncertainty',
-    'Plan B — alternative',
-    'Plan B — hazards and limits',
+    'Plan B — where we go',
+    'Plan B — hazards and uncertainty',
     'Conditions that trigger a change',
     'My hazard assessment and rationale',
   ];
@@ -339,4 +340,51 @@ test('every mobile destination remains available after resizing to desktop', asy
     }
     await expect(page.getByRole('button', { name: 'Export day — public data only' })).toBeVisible();
   }
+});
+
+test('ordered plans add, reorder, remove and recover offline without implicit approval', async ({
+  page,
+  context,
+}) => {
+  await setup(page);
+  await trip(page);
+  await expect(page.getByRole('button', { name: 'Remove plan A', exact: true })).toBeDisabled();
+  for (const value of ['Ridge', 'Forest', 'Valley']) {
+    const letter = ['Ridge', 'Forest', 'Valley'].indexOf(value);
+    if (letter) await page.getByRole('button', { name: 'Add plan', exact: true }).click();
+    const label = String.fromCharCode(65 + letter);
+    await page.getByLabel(`Plan ${label} — where we go`, { exact: true }).fill(value);
+    await page
+      .getByLabel(`Plan ${label} — hazards and uncertainty`, { exact: true })
+      .fill(`${value} hazards`);
+  }
+  await page.getByRole('button', { name: 'Move plan C up', exact: true }).click();
+  await expect(page.getByLabel('Plan B — where we go', { exact: true })).toHaveValue('Valley');
+  await expect(page.getByLabel('Plan B — hazards and uncertainty', { exact: true })).toHaveValue(
+    'Valley hazards',
+  );
+  await page.getByLabel('Objective for the day', { exact: true }).fill('Explore');
+  await page
+    .getByLabel('Conditions that trigger a change', { exact: true })
+    .fill('Reassess if loading increases');
+  await page
+    .getByLabel('My hazard assessment and rationale', { exact: true })
+    .fill('Uncertainty remains');
+  await page.getByRole('button', { name: 'Save briefing draft', exact: true }).click();
+  await page.getByRole('button', { name: 'Approve my plan', exact: true }).click();
+  await expect(page.getByText('Plan approved', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Move plan B up', exact: true }).click();
+  await page.getByRole('button', { name: 'Remove plan C', exact: true }).click();
+  await expect(
+    page
+      .getByText('Draft saved on this device. Not submitted or approved.', { exact: true })
+      .first(),
+  ).toBeVisible();
+  await offline(page, context);
+  await expect(page.getByLabel('Plan A — where we go', { exact: true })).toHaveValue('Valley');
+  await expect(page.getByLabel('Plan B — where we go', { exact: true })).toHaveValue('Ridge');
+  await expect(page.getByLabel('Plan C — where we go', { exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Save briefing draft', exact: true }).click();
+  await expect(page.getByText('Plan approved', { exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Approve my plan', exact: true })).toBeEnabled();
 });

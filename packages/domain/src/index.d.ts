@@ -30,3 +30,13 @@ export function applyCommunity(state: CommunityState, event: DomainEvent): Commu
 export function applyUser(state: UserState, event: DomainEvent): UserState;
 export function replay(events: DomainEvent[], scope: 'user'): UserState;
 export function replay(events: DomainEvent[], scope?: 'community'): CommunityState;
+
+export function planLabel(index: number): string;
+export function briefingPlans(
+  briefing?: Partial<Briefing> | null,
+): import('./models.js').TripPlan[];
+export function reorderPlans(
+  plans: import('./models.js').TripPlan[],
+  from: number,
+  to: number,
+): import('./models.js').TripPlan[];

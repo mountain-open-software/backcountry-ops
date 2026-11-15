@@ -12,7 +12,7 @@ Use the confirmed separate user/community database topology. A username alone do
 
 The local user is the sole active participant and leader for this version. Their explicit approval satisfies the one-person roster; their own submission, debrief, and leader closing remain distinct events. This does not approve anything on behalf of people using other local copies or claim the wider group has consented.
 
-Morning objectives, hazard assessment, Plan A/Plan B, mindset, observations, and debrief remain useful in solo mode. Full group proposals, unanimous multi-person approvals, delegated shared-phone recording, team debrief attendance, and multi-user authorization are retained as future collaboration requirements, not first-version acceptance gates.
+Morning objectives, hazard assessment, ordered plans, mindset, observations, and debrief remain useful in solo mode. Full group proposals, unanimous multi-person approvals, delegated shared-phone recording, team debrief attendance, and multi-user authorization are retained as future collaboration requirements, not first-version acceptance gates.
 
 Do not add a replication scheduler, synchronization configuration, automatic reconciliation, or cross-device account flow now. Manual re-entry is the initial workflow. Backup/export remains for local recovery and independent data use, not a promised collaborative merge mechanism.
 
@@ -20,7 +20,7 @@ Do not add a replication scheduler, synchronization configuration, automatic rec
 
 - Local profile and community setup; create a trip and its date-scoped OperationalDays.
 - Individual assessments and a manually prepared plan/proposal approved by the sole local participant; retain the future multi-person rules in the domain plan without requiring collaboration UI now.
-- Plan A, Plan B, strategic mindset, hazards, and agreed change triggers.
+- Ordered plans, strategic mindset, hazards, and agreed change triggers.
 - Attributed observation recording and timeline, primarily voice capture with typed/targeted edits when transcription is unavailable.
 - Own report submission, personal debrief, and explicit local leader closing. Post-close corrections preserve history and do not reopen the day.
 - Route/track file upload or external links; no live GPS track recording or route drawing.

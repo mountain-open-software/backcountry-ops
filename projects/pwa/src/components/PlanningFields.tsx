@@ -1,6 +1,8 @@
 import React from 'react';
 import TextField from '@mui/material/TextField';
-import type { Briefing, Debrief } from '@open-mountain/domain';
+import { briefingPlans, planLabel, reorderPlans } from '@open-mountain/domain';
+import { Button } from './ui';
+import type { Briefing, Debrief, TripPlan } from '@open-mountain/domain';
 function Field({
   label,
   value,
@@ -29,17 +31,19 @@ function Field({
     />
   );
 }
-type BriefingKey =
-  'objective' | 'planA' | 'hazardsA' | 'planB' | 'hazardsB' | 'triggers' | 'assessment';
+type BriefingKey = 'objective' | 'triggers' | 'assessment';
 export function BriefingFields({
   values,
   onChange,
+  onPlansChange,
   disabled = false,
 }: {
   values: Partial<Briefing>;
   onChange: (key: BriefingKey, value: string) => void;
+  onPlansChange: (plans: TripPlan[]) => void;
   disabled?: boolean;
 }) {
+  const plans = briefingPlans(values);
   return (
     <fieldset disabled={disabled} className="fields">
       <Field
@@ -48,34 +52,66 @@ export function BriefingFields({
         disabled={disabled}
         onChange={(v) => onChange('objective', v)}
       />
-      <Field
-        label="Plan A — where we go"
-        multiline
-        value={values.planA || ''}
-        disabled={disabled}
-        onChange={(v) => onChange('planA', v)}
-      />
-      <Field
-        label="Plan A — hazards and uncertainty"
-        multiline
-        value={values.hazardsA || ''}
-        disabled={disabled}
-        onChange={(v) => onChange('hazardsA', v)}
-      />
-      <Field
-        label="Plan B — alternative"
-        multiline
-        value={values.planB || ''}
-        disabled={disabled}
-        onChange={(v) => onChange('planB', v)}
-      />
-      <Field
-        label="Plan B — hazards and limits"
-        multiline
-        value={values.hazardsB || ''}
-        disabled={disabled}
-        onChange={(v) => onChange('hazardsB', v)}
-      />
+      <p className="hint">
+        Plans are ordered by preference. Move a plan up or down to change its letter. Review change
+        conditions when reordering.
+      </p>
+      {plans.map((plan, index) => {
+        const label = planLabel(index);
+        const edit = (key: 'description' | 'hazards', value: string) =>
+          onPlansChange(plans.map((p) => (p.id === plan.id ? { ...p, [key]: value } : p)));
+        return (
+          <section key={plan.id} className="fields inset" aria-label={`Plan ${label}`}>
+            <h3>Plan {label}</h3>
+            <Field
+              label={`Plan ${label} — where we go`}
+              multiline
+              value={plan.description}
+              disabled={disabled}
+              onChange={(v) => edit('description', v)}
+            />
+            <Field
+              label={`Plan ${label} — hazards and uncertainty`}
+              multiline
+              value={plan.hazards}
+              disabled={disabled}
+              onChange={(v) => edit('hazards', v)}
+            />
+            <div className="row">
+              <Button
+                type="button"
+                disabled={disabled || index === 0}
+                onClick={() => onPlansChange(reorderPlans(plans, index, index - 1))}
+              >
+                Move plan {label} up
+              </Button>
+              <Button
+                type="button"
+                disabled={disabled || index === plans.length - 1}
+                onClick={() => onPlansChange(reorderPlans(plans, index, index + 1))}
+              >
+                Move plan {label} down
+              </Button>
+              <Button
+                type="button"
+                disabled={disabled || plans.length === 1}
+                onClick={() => onPlansChange(plans.filter((p) => p.id !== plan.id))}
+              >
+                Remove plan {label}
+              </Button>
+            </div>
+          </section>
+        );
+      })}
+      <Button
+        type="button"
+        disabled={disabled || plans.length >= 100}
+        onClick={() =>
+          onPlansChange([...plans, { id: crypto.randomUUID(), description: '', hazards: '' }])
+        }
+      >
+        Add plan
+      </Button>
       <Field
         label="Conditions that trigger a change"
         multiline

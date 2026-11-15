@@ -6,12 +6,19 @@ export interface AvalancheProblem {
   minSize: string;
   maxSize: string;
 }
+export interface TripPlan {
+  id: string;
+  description: string;
+  hazards: string;
+}
 export interface Briefing {
+  plans: TripPlan[];
   objective: string;
-  planA: string;
-  hazardsA: string;
-  planB: string;
-  hazardsB: string;
+  /** Legacy saved briefings and drafts; converted to plans on read. */
+  planA?: string;
+  hazardsA?: string;
+  planB?: string;
+  hazardsB?: string;
   triggers: string;
   assessment: string;
   mindset: string;

@@ -1,9 +1,13 @@
+import { randomUUID } from 'expo-crypto';
 import { useDraft } from '../useDraft';
 import { DraftStatus } from '../components/DraftStatus';
 import { tokens } from '@open-mountain/design-system';
 import React, { useState } from 'react';
 import { View, Text, Switch } from 'react-native';
 import {
+  briefingPlans,
+  planLabel,
+  reorderPlans,
   mindsets,
   problemTypes,
   type Briefing,
@@ -14,10 +18,7 @@ import type { ReadyWorkspace } from '../useWorkspace';
 import { Button, Card, Field, Heading, Note, styles, colors } from '../components/Controls';
 const initial: Briefing = {
   objective: '',
-  planA: '',
-  hazardsA: '',
-  planB: '',
-  hazardsB: '',
+  plans: [{ id: 'initial-plan-a', description: '', hazards: '' }],
   triggers: '',
   assessment: '',
   mindset: 'Assessment',
@@ -62,6 +63,7 @@ export function BriefingScreen({
     closed = Boolean(day.closedAt);
   const update = <K extends keyof Briefing>(key: K, value: Briefing[K]) =>
     setValues((v) => ({ ...v, [key]: value }));
+  const plans = briefingPlans(values);
   return (
     <View style={styles.section}>
       <Card>
@@ -91,33 +93,63 @@ export function BriefingScreen({
           editable={!busy && !closed}
           onChangeText={(v) => update('objective', v)}
         />
-        <Field
-          label="Plan A — where we go"
-          multiline
-          value={values.planA}
-          editable={!busy && !closed}
-          onChangeText={(v) => update('planA', v)}
-        />
-        <Field
-          label="Plan A — hazards and uncertainty"
-          multiline
-          value={values.hazardsA}
-          editable={!busy && !closed}
-          onChangeText={(v) => update('hazardsA', v)}
-        />
-        <Field
-          label="Plan B — alternative"
-          multiline
-          value={values.planB}
-          editable={!busy && !closed}
-          onChangeText={(v) => update('planB', v)}
-        />
-        <Field
-          label="Plan B — hazards and limits"
-          multiline
-          value={values.hazardsB}
-          editable={!busy && !closed}
-          onChangeText={(v) => update('hazardsB', v)}
+        <Note>
+          Plans are ordered by preference. Move a plan up or down to change its letter. Review
+          change conditions when reordering.
+        </Note>
+        {plans.map((plan, index) => {
+          const label = planLabel(index);
+          const edit = (key: 'description' | 'hazards', value: string) =>
+            update(
+              'plans',
+              plans.map((p) => (p.id === plan.id ? { ...p, [key]: value } : p)),
+            );
+          return (
+            <View key={plan.id} style={styles.card}>
+              <Heading>Plan {label}</Heading>
+              <Field
+                label={`Plan ${label} — where we go`}
+                multiline
+                value={plan.description}
+                editable={!busy && !closed}
+                onChangeText={(v) => edit('description', v)}
+              />
+              <Field
+                label={`Plan ${label} — hazards and uncertainty`}
+                multiline
+                value={plan.hazards}
+                editable={!busy && !closed}
+                onChangeText={(v) => edit('hazards', v)}
+              />
+              <Button
+                title={`Move plan ${label} up`}
+                disabled={busy || closed || index === 0}
+                onPress={() => update('plans', reorderPlans(plans, index, index - 1))}
+              />
+              <Button
+                title={`Move plan ${label} down`}
+                disabled={busy || closed || index === plans.length - 1}
+                onPress={() => update('plans', reorderPlans(plans, index, index + 1))}
+              />
+              <Button
+                title={`Remove plan ${label}`}
+                disabled={busy || closed || plans.length === 1}
+                onPress={() =>
+                  update(
+                    'plans',
+                    plans.filter((p) => p.id !== plan.id),
+                  )
+                }
+              />
+            </View>
+          );
+        })}
+        <Button
+          title="Add plan"
+          disabled={busy || closed || plans.length >= 100}
+          onPress={() =>
+            update('plans', [...plans, { id: randomUUID(), description: '', hazards: '' }])
+          }
         />
         <Field
           label="Conditions that trigger a change"
@@ -216,7 +248,7 @@ export function BriefingScreen({
           disabled={busy || closed}
           onPress={() =>
             void run(async () => {
-              await command('BriefingSaved', { ...values, dayId: day.id });
+              await command('BriefingSaved', { ...values, plans, dayId: day.id });
               await briefingSession.clear();
             }, 'Briefing saved. Review and approve this version.')
           }
