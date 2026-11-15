@@ -32,3 +32,7 @@ Keep domain logic platform-independent. Keep device and database code behind ada
 Create a branch and submit a pull request describing the problem, behavior change, and checks run. Update relevant product/use-case documentation when behavior changes. Distinguish implemented behavior from planned requirements. Record significant architecture choices in [architecture decision records](docs/architecture/decisions/README.md); supersede old decisions instead of silently rewriting their rationale.
 
 Do not commit secrets, local browser data, recordings, private assessments, generated builds, or dependencies. Use synthetic examples in tests and reports. Contributions use the repository's [Apache License 2.0](LICENSE).
+
+## Design system
+
+Use [shared semantic tokens](packages/design-system/README.md) and the existing Material UI / Paper primitives. After token changes run `npm run design:generate`; `npm run check:design` detects stale generated CSS. Domain/application packages must remain independent of UI libraries.

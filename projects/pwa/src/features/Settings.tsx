@@ -1,3 +1,4 @@
+import { Button, Panel } from '../components/ui';
 import type { ReadyWorkspace } from '../types';
 import React, { useEffect, useState } from 'react';
 import { download } from '../files';
@@ -14,7 +15,7 @@ export function Settings({ workspace }: { workspace: ReadyWorkspace }) {
     <details className="settings">
       <summary>Profile & local backups</summary>
       <div className="settings-grid">
-        <section className="panel">
+        <Panel className="panel">
           <h2>Local identity</h2>
           <form
             onSubmit={(e) => {
@@ -36,7 +37,7 @@ export function Settings({ workspace }: { workspace: ReadyWorkspace }) {
                 maxLength={80}
               />
             </label>
-            <button disabled={busy}>Update username</button>
+            <Button disabled={busy}>Update username</Button>
           </form>
           <p className="hint">
             No password, login, synchronization, or server. Independent copies require manual
@@ -55,17 +56,17 @@ export function Settings({ workspace }: { workspace: ReadyWorkspace }) {
               New local community
               <input aria-label="New local community" name="community" required maxLength={100} />
             </label>
-            <button disabled={busy}>Create community</button>
+            <Button disabled={busy}>Create community</Button>
           </form>
-        </section>
-        <section className="panel">
+        </Panel>
+        <Panel className="panel">
           <h2>Backup & restore</h2>
           <p className="hint">
             Browser data can be cleared. Full backups include all your community data, original
             files/audio, and private notes. Keep backups private. Restore accepts the same history
             or a newer continuation; it never silently merges divergent histories.
           </p>
-          <button
+          <Button
             disabled={busy}
             onClick={() =>
               run(
@@ -82,7 +83,7 @@ export function Settings({ workspace }: { workspace: ReadyWorkspace }) {
             }
           >
             Export full backup — includes private notes
-          </button>
+          </Button>
           <label className="file-label">
             Restore my local backup
             <input
@@ -102,23 +103,23 @@ export function Settings({ workspace }: { workspace: ReadyWorkspace }) {
             />
           </label>
           <p className="service-note">Server collaboration, AI, and day merging: coming later.</p>
-        </section>
+        </Panel>
         {legacy.length > 0 && (
-          <section className="panel">
+          <Panel className="panel">
             <h2>Previous-version archive</h2>
             <p>
               The earlier scaffold has {legacy.length} records in its original database. They remain
               untouched. Export them before clearing browser storage; they have no reliable trip/day
               associations to migrate automatically.
             </p>
-            <button
+            <Button
               onClick={() =>
                 download('open-mountain-legacy-records.json', { version: 1, documents: legacy })
               }
             >
               Export previous-version records
-            </button>
-          </section>
+            </Button>
+          </Panel>
         )}
       </div>
     </details>

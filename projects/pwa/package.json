@@ -9,11 +9,15 @@
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material": "^9.5.0",
+    "@open-mountain/application": "*",
+    "@open-mountain/domain": "*",
+    "@open-mountain/storage-pouchdb": "*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "@open-mountain/domain": "*",
-    "@open-mountain/application": "*",
-    "@open-mountain/storage-pouchdb": "*"
+    "@open-mountain/design-system": "*"
   },
   "devDependencies": {
     "vite": "^6.0.0",

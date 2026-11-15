@@ -37,6 +37,7 @@ The repository uses npm workspaces; see [ADR 0001](decisions/0001-workspace-boun
 
 | Workspace | Responsibility | Platform constraint |
 | --- | --- | --- |
+| `packages/design-system` | Shared Material-oriented tokens; generated web CSS | No platform/domain dependency |
 | `packages/domain` | Current record creation/validation | Platform-independent; canonical model still incomplete |
 | `packages/application` | Membership and scoped record queries | Platform-independent |
 | `packages/ui-schema` | JSON screen definitions and renderer contract validation | No React or browser dependency |

@@ -42,6 +42,7 @@ See the [PWA guide](projects/pwa/README.md) for offline testing and backups, and
 - `projects/pwa`: responsive React/TypeScript/Vite PWA.
 - `projects/mobile`: Expo/React Native/TypeScript solo app for iOS and Android.
 - `projects/api`: future API structure; no server required today.
+- `packages/design-system`: shared semantic tokens for Material UI web and React Native Paper.
 - `packages/domain`: typed contracts, command validation, events, and deterministic state replay.
 - `packages/application`: command orchestration and storage contracts.
 - `packages/ui-schema`: legacy JSON screen definitions reserved for future customization; not used by the current React UI.

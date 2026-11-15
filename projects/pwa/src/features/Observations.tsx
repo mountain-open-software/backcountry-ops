@@ -1,3 +1,4 @@
+import { Button, Panel } from '../components/ui';
 import type { Observation } from '@open-mountain/domain';
 import type { DayProps } from '../types';
 import React, { useState } from 'react';
@@ -86,7 +87,7 @@ export function Observations({ day, workspace }: DayProps) {
   }
   return (
     <div className="feature-grid">
-      <section className="panel">
+      <Panel className="panel">
         <h2>{form.id ? 'Correct an observation' : 'Capture an observation'}</h2>
         <p className="hint">
           Author: {data.personal.profile!.username} · {day.date}.{' '}
@@ -141,9 +142,9 @@ export function Observations({ day, workspace }: DayProps) {
                 onChange={(e) => update('location', e.target.value)}
               />
             </label>
-            <button type="button" disabled={locating} onClick={locate}>
+            <Button type="button" disabled={locating} onClick={locate}>
               {locating ? 'Getting point location…' : 'Capture point location'}
-            </button>
+            </Button>
             <label>
               Attach an audio recording
               <input
@@ -162,17 +163,17 @@ export function Observations({ day, workspace }: DayProps) {
                   {file.name} · {(file.size / 1024).toFixed(0)} KB
                 </p>
                 <AudioPreview file={file} />
-                <button type="button" onClick={() => setFile(null)}>
+                <Button type="button" onClick={() => setFile(null)}>
                   Remove new recording
-                </button>
+                </Button>
               </div>
             )}
             <div className="row">
-              <button className="primary">
+              <Button className="primary">
                 {form.id ? 'Save correction' : 'Save observation'}
-              </button>
+              </Button>
               {form.id && (
-                <button
+                <Button
                   type="button"
                   onClick={() => {
                     setForm(blank());
@@ -180,12 +181,12 @@ export function Observations({ day, workspace }: DayProps) {
                   }}
                 >
                   Cancel correction
-                </button>
+                </Button>
               )}
             </div>
           </fieldset>
         </form>
-      </section>
+      </Panel>
       <section>
         <div className="section-heading">
           <h2>My field report</h2>
@@ -215,7 +216,7 @@ export function Observations({ day, workspace }: DayProps) {
             {observation.location && <p className="meta">{observation.location}</p>}
             <p className="notes">{observation.notes}</p>
             <div className="row">
-              <button
+              <Button
                 disabled={busy}
                 onClick={() => {
                   setForm({ ...observation, observedAt: localTime(observation.observedAt) });
@@ -223,9 +224,9 @@ export function Observations({ day, workspace }: DayProps) {
                 }}
               >
                 Correct
-              </button>
+              </Button>
               {observation.audioId && (
-                <button
+                <Button
                   disabled={busy}
                   onClick={() =>
                     run(async () =>
@@ -237,13 +238,13 @@ export function Observations({ day, workspace }: DayProps) {
                   }
                 >
                   Download recording
-                </button>
+                </Button>
               )}
             </div>
           </article>
         ))}
         <div className="panel">
-          <button
+          <Button
             className="primary"
             disabled={busy || submitted}
             onClick={() =>
@@ -261,7 +262,7 @@ export function Observations({ day, workspace }: DayProps) {
             }
           >
             {observations.length ? 'Submit my observations' : 'Submit — nothing to add'}
-          </button>
+          </Button>
           <p className="hint">
             {day.closedAt
               ? 'Later corrections amend your report automatically. Previous submissions remain in the timeline.'

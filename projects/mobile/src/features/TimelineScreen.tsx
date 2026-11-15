@@ -1,3 +1,4 @@
+import { tokens } from '@open-mountain/design-system';
 import React from 'react';
 import { Text, View, Alert } from 'react-native';
 import type { OperationalDay } from '@open-mountain/domain';
@@ -25,7 +26,7 @@ export function TimelineScreen({
         excluded.
       </Note>
       {events.map((e, index) => (
-        <View key={e.id} style={[styles.card, { backgroundColor: '#f1f3ea' }]}>
+        <View key={e.id} style={[styles.card, { backgroundColor: tokens.color.surfaceVariant }]}>
           <Text style={styles.label}>
             {e.type.replace(/([a-z])([A-Z])/g, '$1 $2')}
             {closing >= 0 && index > closing ? ' · After day close' : ''}

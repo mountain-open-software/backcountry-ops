@@ -1,3 +1,6 @@
+import { PaperProvider } from 'react-native-paper';
+import { tokens } from '@open-mountain/design-system';
+import { nativeTheme } from './theme';
 import React, { useState } from 'react';
 import {
   Alert,
@@ -339,7 +342,7 @@ function WorkspaceApp() {
           </View>
           {Boolean(error) && (
             <View accessibilityRole="alert" style={local.error}>
-              <Text style={{ color: '#7e3020' }}>{error}</Text>
+              <Text style={{ color: tokens.color.error }}>{error}</Text>
             </View>
           )}
           {Boolean(message) && (
@@ -357,7 +360,9 @@ function WorkspaceApp() {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <WorkspaceApp />
+      <PaperProvider theme={nativeTheme}>
+        <WorkspaceApp />
+      </PaperProvider>
     </SafeAreaProvider>
   );
 }
@@ -379,6 +384,6 @@ const local = StyleSheet.create({
   wide: { flexDirection: 'row', gap: 22, alignItems: 'flex-start' },
   sidebar: { width: 280 },
   content: { flex: 1, gap: 20 },
-  error: { padding: 16, borderRadius: 10, backgroundColor: '#f4dfd6' },
-  notice: { padding: 16, borderRadius: 10, backgroundColor: '#e3ecd9' },
+  error: { padding: 16, borderRadius: 10, backgroundColor: tokens.color.errorContainer },
+  notice: { padding: 16, borderRadius: 10, backgroundColor: tokens.color.primaryContainer },
 });

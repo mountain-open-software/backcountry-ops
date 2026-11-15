@@ -2,6 +2,11 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig({
   base: './',
+  build: {rollupOptions: {
+    // Client-component directives are irrelevant in this client-only Vite SPA.
+    onwarn(warning, warn) {if (warning.code === 'MODULE_LEVEL_DIRECTIVE' && warning.message.includes('use client')) return; warn(warning);},
+    output: {manualChunks: {ui: ['react','react-dom','@mui/material/Button','@mui/material/Paper','@mui/material/TextField','@mui/material/styles','@mui/material/CssBaseline'], persistence: ['pouchdb-browser']}},
+  }},
   define: { global: 'globalThis' },
   plugins: [VitePWA({
     registerType: 'prompt',

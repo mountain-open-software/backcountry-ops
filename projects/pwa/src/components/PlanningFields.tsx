@@ -1,5 +1,34 @@
 import React from 'react';
+import TextField from '@mui/material/TextField';
 import type { Briefing, Debrief } from '@open-mountain/domain';
+function Field({
+  label,
+  value,
+  onChange,
+  multiline = false,
+  disabled = false,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  multiline?: boolean;
+  disabled?: boolean;
+}) {
+  return (
+    <TextField
+      fullWidth
+      variant="outlined"
+      label={label}
+      value={value}
+      required
+      multiline={multiline}
+      minRows={multiline ? 3 : undefined}
+      disabled={disabled}
+      onChange={(event) => onChange(event.target.value)}
+      slotProps={{ htmlInput: { 'aria-label': label, maxLength: 30000 } }}
+    />
+  );
+}
 type BriefingKey =
   'objective' | 'planA' | 'hazardsA' | 'planB' | 'hazardsB' | 'triggers' | 'assessment';
 export function BriefingFields({
@@ -13,76 +42,54 @@ export function BriefingFields({
 }) {
   return (
     <fieldset disabled={disabled} className="fields">
-      <label>
-        Objective for the day
-        <input
-          aria-label="Objective for the day"
-          required
-          maxLength={30000}
-          value={values.objective || ''}
-          onChange={(e) => onChange('objective', e.target.value)}
-        />
-      </label>
-      <label>
-        Plan A — where we go
-        <textarea
-          aria-label="Plan A — where we go"
-          required
-          rows={3}
-          value={values.planA || ''}
-          onChange={(e) => onChange('planA', e.target.value)}
-        />
-      </label>
-      <label>
-        Plan A — hazards and uncertainty
-        <textarea
-          aria-label="Plan A — hazards and uncertainty"
-          required
-          rows={3}
-          value={values.hazardsA || ''}
-          onChange={(e) => onChange('hazardsA', e.target.value)}
-        />
-      </label>
-      <label>
-        Plan B — alternative
-        <textarea
-          aria-label="Plan B — alternative"
-          required
-          rows={3}
-          value={values.planB || ''}
-          onChange={(e) => onChange('planB', e.target.value)}
-        />
-      </label>
-      <label>
-        Plan B — hazards and limits
-        <textarea
-          aria-label="Plan B — hazards and limits"
-          required
-          rows={3}
-          value={values.hazardsB || ''}
-          onChange={(e) => onChange('hazardsB', e.target.value)}
-        />
-      </label>
-      <label>
-        Conditions that trigger a change
-        <textarea
-          aria-label="Conditions that trigger a change"
-          required
-          rows={3}
-          value={values.triggers || ''}
-          onChange={(e) => onChange('triggers', e.target.value)}
-        />
-      </label>
-      <label>
-        My hazard assessment and rationale
-        <textarea
-          aria-label="My hazard assessment and rationale"
-          required
-          rows={3}
-          value={values.assessment || ''}
-          onChange={(e) => onChange('assessment', e.target.value)}
-        />
-      </label>
+      <Field
+        label="Objective for the day"
+        value={values.objective || ''}
+        disabled={disabled}
+        onChange={(v) => onChange('objective', v)}
+      />
+      <Field
+        label="Plan A — where we go"
+        multiline
+        value={values.planA || ''}
+        disabled={disabled}
+        onChange={(v) => onChange('planA', v)}
+      />
+      <Field
+        label="Plan A — hazards and uncertainty"
+        multiline
+        value={values.hazardsA || ''}
+        disabled={disabled}
+        onChange={(v) => onChange('hazardsA', v)}
+      />
+      <Field
+        label="Plan B — alternative"
+        multiline
+        value={values.planB || ''}
+        disabled={disabled}
+        onChange={(v) => onChange('planB', v)}
+      />
+      <Field
+        label="Plan B — hazards and limits"
+        multiline
+        value={values.hazardsB || ''}
+        disabled={disabled}
+        onChange={(v) => onChange('hazardsB', v)}
+      />
+      <Field
+        label="Conditions that trigger a change"
+        multiline
+        value={values.triggers || ''}
+        disabled={disabled}
+        onChange={(v) => onChange('triggers', v)}
+      />
+      <Field
+        label="My hazard assessment and rationale"
+        multiline
+        value={values.assessment || ''}
+        disabled={disabled}
+        onChange={(v) => onChange('assessment', v)}
+      />
     </fieldset>
   );
 }
@@ -97,56 +104,41 @@ export function DebriefFields({
 }) {
   return (
     <fieldset disabled={disabled} className="fields">
-      <label>
-        Expected versus observed conditions
-        <textarea
-          aria-label="Expected versus observed conditions"
-          required
-          rows={3}
-          value={values.expected}
-          onChange={(e) => onChange('expected', e.target.value)}
-        />
-      </label>
-      <label>
-        Planned versus actual activity
-        <textarea
-          aria-label="Planned versus actual activity"
-          required
-          rows={3}
-          value={values.actual}
-          onChange={(e) => onChange('actual', e.target.value)}
-        />
-      </label>
-      <label>
-        Human factors discussed (public notes)
-        <textarea
-          aria-label="Human factors discussed (public notes)"
-          required
-          rows={3}
-          value={values.humanFactors}
-          onChange={(e) => onChange('humanFactors', e.target.value)}
-        />
-      </label>
-      <label>
-        What went well
-        <textarea
-          aria-label="What went well"
-          required
-          rows={3}
-          value={values.good}
-          onChange={(e) => onChange('good', e.target.value)}
-        />
-      </label>
-      <label>
-        What needs to change
-        <textarea
-          aria-label="What needs to change"
-          required
-          rows={3}
-          value={values.change}
-          onChange={(e) => onChange('change', e.target.value)}
-        />
-      </label>
+      <Field
+        label="Expected versus observed conditions"
+        multiline
+        value={values.expected}
+        disabled={disabled}
+        onChange={(v) => onChange('expected', v)}
+      />
+      <Field
+        label="Planned versus actual activity"
+        multiline
+        value={values.actual}
+        disabled={disabled}
+        onChange={(v) => onChange('actual', v)}
+      />
+      <Field
+        label="Human factors discussed (public notes)"
+        multiline
+        value={values.humanFactors}
+        disabled={disabled}
+        onChange={(v) => onChange('humanFactors', v)}
+      />
+      <Field
+        label="What went well"
+        multiline
+        value={values.good}
+        disabled={disabled}
+        onChange={(v) => onChange('good', v)}
+      />
+      <Field
+        label="What needs to change"
+        multiline
+        value={values.change}
+        disabled={disabled}
+        onChange={(v) => onChange('change', v)}
+      />
     </fieldset>
   );
 }

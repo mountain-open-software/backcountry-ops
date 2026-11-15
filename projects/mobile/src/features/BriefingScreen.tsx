@@ -1,3 +1,4 @@
+import { tokens } from '@open-mountain/design-system';
 import React, { useState } from 'react';
 import { View, Text, Switch } from 'react-native';
 import {
@@ -122,7 +123,7 @@ export function BriefingScreen({
           mean low risk.
         </Note>
         {values.problems.map((problem, index) => (
-          <View key={index} style={[styles.card, { backgroundColor: '#f0f2e8' }]}>
+          <View key={index} style={[styles.card, { backgroundColor: tokens.color.surfaceVariant }]}>
             <Text style={styles.label}>
               Problem {index + 1}: {problem.type}
             </Text>

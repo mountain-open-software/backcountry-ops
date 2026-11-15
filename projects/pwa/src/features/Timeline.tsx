@@ -1,3 +1,4 @@
+import { Panel } from '../components/ui';
 import type { DomainEvent, Trip, OperationalDay } from '@open-mountain/domain';
 import React from 'react';
 const labels: Record<string, string> = {
@@ -33,7 +34,7 @@ export function Timeline({
   );
   const closingIndex = relevant.findIndex((e) => e.type === 'DayClosed');
   return (
-    <section className="panel timeline-panel">
+    <Panel className="panel timeline-panel">
       <h2>Day timeline</h2>
       <p className="hint">
         Recorded order is preserved. Observation time is separate from entry/correction time.
@@ -79,6 +80,6 @@ export function Timeline({
           </li>
         ))}
       </ol>
-    </section>
+    </Panel>
   );
 }

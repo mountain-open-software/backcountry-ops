@@ -1,3 +1,4 @@
+import { tokens } from '@open-mountain/design-system';
 import React, { useState } from 'react';
 import { View, Linking } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
@@ -94,7 +95,7 @@ export function RouteScreen({
         }
       />
       {day.routes.map((route, i) => (
-        <View key={i} style={[styles.card, { backgroundColor: '#eef1e6' }]}>
+        <View key={i} style={[styles.card, { backgroundColor: tokens.color.surfaceVariant }]}>
           <Note>
             {route.title} · {route.kind}
             {route.points ? ` · ${route.points} points` : ''}

@@ -1,0 +1,6 @@
+{
+  "name": "@open-mountain/design-system", "version": "0.1.0", "private": true,
+  "type": "module", "license": "Apache-2.0",
+  "exports": {".": "./src/index.ts", "./styles.css": "./src/tokens.css"},
+  "scripts": {"test": "node --test test/*.test.js"}
+}

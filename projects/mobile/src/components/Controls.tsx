@@ -1,61 +1,76 @@
 import React from 'react';
-import { Pressable, Text, TextInput, View, StyleSheet, type TextInputProps } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import {
+  Button as PaperButton,
+  Card as PaperCard,
+  Text as PaperText,
+  TextInput as PaperInput,
+} from 'react-native-paper';
+import { tokens } from '@open-mountain/design-system';
 export const colors = {
-  green: '#173f36',
-  paper: '#fffef9',
-  background: '#f4f3ed',
-  muted: '#687565',
-  line: '#d6ddcf',
+  green: tokens.color.primary,
+  paper: tokens.color.surface,
+  background: tokens.color.background,
+  muted: tokens.color.muted,
+  line: tokens.color.outlineVariant,
 };
 export const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.paper,
+    backgroundColor: tokens.color.surface,
     borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 14,
-    padding: 20,
-    gap: 14,
+    borderColor: tokens.color.outlineVariant,
+    borderRadius: tokens.radius.large,
+    padding: tokens.space.xl,
+    gap: tokens.space.lg,
   },
-  title: { fontSize: 24, fontWeight: '600', color: colors.green },
-  label: { fontSize: 13, fontWeight: '600', color: colors.green, marginBottom: 7 },
+  title: { fontSize: tokens.type.title, fontWeight: '600', color: tokens.color.text },
+  label: {
+    fontSize: tokens.type.label,
+    fontWeight: '600',
+    color: tokens.color.text,
+    marginBottom: tokens.space.sm,
+  },
   input: {
-    borderWidth: 1,
-    borderColor: '#c4cebd',
-    borderRadius: 8,
-    minHeight: 48,
-    padding: 12,
-    fontSize: 16,
-    color: colors.green,
-    backgroundColor: '#fffefa',
+    minHeight: tokens.control.minHeight,
+    fontSize: tokens.type.body,
+    backgroundColor: tokens.color.field,
   },
-  note: { fontSize: 13, lineHeight: 21, color: colors.muted },
-  row: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  section: { gap: 18 },
-  button: {
-    minHeight: 48,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 9,
-    borderWidth: 1,
-    borderColor: '#bfccba',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: { fontWeight: '600', fontSize: 14 },
-  small: { fontSize: 12, color: colors.muted, lineHeight: 19 },
+  note: { fontSize: tokens.type.supporting, lineHeight: 22, color: tokens.color.muted },
+  row: { flexDirection: 'row', flexWrap: 'wrap', gap: tokens.space.md },
+  section: { gap: tokens.space.xl },
+  button: { minHeight: tokens.control.minHeight, borderRadius: tokens.radius.small },
+  buttonText: { fontWeight: '600', fontSize: tokens.type.supporting },
+  small: { fontSize: tokens.type.caption, color: tokens.color.muted, lineHeight: 20 },
 });
 export function Card({ children }: { children: React.ReactNode }) {
-  return <View style={styles.card}>{children}</View>;
+  return (
+    <PaperCard
+      mode="outlined"
+      style={{
+        backgroundColor: tokens.color.surface,
+        borderColor: tokens.color.outlineVariant,
+        borderRadius: tokens.radius.large,
+      }}
+    >
+      <PaperCard.Content style={{ gap: tokens.space.lg, paddingVertical: tokens.space.xl }}>
+        {children}
+      </PaperCard.Content>
+    </PaperCard>
+  );
 }
 export function Heading({ children }: { children: React.ReactNode }) {
   return (
-    <Text accessibilityRole="header" style={styles.title}>
+    <PaperText accessibilityRole="header" variant="headlineSmall" style={styles.title}>
       {children}
-    </Text>
+    </PaperText>
   );
 }
 export function Note({ children }: { children: React.ReactNode }) {
-  return <Text style={styles.note}>{children}</Text>;
+  return (
+    <PaperText variant="bodyMedium" style={styles.note}>
+      {children}
+    </PaperText>
+  );
 }
 export function Button({
   title,
@@ -69,38 +84,34 @@ export function Button({
   primary?: boolean;
 }) {
   return (
-    <Pressable
-      accessibilityRole="button"
+    <PaperButton
+      mode={primary ? 'contained' : 'outlined'}
       accessibilityLabel={title}
-      accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.button,
-        {
-          backgroundColor: primary ? colors.green : colors.paper,
-          opacity: disabled ? 0.45 : pressed ? 0.7 : 1,
-        },
-      ]}
+      style={styles.button}
+      contentStyle={{ minHeight: tokens.control.minHeight }}
+      labelStyle={styles.buttonText}
     >
-      <Text style={[styles.buttonText, { color: primary ? 'white' : colors.green }]}>{title}</Text>
-    </Pressable>
+      {title}
+    </PaperButton>
   );
 }
-export function Field({ label, multiline = false, ...props }: TextInputProps & { label: string }) {
+export function Field({
+  label,
+  multiline = false,
+  ...props
+}: Omit<React.ComponentProps<typeof PaperInput>, 'label'> & { label: string }) {
   return (
     <View>
-      <Text style={styles.label}>{label}</Text>
-      <TextInput
+      <PaperInput
+        mode="outlined"
+        label={label}
         accessibilityLabel={label}
         multiline={multiline}
+        disabled={props.editable === false}
         textAlignVertical={multiline ? 'top' : 'center'}
-        placeholderTextColor="#7a8575"
-        style={[
-          styles.input,
-          multiline ? { minHeight: 100 } : null,
-          props.editable === false ? { opacity: 0.6 } : null,
-        ]}
+        style={[styles.input, multiline ? { minHeight: 104 } : undefined]}
         {...props}
       />
     </View>

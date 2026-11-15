@@ -1,3 +1,4 @@
+import { Button, Panel } from './components/ui';
 import React, { useState } from 'react';
 import { useWorkspace } from './useWorkspace';
 import { Briefing } from './features/Briefing';
@@ -69,7 +70,7 @@ export default function App() {
               <span>◌ No account required</span>
             </div>
           </section>
-          <section className="panel">
+          <Panel className="panel">
             <h2>Set up your local profile</h2>
             <p className="hint">
               One username and a local community workspace. No password or server required.
@@ -110,7 +111,7 @@ export default function App() {
                     defaultValue="My mountain community"
                   />
                 </label>
-                <button className="primary">Create my workspace</button>
+                <Button className="primary">Create my workspace</Button>
               </fieldset>
             </form>
             <label className="file-label">
@@ -131,7 +132,7 @@ export default function App() {
                 }}
               />
             </label>
-          </section>
+          </Panel>
         </main>
       ) : (
         <>
@@ -165,14 +166,14 @@ export default function App() {
           </section>
           <div className="workspace-layout">
             <aside className="trip-sidebar">
-              <section className="panel">
+              <Panel className="panel">
                 <div className="section-heading">
                   <h2>My trips</h2>
                   <span className="count">{trips.length}</span>
                 </div>
                 <div className="trip-list">
                   {trips.map((t) => (
-                    <button
+                    <Button
                       key={t.id}
                       className={t.id === trip?.id ? 'trip-choice selected' : 'trip-choice'}
                       aria-pressed={t.id === trip?.id}
@@ -186,7 +187,7 @@ export default function App() {
                       <small>
                         {t.startDate === t.endDate ? 'Day trip' : 'Multi-day trip'} · {t.startDate}
                       </small>
-                    </button>
+                    </Button>
                   ))}
                 </div>
                 <details open={!trips.length} className="new-trip">
@@ -250,11 +251,11 @@ export default function App() {
                         Same date for a day trip; up to 90 days for an expedition. Time zone:{' '}
                         {Intl.DateTimeFormat().resolvedOptions().timeZone}.
                       </p>
-                      <button className="primary">Create trip</button>
+                      <Button className="primary">Create trip</Button>
                     </fieldset>
                   </form>
                 </details>
-              </section>
+              </Panel>
             </aside>
             <main id="main" className="daily-workspace">
               {!day ? (
@@ -305,7 +306,7 @@ export default function App() {
                         { id: 'timeline', label: 'Timeline' },
                       ] as const
                     ).map((item, index) => (
-                      <button
+                      <Button
                         key={item.id}
                         aria-current={tab === item.id ? 'page' : undefined}
                         disabled={busy}
@@ -313,7 +314,7 @@ export default function App() {
                       >
                         <span className="nav-index">0{index + 1}</span>
                         {item.label}
-                      </button>
+                      </Button>
                     ))}
                   </nav>
                   {tab === 'briefing' && (
@@ -342,7 +343,7 @@ export default function App() {
                     <Routes day={day} workspace={featureWorkspace} />
                     <div className="panel">
                       <h2>Portable field records</h2>
-                      <button
+                      <Button
                         onClick={() =>
                           download(`open-mountain-${day.date}.json`, {
                             version: 2,
@@ -354,7 +355,7 @@ export default function App() {
                         }
                       >
                         Export this day — public data only
-                      </button>
+                      </Button>
                       <p className="hint">
                         Private human-factor notes are not included. Use a full local backup for
                         audio files and private recovery.
@@ -393,7 +394,7 @@ export default function App() {
                                 ))}
                             </select>
                           </label>
-                          <button disabled={busy}>Confirm move</button>
+                          <Button disabled={busy}>Confirm move</Button>
                           <p className="hint">
                             If that date already has a day: Merge — Coming soon. Both trips stay
                             unchanged.

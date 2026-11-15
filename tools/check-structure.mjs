@@ -52,7 +52,11 @@ for (const workspace of workspaces) {
       const name = specifier.startsWith('@') ? specifier.split('/').slice(0, 2).join('/') : specifier.split('/')[0];
       if (name === manifest.name) continue;
       if (!declared[name]) errors.push(`${label}: undeclared dependency ${name}`);
-      if (name.startsWith('@open-mountain/') && specifier !== name) errors.push(`${label}: cross-package deep imports require an explicit public subpath contract`);
+      if (name.startsWith('@open-mountain/') && specifier !== name) {
+        const exports = byName.get(name)?.manifest.exports;
+        const subpath = `.${specifier.slice(name.length)}`;
+        if (!exports || typeof exports !== 'object' || !Object.hasOwn(exports, subpath)) errors.push(`${label}: cross-package deep imports require an explicit public subpath contract`);
+      }
     }
   }
 }

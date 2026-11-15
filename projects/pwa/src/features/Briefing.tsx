@@ -1,3 +1,4 @@
+import { Button, Panel } from '../components/ui';
 import type { Briefing as BriefingModel, FieldDecision } from '@open-mountain/domain';
 import type { DayProps } from '../types';
 import React, { useState } from 'react';
@@ -36,7 +37,7 @@ export function Briefing({ day, workspace }: DayProps) {
   );
   return (
     <div className="feature-grid">
-      <section className="panel">
+      <Panel className="panel">
         <div className="section-heading">
           <h2>Morning briefing</h2>
           <span className={`pill ${approved ? 'positive' : ''}`}>
@@ -153,7 +154,7 @@ export function Briefing({ day, workspace }: DayProps) {
                       </label>
                     ))}
                   </div>
-                  <button
+                  <Button
                     type="button"
                     onClick={() =>
                       update(
@@ -163,10 +164,10 @@ export function Briefing({ day, workspace }: DayProps) {
                     }
                   >
                     Remove problem
-                  </button>
+                  </Button>
                 </div>
               ))}
-              <button
+              <Button
                 type="button"
                 onClick={() =>
                   update('problems', [
@@ -183,15 +184,15 @@ export function Briefing({ day, workspace }: DayProps) {
                 }
               >
                 Add avalanche problem
-              </button>
+              </Button>
             </details>
-            <button className="primary" type="submit">
+            <Button className="primary" type="submit">
               Save briefing draft
-            </button>
+            </Button>
           </fieldset>
         </form>
         <div className="action-row">
-          <button
+          <Button
             disabled={busy || !day.briefing || approved || Boolean(day.closedAt)}
             onClick={() =>
               run(
@@ -202,12 +203,12 @@ export function Briefing({ day, workspace }: DayProps) {
             }
           >
             Approve my plan
-          </button>
+          </Button>
           <p className="hint">Saving a revised briefing clears its previous approval.</p>
         </div>
-      </section>
+      </Panel>
       <div className="stack">
-        <section className="panel private-panel">
+        <Panel className="panel private-panel">
           <p className="eyebrow">PERSONAL DATABASE</p>
           <h2>Private human factors</h2>
           <p className="hint">
@@ -239,11 +240,11 @@ export function Briefing({ day, workspace }: DayProps) {
                 onChange={(e) => setReflection(e.target.value)}
               />
             </label>
-            <button disabled={busy}>Save private reflection</button>
+            <Button disabled={busy}>Save private reflection</Button>
           </form>
           <p className="service-note">Human-bias AI: not configured. No risk score is inferred.</p>
-        </section>
-        <section className="panel">
+        </Panel>
+        <Panel className="panel">
           <h2>Record a field decision</h2>
           <form
             onSubmit={async (e) => {
@@ -319,10 +320,10 @@ export function Briefing({ day, workspace }: DayProps) {
                   I approve this departure as the sole local participant.
                 </label>
               )}
-              <button type="submit">Record decision</button>
+              <Button type="submit">Record decision</Button>
             </fieldset>
           </form>
-        </section>
+        </Panel>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 # Documentation
 
+- **Design system:** [Shared tokens and Material components](../packages/design-system/README.md) defines the common web/native foundation and accessibility checks.
 - **Expo native app:** [Run and verify iOS/Android](../projects/mobile/README.md) describes native SQLite, recordings, backup/restore, and device-test limits.
 - **Implemented solo version:** [Feature and limitation guide](product/solo-version-implementation.md) describes the current React/TypeScript app and verification.
 - **Product:** [Open Mountain product vision v2.0](product/vision.md) describes the purpose, principles, product directions, and priorities.

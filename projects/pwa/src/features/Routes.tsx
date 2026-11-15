@@ -1,10 +1,11 @@
+import { Button, Panel } from '../components/ui';
 import type { DayProps } from '../types';
 import React from 'react';
 import { download, readGPX } from '../files';
 export function Routes({ day, workspace }: DayProps) {
   const { data, busy, run, command, storage } = workspace;
   return (
-    <section className="panel route-panel">
+    <Panel className="panel route-panel">
       <h2>Routes & tracks</h2>
       <p className="hint">
         Use your own navigation app. Upload GPX or add a Strava, Outmap, or other link. Links alone
@@ -63,7 +64,7 @@ export function Routes({ day, workspace }: DayProps) {
               accept=".gpx,application/gpx+xml"
             />
           </label>
-          <button>Save route reference</button>
+          <Button>Save route reference</Button>
         </fieldset>
       </form>
       {day.routes.map((route, index) => (
@@ -80,7 +81,7 @@ export function Routes({ day, workspace }: DayProps) {
               </a>
             )}
             {route.fileId && (
-              <button
+              <Button
                 disabled={busy}
                 onClick={() =>
                   run(async () =>
@@ -92,11 +93,11 @@ export function Routes({ day, workspace }: DayProps) {
                 }
               >
                 Download original GPX
-              </button>
+              </Button>
             )}
           </div>
         </article>
       ))}
-    </section>
+    </Panel>
   );
 }

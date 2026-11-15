@@ -1,3 +1,4 @@
+import { tokens } from '@open-mountain/design-system';
 import React, { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import { randomUUID } from 'expo-crypto';
@@ -209,7 +210,7 @@ export function ObservationScreen({
           · {observations.length} observations. Saving is not submission.
         </Note>
         {observations.map((o) => (
-          <View key={o.id} style={[styles.card, { backgroundColor: '#f4f5ed' }]}>
+          <View key={o.id} style={[styles.card, { backgroundColor: tokens.color.surfaceVariant }]}>
             <Text style={styles.label}>{o.title}</Text>
             <Note>
               Observed {new Date(o.observedAt).toLocaleString()}

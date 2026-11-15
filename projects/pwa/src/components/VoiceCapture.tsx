@@ -1,3 +1,4 @@
+import { Button } from './ui';
 import type { BrowserSpeech } from '../types';
 import React, { useEffect, useRef, useState } from 'react';
 export function VoiceCapture({
@@ -105,22 +106,22 @@ export function VoiceCapture({
   return (
     <div className="voice-box">
       <div className="row">
-        <button
+        <Button
           type="button"
           className={recording ? 'recording' : 'primary'}
           disabled={disabled || dictating}
           onClick={() => (recording ? recorder.current?.stop() : start())}
         >
           {recording ? '■ Stop recording' : '● Record observation'}
-        </button>
+        </Button>
         {supportsSpeech && (
-          <button
+          <Button
             type="button"
             disabled={disabled || recording}
             onClick={() => (dictating ? recognition.current?.stop() : dictate())}
           >
             {dictating ? 'Stop dictation' : 'Dictate notes'}
-          </button>
+          </Button>
         )}
       </div>
       <p className="hint" role="status">
