@@ -151,11 +151,11 @@ Acceptance criteria:
 
 ## Relationship to the current scaffold
 
-The repository currently provides a local-only React/Vite PWA, browser PouchDB persistence, JSON screen definitions, shared JavaScript packages, basic local records, organization memberships, backup import/export, and initial automated checks. API and React Native directories are placeholders. Phase 0 is not complete: runnable native/API applications, a complete canonical model and shared type contracts, experience profiles and reproducible migration tooling remain to be delivered. Contribution guidance and CI have been added locally in the monorepo structure review.
+The repository now has a local-only React/TypeScript/Vite PWA and an Expo/React Native/TypeScript app, with shared event/command contracts, separate browser/native persistence adapters, SQLite migration tests, audio/route attachments, and backups. Only the API remains a placeholder. Native iOS/Android bundles export; device testing and signed binaries are not claimed. Phase 0/1 remain incomplete because the broader canonical model, professional profiles, runnable API, complete upgrade tooling, offline maps, and synchronization gates are still outstanding.
 
 The PWA must continue to run without an API. Future locally runnable API services are optional for the web app; API availability must not become a condition for local field capture.
 
-The Phase 1 SQLite requirement introduces a storage foundation beyond the current browser PouchDB adapter. Before implementing it, record an architecture decision covering native SQLite, web storage support, attachment storage, migration/versioning, and the synchronization contract with the planned backend. Do not assume SQLite replicates directly with CouchDB or that PouchDB schema versions already provide reproducible migrations.
+The native SQLite foundation is implemented and documented in [ADR 0003](../architecture/decisions/0003-expo-native-sqlite-adapter.md), including versioned migrations and attachment indexing. Future work still needs the synchronization contract with the planned backend. Do not assume SQLite replicates directly with CouchDB or that PouchDB schema versions already provide reproducible migrations.
 
 Basic synchronization is a Phase 1 acceptance gate and requires a defined remote endpoint or peer transport. The initial local-only scaffold does not satisfy that gate. Offline capture remains independent of remote availability; synchronization is implemented and tested when that transport is added.
 

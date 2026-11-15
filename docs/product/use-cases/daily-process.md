@@ -1,7 +1,7 @@
 # Use case 3 — Daily process
 
 Priority: 3  
-Status: Planned; basic local daily records implemented
+Status: Solo event-driven daily workflow implemented; collaborative/server requirements remain planned
 
 ## Goal
 
@@ -229,6 +229,8 @@ Every day trip has a daily lifecycle/OperationalDay context. The initial generic
 - Independent assessments, readiness checks, concerns, checkpoint decisions, disagreements, and debriefs meet the linked human-factor use-case definitions of done.
 - Shared reports exclude private material unless explicitly authorized; editor publication does not imply all participants agreed with every decision.
 
-## Current implementation gap
+## Current implementation and remaining gap
 
-The PWA currently creates, lists, deletes, and backs up daily records containing a title, date, and notes. Editing, structured daily stages, links to trips/observations, weather review, OperationalDay, teams, and traceable professional decisions remain unimplemented.
+See the [solo implementation guide](../solo-version-implementation.md) for the implemented React/TypeScript workflows, event history, databases, recordings, GPX/links, backups, and their limits. Only the sole local participant/leader is represented; no synchronization or server is required.
+
+The broader acceptance criteria above include future collaboration, environmental information, provider integration, protected remote access, native storage, and AI capabilities. Those remain planned. No offline map package, live GPS track recording, automatic transcription guarantee, or generated AI summary is claimed. JSON view customization and day merging are deferred.

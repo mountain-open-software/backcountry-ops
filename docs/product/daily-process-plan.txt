@@ -148,3 +148,18 @@ authentication, and database security. Users can then set passwords. Keep
 private user databases and shared community databases separate, explicitly map
 local profiles to authenticated accounts, and enforce role/event write rules
 on the server. Version one remains password-free and requires no server.
+
+18. Rendering and implementation update
+Use normal React components with TypeScript and Vite for mobile and desktop.
+Community/personal JSON view rendering is deferred for simplicity. The solo
+event-driven workflow is now implemented locally; see solo-version-implementation.md
+for exact coverage, recording/backup limits, and features still deferred.
+Server AI, collaboration, synchronization, native builds, and merging remain
+unavailable; this does not complete all Phase 0/1 roadmap gates.
+
+19. Expo native companion
+An Expo/React Native/TypeScript app now shares the solo command/event engine.
+Native SQLite implements one database per user/community; local files retain
+audio and GPX evidence. iOS/Android bundles export, but signed binaries and
+actual device testing are not provided by this cloud workspace. No server, AI,
+synchronization, JSON renderer, or day merging is introduced.

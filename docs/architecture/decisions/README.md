@@ -2,6 +2,8 @@
 
 Record significant technical decisions here once they have been evaluated. The [monorepo structure](../monorepo.md) describes the current workspace layout and remaining planned components.
 
+- [ADR 0003 — Expo native app and SQLite](0003-expo-native-sqlite-adapter.md): accepted for local delivery.
+- [ADR 0002 — Solo event journals and React/TypeScript UI](0002-solo-event-journals-and-react-ui.md): accepted for local delivery.
 - [ADR 0001 — Workspace boundaries and verification](0001-workspace-boundaries-and-verification.md): accepted.
 
 Use filenames such as `0001-short-decision-title.md` and include:

@@ -1,6 +1,6 @@
 # Version one — Local operation without an API
 
-Status: Confirmed solo/local runtime boundary; delivery slice proposed, implementation pending
+Status: Solo local slice implemented; see [implementation and limits](solo-version-implementation.md) for exact coverage.
 
 ## Confirmed runtime boundary
 
@@ -16,7 +16,7 @@ Morning objectives, hazard assessment, Plan A/Plan B, mindset, observations, and
 
 Do not add a replication scheduler, synchronization configuration, automatic reconciliation, or cross-device account flow now. Manual re-entry is the initial workflow. Backup/export remains for local recovery and independent data use, not a promised collaborative merge mechanism.
 
-## Recommended first-version slice
+## Agreed first-version slice
 
 - Local profile and community setup; create a trip and its date-scoped OperationalDays.
 - Individual assessments and a manually prepared plan/proposal approved by the sole local participant; retain the future multi-person rules in the domain plan without requiring collaboration UI now.
@@ -26,7 +26,7 @@ Do not add a replication scheduler, synchronization configuration, automatic rec
 - Route/track file upload or external links; no live GPS track recording or route drawing.
 - Scoped export/import and attachment backups so local browser data is recoverable.
 
-This is a proposed delivery slice, not a declaration that the current scaffold implements it or that the full roadmap's Phase 0/1 acceptance gates are met.
+The [implemented slice](solo-version-implementation.md) uses normal React/TypeScript components. JSON view customization is deferred. This does not complete the full roadmap's Phase 0/1 acceptance gates, native/API foundations, or synchronization.
 
 ## Server-dependent features
 

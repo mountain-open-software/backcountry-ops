@@ -1,7 +1,7 @@
 # Use case 2 — Multi-day trip planning
 
 Priority: 2  
-Status: Planned; only basic local trip records implemented
+Status: Local multi-day itinerary implemented; full field/environmental integrations remain planned
 
 ## Goal
 
@@ -87,6 +87,8 @@ Local planning and capture must remain independent of remote services. Synchroni
 - Sources and retrieval times are preserved. Missing forecasts, forecast-horizon gaps, and stale information are visible for each affected stage.
 - Refreshing information preserves the snapshots used for earlier planning or daily reviews.
 
-## Current implementation gap
+## Current implementation and remaining gap
 
-The PWA currently creates, lists, deletes, and backs up basic local trip records. Multi-day classification, date ranges/time zones, itinerary stages, overnight locations, editing, participant management, map coverage, route/track upload and external links, GPX export, environmental integrations, and synchronization remain unimplemented.
+See the [solo implementation guide](../solo-version-implementation.md) for the implemented React/TypeScript workflows, event history, databases, recordings, GPX/links, backups, and their limits. Only the sole local participant/leader is represented; no synchronization or server is required.
+
+The broader acceptance criteria above include future collaboration, environmental information, provider integration, protected remote access, native storage, and AI capabilities. Those remain planned. No offline map package, live GPS track recording, automatic transcription guarantee, or generated AI summary is claimed. JSON view customization and day merging are deferred.

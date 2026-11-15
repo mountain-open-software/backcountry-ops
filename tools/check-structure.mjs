@@ -22,7 +22,7 @@ async function files(directory) {
     if (['node_modules', 'dist', '.git'].includes(entry.name)) continue;
     const target = path.join(directory, entry.name);
     if (entry.isDirectory()) result.push(...await files(target));
-    else if (/\.(?:js|jsx|mjs|ts|tsx)$/.test(entry.name)) result.push(target);
+    else if (/\.(?:js|jsx|mjs|cjs|ts|tsx)$/.test(entry.name)) result.push(target);
   }
   return result;
 }
@@ -34,7 +34,7 @@ for (const workspace of workspaces) {
   for (const name of Object.keys(declared)) {
     if (name.startsWith('@open-mountain/') && !byName.has(name)) errors.push(`${manifest.name}: missing workspace ${name}`);
     if (byName.get(name)?.kind === 'projects') errors.push(`${manifest.name}: workspaces cannot depend on application internals`);
-    if (['@open-mountain/domain', '@open-mountain/application', '@open-mountain/ui-schema'].includes(manifest.name) && name === '@open-mountain/storage-pouchdb') errors.push(`${manifest.name}: platform-independent packages cannot depend on browser persistence`);
+    if (['@open-mountain/domain', '@open-mountain/application', '@open-mountain/ui-schema'].includes(manifest.name) && name.startsWith('@open-mountain/storage-')) errors.push(`${manifest.name}: platform-independent packages cannot depend on platform storage adapters`);
     if (manifest.name === '@open-mountain/domain' && byName.has(name)) errors.push(`${manifest.name}: domain must not depend on higher-level workspaces`);
   }
   for (const file of await files(directory)) {

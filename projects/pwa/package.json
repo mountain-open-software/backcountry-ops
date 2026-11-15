@@ -13,7 +13,6 @@
     "react-dom": "^19.0.0",
     "@open-mountain/domain": "*",
     "@open-mountain/application": "*",
-    "@open-mountain/ui-schema": "*",
     "@open-mountain/storage-pouchdb": "*"
   },
   "devDependencies": {

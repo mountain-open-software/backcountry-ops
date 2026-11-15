@@ -21,7 +21,7 @@ tests/                     # Cross-package browser scenarios
 .github/workflows/         # Continuous integration
 ```
 
-The initial scaffold includes a working PWA and shared packages, plus API and mobile placeholders. Add further implementation directories when they have real content. The [application architecture](application.md) establishes a React PWA built with Vite and deployed as a static site, with local PouchDB storage, JSON-driven rendering, and future React Native and CouchDB support. Other component tooling and deployment details remain open decisions.
+The initial scaffold includes a working PWA and shared packages, an Expo native app, and an API placeholder. Add further implementation directories when they have real content. The [application architecture](application.md) establishes a React PWA built with Vite and deployed as a static site, with local PouchDB storage, ordinary React/TypeScript components, a native Expo/SQLite companion, and future CouchDB support. Other component tooling and deployment details remain open decisions.
 
 ## Boundaries
 
@@ -42,7 +42,8 @@ The repository uses npm workspaces; see [ADR 0001](decisions/0001-workspace-boun
 | `packages/ui-schema` | JSON screen definitions and renderer contract validation | No React or browser dependency |
 | `packages/storage-pouchdb` | Local browser persistence | Browser adapter; not imported by native or core packages |
 | `projects/pwa` | React components, browser orchestration, Vite/PWA build | Runnable static application |
-| `projects/mobile` | Reserved native application | Placeholder; not runnable |
+| `projects/mobile` | Expo/React Native solo app | iOS/Android bundles; device verification required |
+| `packages/storage-sqlite` | Native journal/migration/attachment-index adapter | Expo SQLite; independent of browser storage |
 | `projects/api` | Reserved API | Placeholder; not required by PWA |
 
 Tests belong to the package whose behavior they verify. Cross-package imports use package exports and declared dependencies, never sibling `src/` paths. The PWA still performs substantial orchestration in one component; extracting application commands and event projections is a next architecture task, not something this layout alone solves.

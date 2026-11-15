@@ -1,0 +1,10 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": { "strict": true, "noEmit": true, "allowJs": true, "checkJs": false },
+  "include": [
+    "index.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "../../packages/storage-sqlite/src/**/*.ts"
+  ]
+}

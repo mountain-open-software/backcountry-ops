@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Open Mountain",
+    "slug": "open-mountain",
+    "version": "0.1.0",
+    "orientation": "default",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "org.openmountain.backcountryops"
+    },
+    "android": {
+      "package": "org.openmountain.backcountryops"
+    },
+    "plugins": [
+      "expo-sqlite",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Record your own field observations for offline use."
+        }
+      ],
+      "expo-document-picker",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Capture a point location for your field observation. Open Mountain does not record GPS tracks."
+        }
+      ]
+    ]
+  }
+}

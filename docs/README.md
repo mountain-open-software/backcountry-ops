@@ -1,5 +1,7 @@
 # Documentation
 
+- **Expo native app:** [Run and verify iOS/Android](../projects/mobile/README.md) describes native SQLite, recordings, backup/restore, and device-test limits.
+- **Implemented solo version:** [Feature and limitation guide](product/solo-version-implementation.md) describes the current React/TypeScript app and verification.
 - **Product:** [Open Mountain product vision v2.0](product/vision.md) describes the purpose, principles, product directions, and priorities.
 - **Agreed plan (plain text):** [Daily-process plan](product/daily-process-plan.txt) consolidates decisions from the product discussion.
 - **Use cases:** [Initial use cases](product/use-cases.md) sets the delivery order: day-trip planning, multi-day trip planning, daily process, then observation reporting.

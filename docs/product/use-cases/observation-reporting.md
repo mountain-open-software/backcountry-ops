@@ -1,7 +1,7 @@
 # Use case 4 — Observation reporting
 
 Priority: 4  
-Status: Planned; basic local observation records implemented
+Status: Solo observation capture/submission and events implemented; AI/synchronization/integrations remain planned
 
 ## Goal
 
@@ -111,6 +111,8 @@ Local saving must work without transcription, AI services, remote accounts, or a
 - External submissions require explicit authorization and use an isolated adapter. Destination, submitted version, time, outcome, and errors are traceable.
 - Failed external submissions preserve the local original and can be retried without duplicate submission where the destination permits it.
 
-## Current implementation gap
+## Current implementation and remaining gap
 
-The PWA currently creates, lists, deletes, and backs up basic local observations with a title, date, location text, and notes. Editing, precise observation times, structured provenance, linked context, voice/attachment capture, synchronization, AI extraction, professional forms, and external submissions remain unimplemented.
+See the [solo implementation guide](../solo-version-implementation.md) for the implemented React/TypeScript workflows, event history, databases, recordings, GPX/links, backups, and their limits. Only the sole local participant/leader is represented; no synchronization or server is required.
+
+The broader acceptance criteria above include future collaboration, environmental information, provider integration, protected remote access, native storage, and AI capabilities. Those remain planned. No offline map package, live GPS track recording, automatic transcription guarantee, or generated AI summary is claimed. JSON view customization and day merging are deferred.
