@@ -60,6 +60,10 @@ The local user is the active participant/leader; approval, own report submission
 
 After the solo version, add collaboration using CouchDB's built-in users/authentication and database security. Users can set a password in that phase. Keep user-private and community-shared databases separate. Map the stable local profile to a remote account explicitly; a local username alone is not authenticated identity. See the [CouchDB collaboration plan](couchdb-collaboration.md) for security boundaries, replication contracts, and acceptance gates. No passwords or server requirements are added to version one.
 
+## D9 — Normal React/TypeScript rendering for now
+
+The user chose normal React components with TypeScript and Vite, with mobile and desktop both required. Community/personal JSON customization is deferred for simplicity. Keep reusable React forms separate from shared domain validation; the UI-schema package remains reserved for later work. This supersedes the earlier plan to implement customizable JSON views in the first version.
+
 ## Remaining next questions
 
 1. Define the future merge contract only when the coming-soon feature is scheduled; current conflicts leave both records unchanged.

@@ -6,7 +6,12 @@
   "exports": "./src/index.js",
   "dependencies": {
     "events": "^3.3.0",
-    "pouchdb-browser": "^9.0.0"
+    "pouchdb-browser": "^9.0.0",
+    "@open-mountain/domain": "*"
   },
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "types": "./src/index.d.ts",
+  "devDependencies": {
+    "@open-mountain/application": "*"
+  }
 }

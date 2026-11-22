@@ -6,17 +6,23 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "preview": "vite preview --host 0.0.0.0"
+    "preview": "vite preview --host 0.0.0.0",
+    "deploy": "cf deploy ./dist",
+    "deploy:check": "cf deploy ./dist --dry-run"
   },
   "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "@open-mountain/domain": "*",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material": "^9.5.0",
     "@open-mountain/application": "*",
-    "@open-mountain/ui-schema": "*",
-    "@open-mountain/storage-pouchdb": "*"
+    "@open-mountain/design-system": "*",
+    "@open-mountain/domain": "*",
+    "@open-mountain/storage-pouchdb": "*",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "cf": "1.0.0-rc.2",
     "vite": "^6.0.0",
     "vite-plugin-pwa": "^1.0.0"
   },

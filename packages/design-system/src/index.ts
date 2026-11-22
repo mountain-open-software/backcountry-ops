@@ -1,0 +1,37 @@
+/** Shared semantic foundation for Material UI (web) and Material Design 3 / Paper (native). */
+export const tokens = {
+  color: {
+    primary: '#173f36',
+    onPrimary: '#ffffff',
+    primaryHover: '#285b4a',
+    primaryContainer: '#e3ecd9',
+    onPrimaryContainer: '#2d4d31',
+    background: '#f4f3ed',
+    surface: '#fffef9',
+    surfaceVariant: '#eef1e6',
+    field: '#fffefa',
+    text: '#223d36',
+    muted: '#5f705f',
+    outline: '#788973',
+    outlineVariant: '#d6ddcf',
+    focus: '#a36b18',
+    error: '#7e3020',
+    onError: '#ffffff',
+    errorContainer: '#f4dfd6',
+  },
+  space: { xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 24, section: 32, page: 40 },
+  radius: { small: 8, medium: 12, large: 16, pill: 999 },
+  type: { label: 13, body: 16, supporting: 14, caption: 12, title: 24, display: 38 },
+  control: { minHeight: 48, focusWidth: 3 },
+  opacity: { disabled: 0.45, pressed: 0.7 },
+} as const;
+
+/** Identical navigation order and labels on phone, native and desktop. */
+export const dailyScreens = [
+  { id: 'briefing', label: 'Briefing' },
+  { id: 'observations', label: 'Observations' },
+  { id: 'debrief', label: 'Debrief & close' },
+  { id: 'timeline', label: 'Timeline' },
+  { id: 'routes', label: 'Routes & exports' },
+] as const;
+export type DailyScreen = (typeof dailyScreens)[number]['id'];

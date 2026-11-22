@@ -6,3 +6,8 @@ dist/
 .DS_Store
 test-results/
 playwright-report/
+.expo/
+.cloudflare/
+.wrangler/
+projects/mobile/android/
+projects/mobile/ios/

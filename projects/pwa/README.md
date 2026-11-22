@@ -1,15 +1,57 @@
-# Local-only PWA
+# Solo mobile and desktop PWA
 
-From the repository root, run `npm ci`, then `npm run dev`. Open the URL Vite prints. Run `npm run build` for a production build and `npm run preview` to serve it locally. Deploy `projects/pwa/dist/` to any static host using HTTPS (localhost also works for development).
+From the repository root:
 
-No API, CouchDB instance, environment variables, remote account, or external data service is required. The app uses PouchDB in the browser. Create trips, daily records, and observations; switch local users and organizations; add memberships; export and import backups. Records are shared between members of the same local organization.
+```sh
+npm ci
+npm run dev
+```
 
-The production build includes a service worker that caches the app shell. Load the production site once online and allow the service worker to activate before testing offline reloads. Vite development mode does not provide the production offline cache. Initial installation still requires downloading the static files. No map or weather provider is configured.
+Use the URL Vite prints. No API, account, password, CouchDB server, AI service, or environment file is needed. Set a username and local community, create a trip, and work through briefing, observations, debrief/closing, and timeline. Normal React/TypeScript forms are used; JSON customization is deferred.
 
-Data is specific to the browser profile and site origin, so development and preview ports have separate stores. Export backups before clearing browser storage or moving hosts. Local profiles and memberships do not provide secure authentication. Import adds missing records and skips existing identifiers; it does not merge edits. Membership management is unrestricted on the local device.
+```sh
+npm run check
+npm run preview
+```
 
-## Verification
+Deploy `projects/pwa/dist/` to a static HTTPS host. The production service worker caches the app shell after an initial online visit. Test offline using the production preview; development mode does not provide the production cache. Reload after the first online visit before disconnecting. Browser storage is origin-specific: different ports/hosts have different data.
 
-Run `npm test` for domain and organization-context checks. For browser tests, run `npx playwright install chromium`, then `npm run test:e2e`. The command builds fresh production assets and the test configuration starts its own static preview server automatically. Stop any existing server on port 4173 first. Set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` if using an existing Chromium installation.
+## Cloudflare Workers static hosting
 
-The browser test covers local persistence after reload, organization switching, all three workflows, and creating a record after an offline reload.
+`cloudflare.config.ts` configures an assets-only Worker, named `open-mountain-pwa`, with SPA fallback to `index.html`. Change `worker.name` to match your existing Cloudflare Worker before deploying. The normal Vite build remains independent of Cloudflare; no API or Worker JavaScript entrypoint is needed.
+
+From the repository root:
+
+```sh
+npm ci
+npm run check:cloudflare  # Build and validate the static deployment without uploading
+npm run deploy:pwa       # Build and deploy using your Cloudflare credentials
+```
+
+For the Cloudflare Workers Git build settings:
+
+| Setting | Value |
+| --- | --- |
+| Root directory | Repository root (`/`) |
+| Build command | `npm run build -w @open-mountain/pwa` |
+| Deploy command | `npm run deploy -w @open-mountain/pwa` |
+| Static assets directory | `projects/pwa/dist` (passed as `./dist` from the PWA workspace) |
+
+Workers does not require the separate Pages output-directory setting. The deploy command uses the pinned project-local Cloudflare CLI and reads the configuration from the PWA workspace. For local deployment, authenticate the CLI first; unattended deployment uses Cloudflare's build credentials or `CLOUDFLARE_API_TOKEN`. Credentials stay outside this repository.
+
+The PWA is served at the host root, with absolute asset URLs so nested SPA links can load their JavaScript and CSS. `public/_headers` tells browsers to revalidate the shell/service worker and caches Vite's hashed assets for a year. The application service worker still provides offline access after the initial online visit.
+
+References: [Cloudflare static directory deployment](https://developers.cloudflare.com/cf/projects/#deploy-a-static-assets-directory), [configuration](https://developers.cloudflare.com/cf/projects/cloudflare-config/), and [static response headers](https://developers.cloudflare.com/workers/static-assets/headers/).
+
+Use the microphone button for audio capture and optional browser dictation when available. Stop and save recordings explicitly; unfinished previews are not durable. Transcription may need a browser-provided online service. No offline transcription, background microphone capture, or GPS track recording is promised. Upload GPX or link to an external navigation app instead.
+
+See [implemented features and limits](../../docs/product/solo-version-implementation.md) and [ADR 0002](../../docs/architecture/decisions/0002-solo-event-journals-and-react-ui.md). Public day exports exclude private notes. Full backups explicitly include private notes and original attachments; keep them private. The previous scaffold database remains intact and can be exported through settings.
+
+## Browser verification
+
+```sh
+npx playwright install chromium
+npm run test:e2e
+```
+
+The command builds production assets and owns its preview server on port 4173; stop another preview first. Set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to use an installed Chromium. Tests run desktop and mobile/touch viewports, including offline closure, corrections, backup recovery, GPX, audio, and denied permissions. Hardware/mobile browser support should still be checked on target devices.
