@@ -19,4 +19,8 @@ export function requireMembership(documents, userId, organizationId) {
 export { createWorkspace } from './workspace.js';
 export { createDraftSession } from './drafts.js';
 
-export { proposeAssistantUpdate, assistantExamples } from './assistant.js';
+export { proposeAssistantUpdate, proposeClassifiedNote, assistantExamples } from './assistant.js';
+
+export { localModel, classifiedNote, createLocalModelController } from './local-model.js';
+
+export { legacyAssistantNotes } from './legacy-notes.js';

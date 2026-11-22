@@ -1,3 +1,4 @@
+import { LocalAISettings } from './LocalAISettings';
 import { CommunitySettings } from './CommunitySettings';
 import { IdentifierField } from '../components/IdentityFields';
 import { normalizeIdentifier } from '@open-mountain/domain';
@@ -38,6 +39,7 @@ export function SettingsScreen({ workspace }: { workspace: ReadyWorkspace }) {
         </Note>
       </Card>
       <CommunitySettings workspace={workspace} />
+      <LocalAISettings workspace={workspace} />
       <Card>
         <Heading>Backup & restore</Heading>
         <Note>{`Device space available: ${(Paths.availableDiskSpace / 1048576).toFixed(0)} MB. Export before uninstalling or clearing app data. Autosaved text drafts are local recovery data, not part of portable backups; save records first.`}</Note>

@@ -149,6 +149,23 @@ export function useWorkspace() {
     command,
     personalCommand,
     addCommunity,
+    recordAssistantNote: async (
+      payload: Extract<UserCommand, { type: 'AssistantNoteRecorded' }>['payload'],
+    ) => {
+      const existing = (await service.read('user', data!.userId)).state.assistantNotes?.[
+        payload.id
+      ];
+      if (existing && existing.text !== payload.text)
+        throw new Error('Conflicting note ID; original note preserved');
+      if (!existing) await personalCommand('AssistantNoteRecorded', payload);
+      await refresh();
+    },
+    updateAssistantNote: async (
+      payload: Extract<UserCommand, { type: 'AssistantNoteUpdated' }>['payload'],
+    ) => {
+      await personalCommand('AssistantNoteUpdated', payload);
+      await refresh();
+    },
     applyAssistantProposal: (
       proposal: import('@open-mountain/application').AssistantProposal,
       dayId?: string,

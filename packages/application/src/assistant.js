@@ -310,3 +310,71 @@ export function proposeAssistantUpdate({
     error: '',
   };
 }
+
+// A model may choose a note category, never generate facts or additional actions.
+export function proposeClassifiedNote({
+  text,
+  classified,
+  state,
+  personal,
+  userId,
+  communityId,
+  dayId,
+  now,
+  createId,
+}) {
+  const base = {
+    userId,
+    communityId,
+    dayId: dayId || null,
+    communityRevision: state.revision,
+    personalRevision: personal.revision,
+    changes: [],
+    unrecognized: [],
+    error: '',
+    actions: [],
+  };
+  try {
+    if (!state.community || state.community.deletedAt || !state.days[dayId])
+      throw new Error('Select an active community and operational day first.');
+    let scope, command;
+    if (classified === `Private reflection: ${text}`) {
+      scope = 'user';
+      command = {
+        type: 'ReflectionSaved',
+        payload: {
+          dayId,
+          communityId,
+          text: [personal.reflections[`${communityId}:${dayId}`]?.text || '', text]
+            .filter(Boolean)
+            .join('\n'),
+        },
+      };
+      base.changes = [`Private reflection: ${text}`];
+    } else if (classified === `Observation: ${text}`) {
+      scope = 'community';
+      command = {
+        type: 'ObservationRecorded',
+        payload: {
+          id: createId(),
+          dayId,
+          title: text.trim().replace(/\s+/g, ' ').slice(0, 120),
+          notes: text,
+          location: '',
+          observedAt: now,
+        },
+      };
+      base.changes = [`Public observation: ${text}`];
+    } else throw new Error('Unsupported model classification');
+    const action = { id: createId(), scope, command };
+    makeEvent(scope === 'user' ? personal : state, command, {
+      actorId: userId,
+      scopeId: scope === 'user' ? userId : communityId,
+      eventId: action.id,
+      now,
+    });
+    return { ...base, actions: [action] };
+  } catch (error) {
+    return { ...base, error: error.message };
+  }
+}

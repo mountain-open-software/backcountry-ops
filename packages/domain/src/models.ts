@@ -131,7 +131,25 @@ export interface CommunityState {
   days: Record<string, OperationalDay>;
   revision: number;
 }
+export type AssistantNoteStatus =
+  'recorded' | 'processing' | 'review' | 'clarification' | 'saving' | 'saved' | 'error' | 'stopped';
+export interface AssistantNote {
+  sequence?: number;
+  id: string;
+  text: string;
+  communityId: string;
+  dayId?: string;
+  context: string;
+  status: AssistantNoteStatus;
+  response?: string;
+  engine?: 'phrases' | 'local-model';
+  createdAt: string;
+  updatedAt: string;
+  transitions: { status: AssistantNoteStatus; at: string }[];
+}
 export interface UserState {
+  assistantNotes?: Record<string, AssistantNote>;
+  localAI?: { enabled: boolean };
   profile: { id: string; username: string } | null;
   communities: { id: string; name: string; removedAt?: string }[];
   reflections: Record<string, { text: string; updatedAt: string }>;
@@ -156,6 +174,20 @@ export type CommunityCommand =
   | { type: 'DayClosed'; payload: { dayId: string } }
   | { type: 'RouteAttached'; payload: Route };
 export type UserCommand =
+  | {
+      type: 'AssistantNoteRecorded';
+      payload: { id: string; text: string; communityId: string; dayId?: string; context: string };
+    }
+  | {
+      type: 'AssistantNoteUpdated';
+      payload: {
+        id: string;
+        status: AssistantNoteStatus;
+        response?: string;
+        engine?: 'phrases' | 'local-model';
+      };
+    }
+  | { type: 'LocalAIConfigured'; payload: { enabled: boolean } }
   | { type: 'ProfileConfigured'; payload: { username: string } }
   | { type: 'CommunityAdded'; payload: { id: string; name: string } }
   | { type: 'CommunityUpdated'; payload: { id: string; name: string } }

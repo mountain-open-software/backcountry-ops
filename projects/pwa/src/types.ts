@@ -17,6 +17,7 @@ export interface DayProps {
 }
 export type SpeechResultEvent = { results: ArrayLike<ArrayLike<{ transcript: string }>> };
 export interface BrowserSpeech {
+  processLocally?: boolean;
   lang: string;
   interimResults: boolean;
   onresult: ((event: SpeechResultEvent) => void) | null;

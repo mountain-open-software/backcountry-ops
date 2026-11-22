@@ -1,3 +1,4 @@
+import { AssistantHistory } from '../components/AssistantHistory';
 import React from 'react';
 import { Text, View } from 'react-native';
 import { randomUUID } from 'expo-crypto';
@@ -38,6 +39,21 @@ export function AssistantScreen({
             Trip data. For multiple days: “Create a trip called Traverse from 2026-11-24 to
             2026-11-26”.
           </Note>
+        )}
+        <Note>
+          On-device AI: {a.model.enabled ? a.model.status : 'off — downloads disabled'}
+          {a.model.status === 'downloading' ? ` · ${Math.round(a.model.progress * 100)}%` : ''}
+        </Note>
+        <AssistantHistory notes={a.notes} working={a.disabled} onUse={a.setText} />
+        {a.processing && (
+          <Note>
+            Processing your note…{' '}
+            {a.model.status === 'processing' ? 'On-device AI' : 'Offline phrases'}
+          </Note>
+        )}
+        {!!a.processingError && <Note>{a.processingError}</Note>}
+        {a.model.status === 'processing' && (
+          <Button title="Stop local AI" onPress={a.model.controller.stop} />
         )}
         {a.conversation.history.map((message, index) => (
           <View key={index} style={styles.card}>

@@ -18,6 +18,7 @@
     "@open-mountain/design-system": "*",
     "@open-mountain/domain": "*",
     "@open-mountain/storage-pouchdb": "*",
+    "@wllama/wllama": "3.13.0",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },

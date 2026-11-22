@@ -26,7 +26,14 @@ export const problemTypes = [
 ];
 export const blankDebrief = { expected: '', actual: '', humanFactors: '', good: '', change: '' };
 export const emptyCommunity = () => ({ community: null, trips: {}, days: {}, revision: 0 });
-export const emptyUser = () => ({ profile: null, communities: [], reflections: {}, revision: 0 });
+export const emptyUser = () => ({
+  profile: null,
+  communities: [],
+  reflections: {},
+  assistantNotes: {},
+  localAI: { enabled: false },
+  revision: 0,
+});
 export function datesBetween(start, end) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(start || '') || !/^\d{4}-\d{2}-\d{2}$/.test(end || ''))
     throw new Error('Choose valid trip dates');
@@ -105,6 +112,9 @@ function validatePlans(plans) {
 }
 const payloadKeys = {
   ProfileConfigured: ['username'],
+  AssistantNoteRecorded: ['id', 'text', 'communityId', 'dayId', 'context'],
+  AssistantNoteUpdated: ['id', 'status', 'response', 'engine'],
+  LocalAIConfigured: ['enabled'],
   CommunityAdded: ['id', 'name'],
   CommunityUpdated: ['id', 'name'],
   CommunityRenamed: ['name'],
@@ -198,6 +208,36 @@ function buildEvent(state, command, context, legacyIdentity = false) {
         required(payload.username, 'Username');
         if (payload.username.length > 80) throw new Error('Username must be at most 80 characters');
       } else validateIdentifier(payload.username, 'Username', 80);
+    } else if (type === 'AssistantNoteRecorded') {
+      required(payload.id, 'Note ID');
+      required(payload.text, 'Note');
+      validateText(payload.text);
+      if (payload.text.length > 8000) throw new Error('Notes must be at most 8,000 characters');
+      required(payload.communityId, 'Community ID');
+      required(payload.context, 'Context');
+      validateText(payload.context);
+      if (state.assistantNotes?.[payload.id]) throw new Error('Note already exists');
+    } else if (type === 'AssistantNoteUpdated') {
+      if (!state.assistantNotes?.[payload.id]) throw new Error('Choose an existing note');
+      if (
+        ![
+          'recorded',
+          'processing',
+          'review',
+          'clarification',
+          'saving',
+          'saved',
+          'error',
+          'stopped',
+        ].includes(payload.status)
+      )
+        throw new Error('Invalid note status');
+      validateText(payload.response || '');
+      if (payload.engine && !['phrases', 'local-model'].includes(payload.engine))
+        throw new Error('Invalid processing engine');
+    } else if (type === 'LocalAIConfigured') {
+      if (typeof payload.enabled !== 'boolean')
+        throw new Error('Choose whether local AI is enabled');
     } else if (type === 'CommunityAdded') {
       if (!legacyIdentity) validateIdentifier(payload.id, 'Community ID');
       required(payload.name, 'Community name');
@@ -466,11 +506,32 @@ export function applyCommunity(state, event) {
   return next;
 }
 export function applyUser(state, event) {
-  const next = copyJson(state),
-    p = event.payload;
+  return projectUser(copyJson(state), event);
+}
+function projectUser(next, event) {
+  const p = event.payload;
   if (event.type === 'ProfileConfigured')
     next.profile = { id: event.actorId, username: p.username.trim() };
-  else if (event.type === 'CommunityAdded') {
+  else if (event.type === 'LocalAIConfigured') next.localAI = { enabled: p.enabled };
+  else if (event.type === 'AssistantNoteRecorded') {
+    next.assistantNotes ||= {};
+    next.assistantNotes[p.id] = {
+      ...p,
+      status: 'recorded',
+      sequence: next.revision,
+      createdAt: event.recordedAt,
+      updatedAt: event.recordedAt,
+      transitions: [{ status: 'recorded', at: event.recordedAt }],
+    };
+  } else if (event.type === 'AssistantNoteUpdated') {
+    const note = next.assistantNotes[p.id];
+    next.assistantNotes[p.id] = {
+      ...note,
+      ...p,
+      updatedAt: event.recordedAt,
+      transitions: [...note.transitions, { status: p.status, at: event.recordedAt }],
+    };
+  } else if (event.type === 'CommunityAdded') {
     if (!next.communities.some((c) => c.id === p.id))
       next.communities.push({ id: p.id, name: p.name });
   } else if (event.type === 'CommunityRemoved') {
@@ -516,7 +577,7 @@ export function replay(events, scope = 'community') {
       { actorId: event.actorId, scopeId: event.scopeId, now: event.recordedAt, eventId: event.id },
       event.version === 1,
     );
-    state = scope === 'user' ? applyUser(state, validated) : applyCommunity(state, validated);
+    state = scope === 'user' ? projectUser(state, validated) : applyCommunity(state, validated);
     ids.set(event.id, JSON.stringify(event));
   }
   return state;

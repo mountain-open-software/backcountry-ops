@@ -35,3 +35,12 @@ Do not mark these checks passed without device evidence. Fix failures or documen
 - Confirm the composer stays visible with the keyboard open and large accessibility text.
 - Test Trip data, Settings and Back to assistant on phone/tablet; verify selected context remains clear.
 - Verify pending proposals recover after termination, private reflections remain private, and original audio recording still works through Trip data.
+
+## Optional local AI and complete history
+
+- Confirm a fresh profile has AI disabled and makes no model/WASM requests, even when online.
+- Enable AI without downloading; confirm no transfer starts. Explicitly download on Wi-Fi/charging and inspect progress, checksum failure handling, cancel and partial-file cleanup.
+- Check disk use and removal on Windows browsers, Android and iOS. Record native app size and peak inference memory on a release/development build, not Expo Go.
+- Download once, disconnect networking, classify a note, review the original text and save. Confirm no network inference provider is contacted.
+- Test low battery, native low-power mode, browser data saver, 45-second timeout, Stop and backgrounding. Confirm model memory is released and the original note survives interruption.
+- Confirm histories longer than 20 notes remain accessible through Show earlier notes, survive restart, and are restored from full backup. Public day exports must exclude them.

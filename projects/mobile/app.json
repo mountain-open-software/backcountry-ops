@@ -26,6 +26,14 @@
         {
           "locationWhenInUsePermission": "Capture a point location for your field observation. Backcountry Ops does not record GPS tracks."
         }
+      ],
+      [
+        "llama.rn",
+        {
+          "enableEntitlements": false,
+          "forceCxx20": true,
+          "enableOpenCLAndHexagon": false
+        }
       ]
     ]
   }

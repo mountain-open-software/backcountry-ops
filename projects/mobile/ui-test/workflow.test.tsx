@@ -1,3 +1,17 @@
+import { AssistantHistory } from '../src/components/AssistantHistory';
+import { LocalAISettings } from '../src/features/LocalAISettings';
+jest.mock('../src/localAI', () => {
+  const state = { enabled: false, available: false, status: 'disabled', progress: 0, error: '' };
+  return {
+    localAI: {
+      getSnapshot: () => state,
+      subscribe: () => () => {},
+      configure: async () => {},
+      inspect: async () => {},
+      stop: () => {},
+    },
+  };
+});
 import { AssistantScreen } from '../src/features/AssistantScreen';
 import { CommunitySettings } from '../src/features/CommunitySettings';
 import { CommunityFields, IdentifierField } from '../src/components/IdentityFields';
@@ -69,6 +83,20 @@ function fixture() {
       await action();
       return true;
     },
+    recordAssistantNote: jest.fn(async (payload) => {
+      workspace.data.personal.assistantNotes ||= {};
+      workspace.data.personal.assistantNotes[payload.id] = {
+        ...payload,
+        status: 'recorded',
+        createdAt: '2026-11-22T10:00:00Z',
+        updatedAt: '2026-11-22T10:00:00Z',
+        transitions: [{ status: 'recorded', at: '2026-11-22T10:00:00Z' }],
+      };
+    }),
+    updateAssistantNote: jest.fn(async (payload) => {
+      const note = workspace.data.personal.assistantNotes![payload.id];
+      workspace.data.personal.assistantNotes![payload.id] = { ...note, ...payload };
+    }),
     busy: false,
   } as unknown as ReadyWorkspace;
   return { day: state.days['trip-1:2026-11-15'], workspace, command, records };
@@ -287,4 +315,35 @@ test('native assistant protects pending form edits instead of silently replacing
   await waitFor(() => expect(screen.getByText('Clarify your notes')).toBeTruthy());
   expect(screen.queryByRole('button', { name: 'Save reviewed changes' })).toBeNull();
   expect(f.command).not.toHaveBeenCalled();
+});
+
+test('native history keeps older notes accessible beyond the old message cap', async () => {
+  const notes = Array.from({ length: 25 }, (_, i) => ({
+    id: `note-${i}`,
+    text: `Older native note ${i}`,
+    communityId: 'club',
+    context: 'Club',
+    status: 'saved' as const,
+    createdAt: '2026-11-22T10:00:00Z',
+    updatedAt: '2026-11-22T10:00:00Z',
+    transitions: [{ status: 'saved' as const, at: '2026-11-22T10:00:00Z' }],
+  }));
+  await render(wrap(<AssistantHistory notes={notes} working={false} onUse={() => {}} />));
+  expect(screen.getByText('All note history (25)')).toBeTruthy();
+  expect(screen.queryByText('Older native note 0')).toBeNull();
+  await fireEvent.press(screen.getByRole('button', { name: 'Show earlier notes (5 remaining)' }));
+  expect(screen.getByText('Older native note 0')).toBeTruthy();
+});
+test('native optional model starts disabled and enabling stores only the preference', async () => {
+  const f = fixture();
+  await render(wrap(<LocalAISettings workspace={f.workspace} />));
+  const toggle = screen.getByLabelText('Enable optional local AI');
+  expect(toggle.props.value).toBe(false);
+  expect(screen.getByRole('button', { name: 'Download local model' })).toBeDisabled();
+  await fireEvent(toggle, 'valueChange', true);
+  await waitFor(() =>
+    expect(f.workspace.personalCommand).toHaveBeenCalledWith('LocalAIConfigured', {
+      enabled: true,
+    }),
+  );
 });
