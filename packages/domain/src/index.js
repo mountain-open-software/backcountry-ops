@@ -30,3 +30,5 @@ export {
 } from './expedition.js';
 
 export { planLabel, briefingPlans, reorderPlans } from './plans.js';
+
+export { normalizeIdentifier, validateIdentifier } from './identifiers.js';

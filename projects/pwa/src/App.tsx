@@ -1,3 +1,4 @@
+import { IdentifierInput, CommunityFields } from './components/IdentityFields';
 import { dailyScreens, type DailyScreen } from '@open-mountain/design-system';
 import { FullscreenToggle } from './components/FullscreenToggle';
 import { Button, Panel } from './components/ui';
@@ -35,6 +36,18 @@ export default function App() {
           △ <span>BACKCOUNTRY OPS</span>
         </a>
         <div className="header-meta">
+          {data && (
+            <Button
+              type="button"
+              onClick={() => {
+                const settings = document.getElementById('settings') as HTMLDetailsElement;
+                settings.open = true;
+                settings.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
+            >
+              Settings
+            </Button>
+          )}
           <FullscreenToggle />
           <span className="status-dot" /> Solo · local only
           {data && <span className="user-chip">{data.personal.profile!.username}</span>}
@@ -87,6 +100,7 @@ export default function App() {
                     createProfile(
                       String(fields.get('username')).trim(),
                       String(fields.get('community')).trim(),
+                      String(fields.get('communityId')),
                     ),
                   'Your local workspace is ready.',
                 );
@@ -95,25 +109,16 @@ export default function App() {
               <fieldset disabled={busy} className="fields">
                 <label>
                   Your username
-                  <input
+                  <IdentifierInput
                     aria-label="Your username"
                     name="username"
                     autoComplete="nickname"
                     required
                     maxLength={80}
-                    placeholder="e.g. Alex"
+                    placeholder="e.g. alex"
                   />
                 </label>
-                <label>
-                  Community name
-                  <input
-                    aria-label="Community name"
-                    name="community"
-                    required
-                    maxLength={100}
-                    defaultValue="My mountain community"
-                  />
-                </label>
+                <CommunityFields defaultName="My mountain community" />
                 <Button className="primary">Create my workspace</Button>
               </fieldset>
             </form>
@@ -159,11 +164,14 @@ export default function App() {
                   run(() => workspace.refresh(e.target.value));
                 }}
               >
-                {data.personal.communities.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
+                {!data.communityId && <option value="">No community selected</option>}
+                {data.personal.communities
+                  .filter((c) => !c.removedAt)
+                  .map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
               </select>
             </label>
           </section>
@@ -219,7 +227,7 @@ export default function App() {
                       }
                     }}
                   >
-                    <fieldset className="fields" disabled={busy}>
+                    <fieldset className="fields" disabled={busy || !data.communityId}>
                       <label>
                         Trip name
                         <input aria-label="Trip name" name="title" required maxLength={120} />
@@ -265,7 +273,11 @@ export default function App() {
                 <section className="empty welcome-empty">
                   <span>△</span>
                   <h2>Room for your next adventure</h2>
-                  <p>Create a day trip or multi-day expedition to begin.</p>
+                  <p>
+                    {data.communityId
+                      ? 'Create a day trip or multi-day expedition to begin.'
+                      : 'Open Settings to create a community, then plan your next trip.'}
+                  </p>
                   <p className="hint">
                     Your solo copy works without an API, login, or synchronization.
                   </p>

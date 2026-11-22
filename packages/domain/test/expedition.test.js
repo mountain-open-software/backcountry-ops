@@ -55,7 +55,7 @@ test('private human factors cannot enter a public event or another user scope',(
   const f=fixture();assert.throws(()=>f.send('ReflectionSaved',{dayId:f.dayId,communityId:'community-1',text:'Private'}));
   assert.throws(()=>f.send('BriefingSaved',{...briefing,dayId:f.dayId,privateText:'Secret'}));
   let user=emptyUser();
-  const profile=makeEvent(user,{type:'ProfileConfigured',payload:{username:'Alex'}},{...context,scopeId:'user-1',eventId:'personal-1'});
+  const profile=makeEvent(user,{type:'ProfileConfigured',payload:{username:'alex'}},{...context,scopeId:'user-1',eventId:'personal-1'});
   user=applyUser(user,profile);
   const reflection=makeEvent(user,{type:'ReflectionSaved',payload:{dayId:f.dayId,communityId:'community-1',text:'Private fatigue'}},{...context,scopeId:'user-1',eventId:'personal-2'});
   user=applyUser(user,reflection);assert.equal(Object.values(user.reflections)[0].text,'Private fatigue');

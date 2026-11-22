@@ -55,3 +55,5 @@ npm run test:e2e
 ```
 
 The command builds production assets and owns its preview server on port 4173; stop another preview first. Set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to use an installed Chromium. Tests run desktop and mobile/touch viewports, including offline closure, corrections, backup recovery, GPX, audio, and denied permissions. Hardware/mobile browser support should still be checked on target devices.
+
+Use **Settings** in the header to edit your profile, manage communities (create/list/select/rename/delete), or export backups. Community display names are separate from their lowercase, hyphenated IDs. Confirmed deletion hides a community from active use while retaining its history in full backups.

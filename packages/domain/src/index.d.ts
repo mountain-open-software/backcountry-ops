@@ -40,3 +40,6 @@ export function reorderPlans(
   from: number,
   to: number,
 ): import('./models.js').TripPlan[];
+
+export function normalizeIdentifier(value: string): string;
+export function validateIdentifier(value: unknown, label: string, maxLength?: number): void;

@@ -16,6 +16,42 @@ export function createWorkspace(storage, options = {}) {
             : emptyCommunity(),
       };
     },
+    async reconcileCommunities(userId) {
+      let personal = await this.read('user', userId);
+      for (const membership of personal.state.communities.filter((c) => !c.removedAt)) {
+        const community = await this.read('community', membership.id);
+        if (community.state.community?.deletedAt)
+          personal = await this.dispatch('user', userId, userId, {
+            type: 'CommunityRemoved',
+            payload: { id: membership.id },
+          });
+        else if (community.state.community && community.state.community.name !== membership.name)
+          personal = await this.dispatch('user', userId, userId, {
+            type: 'CommunityUpdated',
+            payload: { id: membership.id, name: community.state.community.name },
+          });
+      }
+      return personal;
+    },
+    async renameCommunity(userId, id, name) {
+      const personal = await this.read('user', userId);
+      if (!personal.state.communities.some((c) => c.id === id && !c.removedAt))
+        throw new Error('Choose an active community');
+      await this.dispatch('community', id, userId, {
+        type: 'CommunityRenamed',
+        payload: { name: name.trim() },
+      });
+      await this.reconcileCommunities(userId);
+    },
+    async deleteCommunity(userId, id) {
+      const personal = await this.read('user', userId);
+      if (!personal.state.communities.some((c) => c.id === id && !c.removedAt))
+        throw new Error('Choose an active community');
+      const community = await this.read('community', id);
+      if (!community.state.community?.deletedAt)
+        await this.dispatch('community', id, userId, { type: 'CommunityDeleted', payload: {} });
+      await this.reconcileCommunities(userId);
+    },
     async dispatch(scope, id, actorId, command, commandId = createId()) {
       const { journal, state } = await this.read(scope, id);
       const existing = journal?.events.find((event) => event.id === commandId);

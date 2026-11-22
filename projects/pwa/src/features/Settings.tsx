@@ -1,10 +1,12 @@
+import { CommunitySettings } from './CommunitySettings';
+import { IdentifierInput } from '../components/IdentityFields';
 import { StorageHealth } from '../components/StorageHealth';
 import { Button, Panel } from '../components/ui';
 import type { ReadyWorkspace } from '../types';
 import React, { useEffect, useState } from 'react';
 import { download } from '../files';
 export function Settings({ workspace }: { workspace: ReadyWorkspace }) {
-  const { data, busy, run, personalCommand, command, addCommunity, storage, restore } = workspace;
+  const { data, busy, run, personalCommand, storage, restore } = workspace;
   const [legacy, setLegacy] = useState<Record<string, unknown>[]>([]);
   useEffect(() => {
     storage
@@ -13,11 +15,15 @@ export function Settings({ workspace }: { workspace: ReadyWorkspace }) {
       .catch(() => {});
   }, [storage]);
   return (
-    <details className="settings">
+    <details className="settings" id="settings">
       <summary>Profile & local backups</summary>
       <div className="settings-grid">
         <Panel className="panel">
-          <h2>Local identity</h2>
+          <h2>Profile</h2>
+          <label>
+            User ID
+            <input aria-label="User ID" value={data.userId} readOnly />
+          </label>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -30,7 +36,7 @@ export function Settings({ workspace }: { workspace: ReadyWorkspace }) {
           >
             <label>
               Username
-              <input
+              <IdentifierInput
                 aria-label="Username"
                 name="username"
                 defaultValue={data.personal.profile!.username}
@@ -44,22 +50,8 @@ export function Settings({ workspace }: { workspace: ReadyWorkspace }) {
             No password, login, synchronization, or server. Independent copies require manual
             re-entry. This is not encrypted shared-device storage.
           </p>
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const form = e.currentTarget;
-              const name = new FormData(form).get('community');
-              if (await run(() => addCommunity(String(name).trim()), 'Local community created.'))
-                form.reset();
-            }}
-          >
-            <label>
-              New local community
-              <input aria-label="New local community" name="community" required maxLength={100} />
-            </label>
-            <Button disabled={busy}>Create community</Button>
-          </form>
         </Panel>
+        <CommunitySettings workspace={workspace} />
         <Panel className="panel">
           <h2>Backup & restore</h2>
           <StorageHealth />

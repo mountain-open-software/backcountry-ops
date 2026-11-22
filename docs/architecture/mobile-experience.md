@@ -15,7 +15,7 @@ The PWA switches to the mobile layout below 900 CSS pixels, including narrow des
 | Debrief | Five reflection topics, closing prerequisites, leader confirmation, summary availability |
 | Timeline | Recorded events, observation times, post-close indicators, event details |
 | Routes & exports | GPX upload, external links, original files, public day export, confirmed day-trip move |
-| Settings | Username, communities, private-inclusive full backup/restore, local storage information |
+| Settings | Profile username, separate community names/IDs, community create/list/update/select/delete, private-inclusive full backup/restore, local storage information |
 | Recovery | Local text drafts and stopped/attached recordings; no automatic approval/submission |
 
 Platform controls may differ for file selection, sharing, microphone permissions, community/date selection and audio playback. Browser dictation is a capability-dependent enhancement; native records original audio and accepts typed text. Neither platform provides an offline transcription model. PWA legacy-browser archives are migration-specific and do not represent native domain functionality. No platform requires an API or fullscreen.
@@ -29,3 +29,9 @@ Browser tests visit every daily destination at mobile and desktop widths, exerci
 Both apps edit `Briefing.plans`, an ordered array of `{ id, description, hazards }`. Stable IDs identify options; A/B/C labels are derived from array position (continuing AA after Z). Add, remove and up/down actions are identical on both platforms. The shared change-trigger section remains part of the briefing; users review it after reordering because free text may reference letters.
 
 The domain validates 1–100 plans, unique IDs, supported fields and text sizes. Approval requires nonblank content and hazards for every plan. Saving any list change uses the existing `BriefingSaved` event and invalidates prior approval. Legacy fixed A/B payloads and recovered drafts are projected into two deterministic-ID plans without modifying original historical events. New saves write the ordered array. No database-table migration is needed for the JSON journal.
+
+## Community lifecycle and compatibility
+
+Identity creation events (`ProfileConfigured`, `CommunityAdded`, `CommunityCreated`) now use event schema 2 to enforce normalized handles for new writes. Version 1 journals still replay under their original identity validation so existing usernames and IDs are never silently changed. User IDs and community IDs stay stable after creation.
+
+`CommunityRenamed` and `CommunityDeleted` belong to the community journal. `CommunityUpdated` and `CommunityRemoved` project their result into the personal community index. Refresh reconciles the index after interrupted writes. Removal uses tombstones (`deletedAt` / `removedAt`); all memberships remain in full-backup scope while active selectors exclude removed communities. Empty active membership lists are valid and keep Settings available. There is no physical erasure or ID reuse in this version.

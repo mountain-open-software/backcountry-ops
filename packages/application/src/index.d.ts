@@ -7,6 +7,9 @@ import type {
   Journal,
 } from '@open-mountain/domain';
 export interface WorkspaceService {
+  reconcileCommunities(userId: string): Promise<{ journal: Journal | null; state: UserState }>;
+  renameCommunity(userId: string, id: string, name: string): Promise<void>;
+  deleteCommunity(userId: string, id: string): Promise<void>;
   read(scope: 'user', id: string): Promise<{ journal: Journal | null; state: UserState }>;
   read(scope: 'community', id: string): Promise<{ journal: Journal | null; state: CommunityState }>;
   dispatch(

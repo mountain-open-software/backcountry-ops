@@ -1,3 +1,4 @@
+import { emptyCommunity, validateIdentifier } from '@open-mountain/domain';
 import { useCallback, useEffect, useState } from 'react';
 import { AppState } from 'react-native';
 import { randomUUID } from 'expo-crypto';
@@ -30,13 +31,24 @@ export function useWorkspace() {
       setData(null);
       return;
     }
-    const personal = await service.read('user', identity.userId);
+    const personal = await service.reconcileCommunities(identity.userId);
     if (!personal.state.profile)
       throw new Error('Profile is missing. Restore your backup rather than resetting storage.');
     const chosen =
-      personal.state.communities.find((c) => c.id === (communityId || identity.communityId)) ||
-      personal.state.communities[0];
-    if (!chosen) throw new Error('No community configured');
+      personal.state.communities.find(
+        (c) => c.id === (communityId || identity.communityId) && !c.removedAt,
+      ) || personal.state.communities.find((c) => !c.removedAt);
+    if (!chosen) {
+      await writeIdentity(identity.userId);
+      setData({
+        userId: identity.userId,
+        personal: personal.state,
+        communityId: '',
+        state: emptyCommunity(),
+        events: [],
+      });
+      return;
+    }
     let community = await service.read('community', chosen.id);
     if (!community.state.community)
       community = await service.dispatch('community', chosen.id, identity.userId, {
@@ -77,9 +89,18 @@ export function useWorkspace() {
       setBusy(false);
     }
   }
-  async function createProfile(username: string, name: string) {
-    const userId = randomUUID(),
-      id = randomUUID();
+  async function checkCommunity(name: string, id: string) {
+    validateIdentifier(id, 'Community ID');
+    if (!name.trim() || name.length > 100)
+      throw new Error('Community name must be 1–100 characters');
+    const existing = await service.read('community', id);
+    if (existing.state.community)
+      throw new Error('A community with this ID already exists. Choose another ID.');
+  }
+  async function createProfile(username: string, name: string, id: string) {
+    validateIdentifier(username, 'Username', 80);
+    await checkCommunity(name, id);
+    const userId = randomUUID();
     await service.dispatch('user', userId, userId, {
       type: 'ProfileConfigured',
       payload: { username },
@@ -106,8 +127,8 @@ export function useWorkspace() {
     type: T,
     payload: Extract<UserCommand, { type: T }>['payload'],
   ) => service.dispatch('user', data!.userId, data!.userId, { type, payload } as UserCommand);
-  async function addCommunity(name: string) {
-    const id = randomUUID();
+  async function addCommunity(name: string, id: string) {
+    await checkCommunity(name, id);
     await personalCommand('CommunityAdded', { id, name });
     await service.dispatch('community', id, data!.userId, {
       type: 'CommunityCreated',
@@ -128,6 +149,8 @@ export function useWorkspace() {
     command,
     personalCommand,
     addCommunity,
+    renameCommunity: (id: string, name: string) => service.renameCommunity(data!.userId, id, name),
+    deleteCommunity: (id: string) => service.deleteCommunity(data!.userId, id),
     storage: nativeStorage,
   };
 }

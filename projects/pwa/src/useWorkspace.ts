@@ -1,3 +1,4 @@
+import { emptyCommunity, validateIdentifier } from '@open-mountain/domain';
 import type { CommunityCommand, UserCommand } from '@open-mountain/domain';
 import type { WorkspaceData } from './types';
 import { useCallback, useEffect, useState } from 'react';
@@ -18,15 +19,18 @@ export function useWorkspace() {
       setData(null);
       return;
     }
-    const personal = await service.read('user', userId);
+    const personal = await service.reconcileCommunities(userId);
     if (!personal.state.profile)
       throw new Error(
         'Local profile data is missing. Restore your backup rather than resetting storage.',
       );
     const communityId =
-      requestedCommunity || localStorage.getItem(communityKey) || personal.state.communities[0]?.id;
+      requestedCommunity ||
+      localStorage.getItem(communityKey) ||
+      personal.state.communities.find((c) => !c.removedAt)?.id;
     const chosen =
-      personal.state.communities.find((c) => c.id === communityId) || personal.state.communities[0];
+      personal.state.communities.find((c) => c.id === communityId && !c.removedAt) ||
+      personal.state.communities.find((c) => !c.removedAt);
     let community;
     if (chosen) {
       community = await service.read('community', chosen.id);
@@ -37,7 +41,18 @@ export function useWorkspace() {
         });
       localStorage.setItem(communityKey, chosen.id);
     }
-    if (!chosen || !community) throw new Error('No community configured');
+    if (!chosen || !community) {
+      localStorage.removeItem(communityKey);
+      setData({
+        userId,
+        personal: personal.state,
+        userEvents: personal.journal?.events || [],
+        communityId: '',
+        state: emptyCommunity(),
+        events: [],
+      });
+      return;
+    }
     setData({
       userId,
       personal: personal.state,
@@ -75,9 +90,18 @@ export function useWorkspace() {
       setBusy(false);
     }
   }
-  async function createProfile(username: string, communityName: string) {
-    const userId = crypto.randomUUID(),
-      communityId = crypto.randomUUID();
+  async function checkCommunity(name: string, id: string) {
+    validateIdentifier(id, 'Community ID');
+    if (!name.trim() || name.length > 100)
+      throw new Error('Community name must be 1–100 characters');
+    const existing = await service.read('community', id);
+    if (existing.state.community)
+      throw new Error('A community with this ID already exists. Choose another ID.');
+  }
+  async function createProfile(username: string, communityName: string, communityId: string) {
+    validateIdentifier(username, 'Username', 80);
+    await checkCommunity(communityName, communityId);
+    const userId = crypto.randomUUID();
     await service.dispatch('user', userId, userId, {
       type: 'ProfileConfigured',
       payload: { username },
@@ -105,8 +129,8 @@ export function useWorkspace() {
     type: T,
     payload: Extract<UserCommand, { type: T }>['payload'],
   ) => service.dispatch('user', data!.userId, data!.userId, { type, payload } as UserCommand);
-  async function addCommunity(name: string) {
-    const id = crypto.randomUUID();
+  async function addCommunity(name: string, id: string) {
+    await checkCommunity(name, id);
     await personalCommand('CommunityAdded', { id, name });
     await service.dispatch('community', id, data!.userId, {
       type: 'CommunityCreated',
@@ -131,6 +155,8 @@ export function useWorkspace() {
     command,
     personalCommand,
     addCommunity,
+    renameCommunity: (id: string, name: string) => service.renameCommunity(data!.userId, id, name),
+    deleteCommunity: (id: string) => service.deleteCommunity(data!.userId, id),
     restore,
     storage: workspaceStorage,
     setError,

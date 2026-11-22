@@ -388,3 +388,69 @@ test('ordered plans add, reorder, remove and recover offline without implicit ap
   await expect(page.getByText('Plan approved', { exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Approve my plan', exact: true })).toBeEnabled();
 });
+
+test('profile and community settings normalize IDs and support create, update, list and delete offline', async ({
+  page,
+  context,
+}) => {
+  await page.goto('/');
+  await page.getByLabel('Your username', { exact: true }).fill('Alex Smith!');
+  await expect(page.getByLabel('Your username', { exact: true })).toHaveValue('alex-smith');
+  await page.getByLabel('Community name', { exact: true }).fill('Alpine Friends');
+  await expect(page.getByLabel('Community ID', { exact: true })).toHaveValue('alpine-friends');
+  await page.getByLabel('Community ID', { exact: true }).fill('My Club!');
+  await expect(page.getByLabel('Community ID', { exact: true })).toHaveValue('my-club');
+  await page.getByLabel('Community name', { exact: true }).fill('Alpine Friends Club');
+  await expect(page.getByLabel('Community ID', { exact: true })).toHaveValue('my-club');
+  await page.getByRole('button', { name: 'Create my workspace', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'My trips', exact: true })).toBeVisible();
+  await trip(page, 'Keep this trip');
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await expect(page.getByLabel('Selected community ID', { exact: true })).toHaveValue('my-club');
+  const userId = await page.getByLabel('User ID', { exact: true }).inputValue();
+  await page.getByLabel('Username', { exact: true }).fill('New User!');
+  await page.getByRole('button', { name: 'Update username', exact: true }).click();
+  await page.getByLabel('Selected community name', { exact: true }).fill('Renamed Mountain Club');
+  await page.getByRole('button', { name: 'Save community', exact: true }).click();
+  await expect(page.getByLabel('Local community', { exact: true })).toHaveValue('my-club');
+  await expect(page.getByLabel('Selected community ID', { exact: true })).toHaveValue('my-club');
+  await expect(page.getByRole('heading', { name: 'Keep this trip', exact: true })).toBeVisible();
+  await page.getByLabel('New local community', { exact: true }).fill('Second Community');
+  await expect(page.getByLabel('Community ID', { exact: true })).toHaveValue('second-community');
+  await page.getByLabel('Community ID', { exact: true }).fill('MY Club');
+  await page.getByRole('button', { name: 'Create community', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('already exists');
+  await page.getByLabel('Community ID', { exact: true }).fill('second-community');
+  await page.getByRole('button', { name: 'Create community', exact: true }).click();
+  await expect(page.getByLabel('Selected community ID', { exact: true })).toHaveValue(
+    'second-community',
+  );
+  await offline(page, context);
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await expect(page.getByLabel('User ID', { exact: true })).toHaveValue(userId);
+  await expect(page.getByLabel('Username', { exact: true })).toHaveValue('new-user');
+  page.once('dialog', (dialog) => dialog.dismiss());
+  await page.getByRole('button', { name: 'Delete Second Community', exact: true }).click();
+  await expect(
+    page.getByRole('button', { name: 'Delete Second Community', exact: true }),
+  ).toBeVisible();
+  page.once('dialog', (dialog) => dialog.accept());
+  await page.getByRole('button', { name: 'Delete Second Community', exact: true }).click();
+  await expect(
+    page.getByRole('button', { name: 'Delete Second Community', exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByLabel('Selected community ID', { exact: true })).toHaveValue('my-club');
+  page.once('dialog', (dialog) => dialog.accept());
+  await page.getByRole('button', { name: 'Delete Renamed Mountain Club', exact: true }).click();
+  await expect(page.getByText('No active communities.', { exact: true })).toBeVisible();
+  await page.getByLabel('New local community', { exact: true }).fill('New Start');
+  await page.getByRole('button', { name: 'Create community', exact: true }).click();
+  await expect(page.getByLabel('Selected community ID', { exact: true })).toHaveValue('new-start');
+  const downloadPromise = page.waitForEvent('download');
+  await page
+    .getByRole('button', { name: 'Export full backup — includes private notes', exact: true })
+    .click();
+  const backup = JSON.parse(await readFile(await (await downloadPromise).path(), 'utf8'));
+  expect(JSON.stringify(backup)).toContain('Keep this trip');
+  expect(JSON.stringify(backup)).toContain('CommunityDeleted');
+});
