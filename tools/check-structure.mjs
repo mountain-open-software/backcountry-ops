@@ -16,6 +16,8 @@ for (const parent of ['packages', 'projects']) {
 const byName = new Map(workspaces.map(w => [w.manifest.name, w]));
 assert.equal(byName.size, workspaces.length, 'Workspace names must be unique');
 const errors = [];
+// These generated modules are supplied by a declared build plugin, not npm packages.
+const virtualProviders = new Map([['virtual:pwa-register/react', 'vite-plugin-pwa']]);
 async function files(directory) {
   const result = [];
   for (const entry of await readdir(directory, { withFileTypes: true })) {
@@ -49,6 +51,8 @@ for (const workspace of workspaces) {
         continue;
       }
       if (specifier.startsWith('node:')) continue;
+      const provider = virtualProviders.get(specifier);
+      if (provider && declared[provider]) continue;
       const name = specifier.startsWith('@') ? specifier.split('/').slice(0, 2).join('/') : specifier.split('/')[0];
       if (name === manifest.name) continue;
       if (!declared[name]) errors.push(`${label}: undeclared dependency ${name}`);

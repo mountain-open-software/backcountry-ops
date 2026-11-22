@@ -1075,3 +1075,5 @@ footer[hidden] {
     margin: 8px 0;
   }
 }
+
+.pwa-update { position: fixed; bottom: max(1rem, env(safe-area-inset-bottom)); left: 1rem; right: 1rem; margin: auto; max-width: 38rem; z-index: 1600; padding: 1rem; border: 2px solid #173f37; border-radius: 12px; background: #f5f4ee; color: #173f37; box-shadow: 0 4px 20px #0003; max-height: 60dvh; overflow: auto; }
