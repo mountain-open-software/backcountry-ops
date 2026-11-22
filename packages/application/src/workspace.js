@@ -16,6 +16,70 @@ export function createWorkspace(storage, options = {}) {
             : emptyCommunity(),
       };
     },
+    async applyAssistantProposal(proposal, context) {
+      if (
+        proposal.error ||
+        !proposal.actions?.length ||
+        proposal.userId !== context.userId ||
+        proposal.communityId !== context.communityId ||
+        proposal.dayId !== (context.dayId || null)
+      )
+        throw new Error('Review notes again for the selected community and day.');
+      if (new Set(proposal.actions.map((action) => action.id)).size !== proposal.actions.length)
+        throw new Error('Assistant event IDs must be unique');
+      const allowed = new Set([
+        'TripCreated',
+        'BriefingSaved',
+        'ObservationRecorded',
+        'DebriefSaved',
+      ]);
+      for (const action of proposal.actions) {
+        if (
+          action.scope === 'user'
+            ? action.command.type !== 'ReflectionSaved' ||
+              action.command.payload.communityId !== context.communityId
+            : action.scope !== 'community' || !allowed.has(action.command.type)
+        )
+          throw new Error('Unsupported assistant action');
+        if (action.command.type !== 'TripCreated' && action.command.payload.dayId !== context.dayId)
+          throw new Error('Assistant context changed');
+      }
+      // Verify every scope before any write. Retries recognize their own recorded event IDs.
+      const verify = async (scope) => {
+        const id = scope === 'user' ? context.userId : context.communityId;
+        const record = await this.read(scope, id),
+          base = scope === 'user' ? proposal.personalRevision : proposal.communityRevision;
+        const own = new Set(proposal.actions.filter((a) => a.scope === scope).map((a) => a.id));
+        if (
+          !Number.isInteger(base) ||
+          record.state.revision < base ||
+          (record.journal?.events || []).slice(base).some((e) => !own.has(e.id))
+        )
+          throw new Error('Data changed since these notes were processed. Review them again.');
+        return { record, id };
+      };
+      await verify('community');
+      await verify('user');
+      for (const action of proposal.actions) {
+        const { record, id } = await verify(action.scope);
+        const existing = record.journal?.events.find((e) => e.id === action.id);
+        if (existing) {
+          if (
+            existing.type !== action.command.type ||
+            JSON.stringify(existing.payload) !== JSON.stringify(action.command.payload)
+          )
+            throw new Error('Conflicting assistant event');
+          continue;
+        }
+        const event = makeEvent(record.state, action.command, {
+          actorId: context.userId,
+          scopeId: id,
+          eventId: action.id,
+          now: now(),
+        });
+        await storage.append(action.scope, id, record.journal, event);
+      }
+    },
     async reconcileCommunities(userId) {
       let personal = await this.read('user', userId);
       for (const membership of personal.state.communities.filter((c) => !c.removedAt)) {

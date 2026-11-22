@@ -28,3 +28,10 @@ Record device/OS, app/browser version, build/commit, expected/actual result, and
 ## Release gate
 
 Do not mark these checks passed without device evidence. Fix failures or document specific unsupported behavior before field use. Automated browser/native-component/SQLite tests remain separate evidence; they are not a substitute for microphone, background, install, or assistive-technology testing on hardware.
+
+## Assistant and keyboard dictation
+
+- On iOS and Android, test keyboard dictation in airplane mode with the intended language downloaded; record whether the keyboard actually supports offline speech. Do not infer support from typed offline tests.
+- Confirm the composer stays visible with the keyboard open and large accessibility text.
+- Test Trip data, Settings and Back to assistant on phone/tablet; verify selected context remains clear.
+- Verify pending proposals recover after termination, private reflections remain private, and original audio recording still works through Trip data.

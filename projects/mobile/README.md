@@ -53,3 +53,5 @@ npm run build:mobile
 The SQL contract tests use real SQLite through Node, including migration/reopening, compare-and-swap, owner isolation, and the shared submission/debrief/closing lifecycle. GPX tests validate native parsing. Bundle export and type checking do not replace device testing of microphone, permissions, file picker/sharing, layout, or lifecycle behavior.
 
 This workspace has no Android emulator or iOS simulator. Expo Doctor passed its local checks, but two remote schema/directory checks could not finish because the external metadata services were unreachable. Local Expo config and bundled dependency checks resolved; device QA remains required.
+
+The default screen is the offline assistant. Use the system keyboard for typed/dictated notes, review the proposed records, then save. **Trip data** opens forms and **Settings** opens profile/community management. Offline text processing is built in; offline speech depends on the device keyboard and installed languages. Keyboard dictation does not supply original audio to this app.

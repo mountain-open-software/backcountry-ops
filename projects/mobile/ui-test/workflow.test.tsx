@@ -1,3 +1,4 @@
+import { AssistantScreen } from '../src/features/AssistantScreen';
 import { CommunitySettings } from '../src/features/CommunitySettings';
 import { CommunityFields, IdentifierField } from '../src/components/IdentityFields';
 import { Alert } from 'react-native';
@@ -222,4 +223,68 @@ test('native community settings list, select, rename and confirm deletion', asyn
   await buttons?.find((button) => button.text === 'Delete')?.onPress?.();
   expect(f.workspace.deleteCommunity).toHaveBeenCalledWith('second');
   alert.mockRestore();
+});
+
+test('native assistant proposes notes and writes only after explicit review', async () => {
+  const f = fixture();
+  f.workspace.applyAssistantProposal = jest.fn(async () => {});
+  await render(
+    wrap(
+      <AssistantScreen
+        workspace={f.workspace}
+        day={f.day}
+        onTripCreated={() => {}}
+        onOpenData={() => {}}
+      />,
+    ),
+  );
+  await waitFor(() => expect(screen.queryAllByText('Recovering draft…')).toHaveLength(0));
+  await fireEvent.changeText(
+    screen.getByLabelText('Message to assistant'),
+    'Observation: Fresh wind loading.',
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'Process notes' }));
+  await waitFor(() => expect(screen.getByText('Review proposed changes')).toBeTruthy());
+  expect(f.workspace.applyAssistantProposal).not.toHaveBeenCalled();
+  await fireEvent.press(screen.getByRole('button', { name: 'Save reviewed changes' }));
+  await waitFor(() =>
+    expect(f.workspace.applyAssistantProposal).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actions: [
+          expect.objectContaining({
+            scope: 'community',
+            command: expect.objectContaining({ type: 'ObservationRecorded' }),
+          }),
+        ],
+      }),
+      f.day.id,
+    ),
+  );
+});
+test('native assistant protects pending form edits instead of silently replacing them', async () => {
+  const f = fixture();
+  f.records.set(`user-1:community-1:${f.day.id}:briefing:0`, {
+    revision: 1,
+    value: { objective: 'Unsaved manual plan' },
+    updatedAt: '',
+  });
+  await render(
+    wrap(
+      <AssistantScreen
+        workspace={f.workspace}
+        day={f.day}
+        onTripCreated={() => {}}
+        onOpenData={() => {}}
+      />,
+    ),
+  );
+  await waitFor(() => expect(screen.queryAllByText('Recovering draft…')).toHaveLength(0));
+  await fireEvent.changeText(
+    screen.getByLabelText('Message to assistant'),
+    'Our objective is the ridge.',
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'Process notes' }));
+  await waitFor(() => expect(screen.getByText('Clarify your notes')).toBeTruthy());
+  expect(screen.queryByRole('button', { name: 'Save reviewed changes' })).toBeNull();
+  expect(f.command).not.toHaveBeenCalled();
 });

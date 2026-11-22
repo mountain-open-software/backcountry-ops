@@ -155,6 +155,15 @@ export function useWorkspace() {
     command,
     personalCommand,
     addCommunity,
+    applyAssistantProposal: (
+      proposal: import('@open-mountain/application').AssistantProposal,
+      dayId?: string,
+    ) =>
+      service.applyAssistantProposal(proposal, {
+        userId: data!.userId,
+        communityId: data!.communityId,
+        dayId,
+      }),
     renameCommunity: (id: string, name: string) => service.renameCommunity(data!.userId, id, name),
     deleteCommunity: (id: string) => service.deleteCommunity(data!.userId, id),
     restore,

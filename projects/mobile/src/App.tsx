@@ -1,3 +1,4 @@
+import { AssistantScreen } from './features/AssistantScreen';
 import { IdentifierField, CommunityFields } from './components/IdentityFields';
 import { DailyNavigation } from './components/DailyNavigation';
 import { PaperProvider } from 'react-native-paper';
@@ -34,6 +35,7 @@ const today = () => {
 };
 function WorkspaceApp() {
   const workspace = useWorkspace();
+  const [dataOpen, setDataOpen] = useState(false);
   const scroll = useRef<React.ComponentRef<typeof ScrollView>>(null);
   const { data, loading, busy, error, message, run, createProfile, command, refresh, storage } =
     workspace;
@@ -51,7 +53,7 @@ function WorkspaceApp() {
     [moveTarget, setMoveTarget] = useState('');
   useEffect(() => {
     scroll.current?.scrollTo({ y: 0, animated: false });
-  }, [settings]);
+  }, [settings, dataOpen]);
   const { width } = useWindowDimensions();
   const trips = Object.values(data?.state.trips || {}).filter((t) => !t.movedTo),
     trip = trips.find((t) => t.id === tripId) || trips[0];
@@ -137,7 +139,7 @@ function WorkspaceApp() {
     <SettingsScreen key={data.userId} workspace={ready} />
   ) : (
     <View style={styles.section}>
-      <Text style={local.hero}>Make a plan.{`\n`}Keep a field record.</Text>
+      <Heading>Trip data</Heading>
       <Note>{data.personal.profile!.username} · Solo · local only</Note>
       <ScrollView
         horizontal
@@ -160,8 +162,8 @@ function WorkspaceApp() {
             />
           ))}
       </ScrollView>
-      <View style={width >= 900 ? local.wide : styles.section}>
-        <View style={width >= 900 ? local.sidebar : undefined}>
+      <View style={styles.section}>
+        <View>
           <Card>
             <Heading>My trips</Heading>
             {trips.map((t) => (
@@ -211,7 +213,7 @@ function WorkspaceApp() {
             )}
           </Card>
         </View>
-        <View style={width >= 900 ? local.content : styles.section}>
+        <View style={styles.section}>
           {!day ? (
             <Card>
               <Heading>Room for your next adventure</Heading>
@@ -342,8 +344,17 @@ function WorkspaceApp() {
             <Text style={styles.small}>Solo · local only</Text>
             {data && (
               <Button
+                title={dataOpen ? 'Assistant' : 'Trip data'}
+                onPress={() => setDataOpen((v) => !v)}
+              />
+            )}
+            {data && (
+              <Button
                 title={settings ? 'Back to trips' : 'Settings'}
-                onPress={() => setSettings(!settings)}
+                onPress={() => {
+                  setDataOpen(true);
+                  setSettings(!settings);
+                }}
               />
             )}
           </View>
@@ -357,7 +368,45 @@ function WorkspaceApp() {
               <Text style={{ color: colors.green }}>{message}</Text>
             </View>
           )}
-          {body}
+          {data && !loading ? (
+            <View
+              style={
+                width >= 900
+                  ? { flexDirection: 'row', gap: 20, alignItems: 'flex-start' }
+                  : styles.section
+              }
+            >
+              {(!dataOpen || width >= 900) && (
+                <View
+                  style={width >= 900 ? { flex: 1, minWidth: 0 } : { width: '100%', minWidth: 0 }}
+                >
+                  <AssistantScreen
+                    key={`${data.communityId}:${day?.id || 'planning'}`}
+                    workspace={ready}
+                    day={day}
+                    trip={trip}
+                    onTripCreated={(id) => {
+                      setTripId(id);
+                      setDayId('');
+                    }}
+                    onOpenData={() => {
+                      setDataOpen(true);
+                      setSettings(false);
+                    }}
+                  />
+                </View>
+              )}
+              {dataOpen && (
+                <View
+                  style={width >= 900 ? { flex: 1, minWidth: 0 } : { width: '100%', minWidth: 0 }}
+                >
+                  {body}
+                </View>
+              )}
+            </View>
+          ) : (
+            body
+          )}
           <Note>No API · No sync · AI not configured</Note>
         </ScrollView>
       </KeyboardAvoidingView>

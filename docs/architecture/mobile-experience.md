@@ -1,6 +1,6 @@
 # Mobile experience and feature parity
 
-Native and mobile PWA use the same daily screen order and labels, defined by `dailyScreens` in the shared design system: Briefing, Observations, Debrief & close, Timeline, Routes & exports. All destinations are visible in a wrapping, touch-sized navigation grid; no horizontal swipe is required to discover a feature. Routes, day exports and confirmed trip moves belong to the same destination on both platforms.
+The assistant is the default workspace. Native and mobile PWA expose the same daily data screens through Trip data, with the same order and labels, defined by `dailyScreens` in the shared design system: Briefing, Observations, Debrief & close, Timeline, Routes & exports. All destinations are visible in a wrapping, touch-sized navigation grid; no horizontal swipe is required to discover a feature. Routes, day exports and confirmed trip moves belong to the same destination on both platforms.
 
 The PWA switches to the mobile layout below 900 CSS pixels, including narrow desktop windows. Resizing does not replace the application or reset the selected workflow. Browser, installed and fullscreen modes use the same responsive screens. Desktop may use sidebars and multiple columns; capabilities are not hidden at a breakpoint.
 
@@ -35,3 +35,11 @@ The domain validates 1–100 plans, unique IDs, supported fields and text sizes.
 Identity creation events (`ProfileConfigured`, `CommunityAdded`, `CommunityCreated`) now use event schema 2 to enforce normalized handles for new writes. Version 1 journals still replay under their original identity validation so existing usernames and IDs are never silently changed. User IDs and community IDs stay stable after creation.
 
 `CommunityRenamed` and `CommunityDeleted` belong to the community journal. `CommunityUpdated` and `CommunityRemoved` project their result into the personal community index. Refresh reconciles the index after interrupted writes. Removal uses tombstones (`deletedAt` / `removedAt`); all memberships remain in full-backup scope while active selectors exclude removed communities. Empty active membership lists are valid and keep Settings available. There is no physical erasure or ID reuse in this version.
+
+## Offline assistant boundary
+
+The shared application package parses supported English phrases into reviewable commands. Both front ends use a private draft-backed conversation and the same proposal executor. Proposals bind to the user/community/day and journal revisions. Execution permits trip creation, briefing drafts, observations, private reflections and complete debriefs; approvals, submissions, closing and destructive actions are excluded. Each accepted action uses a stable event ID; retrying an interrupted proposal recognizes previously recorded events. CAS append still protects individual journal writes. Multi-record proposals are resumable, not atomic transactions across databases.
+
+Web Trip data is a side panel on wide windows and a modal drawer on narrow windows; it includes keyboard focus handling and a route back to the assistant. Native uses the same primary assistant and data destinations, with side-by-side views at tablet widths. All legacy forms remain available.
+
+Keyboard speech-to-text is provided by the operating system, independently of the shared text processor. Device dictation and third-party keyboard privacy/network settings must be tested on hardware; the app cannot guarantee offline speech or preserve keyboard audio it never receives.

@@ -7,6 +7,10 @@ import type {
   Journal,
 } from '@open-mountain/domain';
 export interface WorkspaceService {
+  applyAssistantProposal(
+    proposal: AssistantProposal,
+    context: { userId: string; communityId: string; dayId?: string },
+  ): Promise<void>;
   reconcileCommunities(userId: string): Promise<{ journal: Journal | null; state: UserState }>;
   renameCommunity(userId: string, id: string, name: string): Promise<void>;
   deleteCommunity(userId: string, id: string): Promise<void>;
@@ -81,3 +85,32 @@ export function createDraftSession<T>(
   key: string,
   initialValue: T,
 ): DraftSession<T>;
+
+export interface AssistantAction {
+  id: string;
+  scope: 'user' | 'community';
+  command: import('@open-mountain/domain').Command;
+}
+export interface AssistantProposal {
+  userId?: string;
+  communityId?: string;
+  dayId?: string | null;
+  communityRevision?: number;
+  personalRevision?: number;
+  actions: AssistantAction[];
+  changes: string[];
+  unrecognized: string[];
+  error: string;
+}
+export const assistantExamples: string[];
+export function proposeAssistantUpdate(context: {
+  text: string;
+  state: CommunityState;
+  personal: UserState;
+  userId: string;
+  communityId: string;
+  dayId?: string;
+  now: string;
+  createId: () => string;
+  timeZone: string;
+}): AssistantProposal;
