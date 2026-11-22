@@ -32,7 +32,7 @@ export default function App() {
     <div className="shell">
       <header>
         <a className="brand" href="#main">
-          △ <span>OPEN MOUNTAIN</span>
+          △ <span>BACKCOUNTRY OPS</span>
         </a>
         <div className="header-meta">
           <FullscreenToggle />
@@ -341,12 +341,12 @@ export default function App() {
                         <h2>Portable field records</h2>
                         <Button
                           onClick={() =>
-                            download(`open-mountain-${day.date}.json`, {
+                            download(`backcountry-ops-${day.date}.json`, {
                               version: 2,
                               trip,
                               day,
                               events: data.events.filter((event) => event.payload.dayId === day.id),
-                              source: 'Open Mountain local copy',
+                              source: 'Backcountry Ops local copy',
                             })
                           }
                         >

@@ -57,7 +57,7 @@ export function SettingsScreen({ workspace }: { workspace: ReadyWorkspace }) {
                 data.userId,
                 data.personal.communities.map((c) => c.id),
               );
-              await shareJSON('open-mountain-native-backup.json', backup);
+              await shareJSON('backcountry-ops-native-backup.json', backup);
             }, 'Backup is ready in the share sheet.')
           }
         />

@@ -1,4 +1,4 @@
-# Open Mountain — Expo native app
+# Backcountry Ops — Expo native app
 
 React Native and TypeScript, using Expo SDK 58. Shares domain validation, event replay, and the command service with the PWA; uses native SQLite and app-local files rather than browser PouchDB.
 

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Open Mountain",
-    "slug": "open-mountain",
+    "name": "Backcountry Ops",
+    "slug": "backcountry-ops",
     "version": "0.1.0",
     "orientation": "default",
     "userInterfaceStyle": "light",
@@ -24,7 +24,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Capture a point location for your field observation. Open Mountain does not record GPS tracks."
+          "locationWhenInUsePermission": "Capture a point location for your field observation. Backcountry Ops does not record GPS tracks."
         }
       ]
     ]

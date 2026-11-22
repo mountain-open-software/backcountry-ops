@@ -1,4 +1,4 @@
-# Solo mobile and desktop PWA
+# Backcountry Ops — mobile and desktop PWA
 
 From the repository root:
 

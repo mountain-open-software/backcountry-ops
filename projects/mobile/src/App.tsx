@@ -242,7 +242,7 @@ function WorkspaceApp() {
                     title="Export day — public data only"
                     onPress={() =>
                       void run(() =>
-                        shareJSON(`open-mountain-${day.date}.json`, {
+                        shareJSON(`backcountry-ops-${day.date}.json`, {
                           version: 2,
                           trip,
                           day,
@@ -321,7 +321,7 @@ function WorkspaceApp() {
       >
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={local.page}>
           <View style={local.header}>
-            <Text style={local.brand}>△ OPEN MOUNTAIN</Text>
+            <Text style={local.brand}>△ BACKCOUNTRY OPS</Text>
             <Text style={styles.small}>Solo · local only</Text>
           </View>
           {Boolean(error) && (

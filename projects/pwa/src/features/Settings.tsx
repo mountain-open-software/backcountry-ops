@@ -74,7 +74,7 @@ export function Settings({ workspace }: { workspace: ReadyWorkspace }) {
               run(
                 async () =>
                   download(
-                    'open-mountain-local-backup.json',
+                    'backcountry-ops-local-backup.json',
                     await storage.exportBackup(
                       data.userId,
                       data.personal.communities.map((c) => c.id),
@@ -116,7 +116,7 @@ export function Settings({ workspace }: { workspace: ReadyWorkspace }) {
             </p>
             <Button
               onClick={() =>
-                download('open-mountain-legacy-records.json', { version: 1, documents: legacy })
+                download('backcountry-ops-legacy-records.json', { version: 1, documents: legacy })
               }
             >
               Export previous-version records
