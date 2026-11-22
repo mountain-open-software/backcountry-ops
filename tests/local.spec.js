@@ -544,3 +544,93 @@ test('assistant pending trip proposal recovers offline and creates multiple oper
   await page.getByRole('button', { name: 'Back to assistant', exact: true }).click();
   await expect(page.getByLabel('Message to assistant')).toBeVisible();
 });
+
+test('assistant retains complete note/status history and local model downloads are opt-in', async ({
+  page,
+  context,
+}) => {
+  const modelRequests = [];
+  page.on('request', (request) => {
+    if (/huggingface|\.wasm(?:$|\?)/.test(request.url())) modelRequests.push(request.url());
+  });
+  await setup(page);
+  await trip(page);
+  await page.getByRole('button', { name: 'Back to assistant', exact: true }).click();
+  for (let index = 0; index < 14; index++) {
+    await page.getByLabel('Message to assistant').fill(`Observation: history evidence ${index}.`);
+    await page.getByRole('button', { name: 'Process notes', exact: true }).click();
+    await expect(
+      page.getByRole('heading', { name: 'Review proposed changes', exact: true }),
+    ).toBeVisible();
+    await page.getByRole('button', { name: 'Dismiss proposal', exact: true }).click();
+    await expect(
+      page.getByText('Proposal dismissed. Original note retained.', { exact: true }),
+    ).toHaveCount(index + 1);
+  }
+  await expect(
+    page.getByRole('heading', { name: 'All note history (14)', exact: true }),
+  ).toBeVisible();
+  await expect(page.getByText('Observation: history evidence 0.', { exact: true })).toBeVisible();
+  await offline(page, context);
+  await expect(
+    page.getByRole('heading', { name: 'All note history (14)', exact: true }),
+  ).toBeVisible();
+  await expect(page.getByText('Observation: history evidence 0.', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  const toggle = page.getByRole('checkbox', { name: 'Enable optional local AI', exact: true });
+  await expect(toggle).not.toBeChecked();
+  await expect(
+    page.getByRole('button', { name: 'Download local model', exact: true }),
+  ).toBeDisabled();
+  await toggle.check();
+  await expect(toggle).toBeChecked();
+  await expect(
+    page.getByRole('button', { name: 'Download local model', exact: true }),
+  ).toBeEnabled();
+  expect(modelRequests).toEqual([]);
+  await toggle.uncheck();
+  await expect(
+    page.getByRole('button', { name: 'Download local model', exact: true }),
+  ).toBeDisabled();
+  const pending = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export full backup — includes private notes' }).click();
+  const backup = JSON.parse(await readFile(await (await pending).path(), 'utf8'));
+  expect(JSON.stringify(backup)).toContain('history evidence 0');
+  expect(JSON.stringify(backup)).toContain('AssistantNoteUpdated');
+});
+test('Windows/browser voice appends a transcript only after explicit speech consent', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    window.SpeechRecognition = class {
+      lang = '';
+      interimResults = false;
+      onresult;
+      onend;
+      onerror;
+      start() {
+        this.onresult?.({ results: [[{ transcript: 'Observation: dictated wind loading.' }]] });
+        this.onend?.();
+      }
+      abort() {
+        this.onend?.();
+      }
+    };
+  });
+  await setup(page);
+  await trip(page);
+  await page.getByRole('button', { name: 'Back to assistant', exact: true }).click();
+  await page.getByRole('button', { name: 'Dictate note', exact: true }).click();
+  await expect(page.getByLabel('Message to assistant')).toHaveValue('');
+  await page.getByText('Voice options for Windows and other devices', { exact: true }).click();
+  await page
+    .getByRole('checkbox', {
+      name: 'Allow the browser speech service for this session (may send audio online)',
+      exact: true,
+    })
+    .check();
+  await page.getByRole('button', { name: 'Dictate note', exact: true }).click();
+  await expect(page.getByLabel('Message to assistant')).toHaveValue(
+    'Observation: dictated wind loading.',
+  );
+});

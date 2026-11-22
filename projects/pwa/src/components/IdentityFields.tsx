@@ -15,7 +15,7 @@ export function IdentifierInput({
       autoCapitalize="none"
       autoCorrect="off"
       spellCheck={false}
-      pattern="[a-z0-9-]+"
+      pattern="(?:[a-z0-9]|-)+"
       onChange={(event) => {
         const input = event.currentTarget;
         const cursor = normalizeIdentifier(

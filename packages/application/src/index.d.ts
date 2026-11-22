@@ -114,3 +114,58 @@ export function proposeAssistantUpdate(context: {
   createId: () => string;
   timeZone: string;
 }): AssistantProposal;
+
+export const localModel: {
+  name: string;
+  bytes: number;
+  runtimeBytes: number;
+  url: string;
+  sha256: string;
+  prompt: string;
+};
+export function classifiedNote(text: string, output: string): string;
+export interface ModelState {
+  enabled: boolean;
+  available: boolean;
+  status: string;
+  progress: number;
+  error: string;
+}
+export interface ModelAdapter {
+  hasModel(): Promise<boolean>;
+  checkResources(kind: string): Promise<void>;
+  download(signal: AbortSignal, onProgress: (fraction: number) => void): Promise<void>;
+  remove(): Promise<void>;
+  classify(text: string, signal: AbortSignal): Promise<string>;
+  stop?(): void;
+  unload(): Promise<void>;
+}
+export function createLocalModelController(adapter: ModelAdapter): {
+  getSnapshot(): ModelState;
+  subscribe(fn: () => void): () => void;
+  configure(enabled: boolean): Promise<void>;
+  inspect(): Promise<void>;
+  download(): Promise<void>;
+  remove(): Promise<void>;
+  stop(): void;
+  classify(text: string): Promise<string>;
+};
+
+export function legacyAssistantNotes(
+  history: { role: string; text: string }[],
+  communityId: string,
+  dayId: string | undefined,
+  context: string,
+): { id: string; text: string; communityId: string; dayId?: string; context: string }[];
+
+export function proposeClassifiedNote(context: {
+  text: string;
+  classified: string;
+  state: CommunityState;
+  personal: UserState;
+  userId: string;
+  communityId: string;
+  dayId?: string;
+  now: string;
+  createId: () => string;
+}): AssistantProposal;

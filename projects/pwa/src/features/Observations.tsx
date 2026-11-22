@@ -38,7 +38,7 @@ export function Observations({ day, workspace }: DayProps) {
     setForm((v) => ({ ...v, [key]: value }));
   async function save(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const ok = await run(
+    await run(
       async () => {
         const audioId = form.audioId;
         await command(form.id ? 'ObservationCorrected' : 'ObservationRecorded', {
@@ -50,15 +50,13 @@ export function Observations({ day, workspace }: DayProps) {
           audioId,
           audioName: file?.name || form.audioName,
         });
+        await draftSession.reset(blank());
+        setFile(null);
       },
       day.closedAt
         ? 'Post-close update recorded. The day remains closed; AI is not configured.'
         : 'Observation saved locally. Submit your report when finished.',
     );
-    if (ok) {
-      await draftSession.reset(blank());
-      setFile(null);
-    }
   }
   useEffect(() => {
     let active = true;

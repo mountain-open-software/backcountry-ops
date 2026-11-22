@@ -1,3 +1,5 @@
+import { AssistantHistory } from '../components/AssistantHistory';
+import { AssistantVoice } from '../components/AssistantVoice';
 import React from 'react';
 import type { OperationalDay, Trip } from '@open-mountain/domain';
 import type { ReadyWorkspace } from '../types';
@@ -40,6 +42,23 @@ export function Assistant({
             2026-11-26”.
           </p>
         )}
+        <p role="status">
+          On-device AI: {a.model.enabled ? a.model.status : 'off — downloads disabled'}
+          {a.model.status === 'downloading' ? ` · ${Math.round(a.model.progress * 100)}%` : ''}
+        </p>
+        <AssistantHistory notes={a.notes} working={a.disabled} onUse={a.setText} />
+        {a.processing && (
+          <p role="status">
+            Processing your note…{' '}
+            {a.model.status === 'processing' ? 'On-device AI' : 'Offline phrases'}
+          </p>
+        )}
+        {!!a.processingError && <p role="alert">{a.processingError}</p>}
+        {a.model.status === 'processing' && (
+          <Button type="button" onClick={a.model.controller.stop}>
+            Stop local AI
+          </Button>
+        )}
         <div role="log" aria-label="Assistant conversation" aria-live="polite">
           {a.conversation.history.map((message, index) => (
             <article
@@ -69,6 +88,7 @@ export function Assistant({
               placeholder="Our objective is… Observation:… Private reflection:…"
             />
           </label>
+          <AssistantVoice disabled={a.disabled} onTranscript={a.appendText} />
           <DraftStatus draft={a.draft} />
           <Button className="primary" disabled={a.disabled || !a.conversation.text.trim()}>
             Process notes

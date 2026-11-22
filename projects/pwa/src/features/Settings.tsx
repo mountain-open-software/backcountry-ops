@@ -1,3 +1,4 @@
+import { LocalAISettings } from './LocalAISettings';
 import { CommunitySettings } from './CommunitySettings';
 import { IdentifierInput } from '../components/IdentityFields';
 import { StorageHealth } from '../components/StorageHealth';
@@ -52,6 +53,7 @@ export function Settings({ workspace }: { workspace: ReadyWorkspace }) {
           </p>
         </Panel>
         <CommunitySettings workspace={workspace} />
+        <LocalAISettings workspace={workspace} />
         <Panel className="panel">
           <h2>Backup & restore</h2>
           <StorageHealth />

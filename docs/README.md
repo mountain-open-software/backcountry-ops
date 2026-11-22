@@ -1,5 +1,7 @@
 # Documentation
 
+- **On-device AI and history:** [Optional local model, voice support and private note status](architecture/on-device-ai.md) documents default-off downloads, space/battery controls and native build requirements.
+
 - **Mobile parity:** [Native and mobile PWA experience](architecture/mobile-experience.md) defines shared screens, navigation and feature availability at every window size.
 - **Design system:** [Shared tokens and Material components](../packages/design-system/README.md) defines the common web/native foundation and accessibility checks.
 - **Expo native app:** [Run and verify iOS/Android](../projects/mobile/README.md) describes native SQLite, recordings, backup/restore, and device-test limits.

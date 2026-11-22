@@ -69,7 +69,7 @@ export function ObservationScreen({
   const update = <K extends keyof Observation>(key: K, value: Observation[K]) =>
     setValues((v) => ({ ...v, [key]: value }));
   async function save() {
-    const ok = await run(
+    await run(
       async () => {
         const audioId = values.audioId;
         await command(values.id ? 'ObservationCorrected' : 'ObservationRecorded', {
@@ -80,15 +80,13 @@ export function ObservationScreen({
           audioId,
           audioName: audio?.name || values.audioName,
         });
+        await draftSession.reset(blank());
+        setAudio(null);
       },
       day.closedAt
         ? 'Post-close event recorded; the day stays closed.'
         : 'Observation saved. Submit your report when done.',
     );
-    if (ok) {
-      await draftSession.reset(blank());
-      setAudio(null);
-    }
   }
   useEffect(() => {
     let active = true;

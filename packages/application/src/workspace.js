@@ -53,7 +53,16 @@ export function createWorkspace(storage, options = {}) {
         if (
           !Number.isInteger(base) ||
           record.state.revision < base ||
-          (record.journal?.events || []).slice(base).some((e) => !own.has(e.id))
+          (record.journal?.events || [])
+            .slice(base)
+            .some(
+              (e) =>
+                !own.has(e.id) &&
+                !(
+                  scope === 'user' &&
+                  ['AssistantNoteRecorded', 'AssistantNoteUpdated'].includes(e.type)
+                ),
+            )
         )
           throw new Error('Data changed since these notes were processed. Review them again.');
         return { record, id };
