@@ -1,3 +1,7 @@
+import { AssistantScreen } from '../src/features/AssistantScreen';
+import { CommunitySettings } from '../src/features/CommunitySettings';
+import { CommunityFields, IdentifierField } from '../src/components/IdentityFields';
+import { Alert } from 'react-native';
 import { DailyNavigation } from '../src/components/DailyNavigation';
 import { dailyScreens } from '@open-mountain/design-system';
 jest.mock('../src/components/Recording', () => ({
@@ -163,5 +167,124 @@ test('native plans add, reorder and remove with hazards kept on the same plan', 
   expect(screen.getByLabelText('Plan A — hazards and uncertainty')).toHaveDisplayValue('Trees');
   await fireEvent.press(screen.getByRole('button', { name: 'Remove plan B' }));
   expect(screen.queryByLabelText('Plan B — where we go')).toBeNull();
+  expect(f.command).not.toHaveBeenCalled();
+});
+
+test('native identity fields normalize handles while preserving separate community names', async () => {
+  let result = '';
+  await render(
+    wrap(
+      <>
+        <IdentifierField
+          label="Username"
+          value=""
+          onChangeText={(value) => {
+            result = value;
+          }}
+        />
+        <CommunityFields
+          name="Alpine Club"
+          id="alpine-club"
+          onChange={(name, id) => {
+            result = name + '|' + id;
+          }}
+        />
+      </>,
+    ),
+  );
+  await fireEvent.changeText(screen.getByLabelText('Username'), 'Alex Smith!');
+  expect(result).toBe('alex-smith');
+  await fireEvent.changeText(screen.getByLabelText('Community name'), 'New Alpine Club');
+  expect(result).toBe('New Alpine Club|new-alpine-club');
+  await fireEvent.changeText(screen.getByLabelText('Community ID'), 'Custom ID!');
+  expect(result).toBe('Alpine Club|custom-id');
+});
+test('native community settings list, select, rename and confirm deletion', async () => {
+  const f = fixture();
+  f.workspace.data.personal.communities = [
+    { id: 'community-1', name: 'Local' },
+    { id: 'second', name: 'Second Club' },
+  ];
+  f.workspace.refresh = jest.fn(async () => {});
+  f.workspace.renameCommunity = jest.fn(async () => {});
+  f.workspace.deleteCommunity = jest.fn(async () => {});
+  f.workspace.addCommunity = jest.fn(async () => {});
+  await render(wrap(<CommunitySettings workspace={f.workspace} />));
+  expect(screen.getByLabelText('Selected community ID')).toHaveDisplayValue('community-1');
+  await fireEvent.changeText(screen.getByLabelText('Selected community name'), 'Renamed Club');
+  await fireEvent.press(screen.getByRole('button', { name: 'Save community' }));
+  expect(f.workspace.renameCommunity).toHaveBeenCalledWith('community-1', 'Renamed Club');
+  await fireEvent.press(screen.getByRole('button', { name: 'Select Second Club' }));
+  expect(f.workspace.refresh).toHaveBeenCalledWith('second');
+  const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+  await fireEvent.press(screen.getByRole('button', { name: 'Delete Second Club' }));
+  expect(f.workspace.deleteCommunity).not.toHaveBeenCalled();
+  const buttons = alert.mock.calls[0][2];
+  await buttons?.find((button) => button.text === 'Delete')?.onPress?.();
+  expect(f.workspace.deleteCommunity).toHaveBeenCalledWith('second');
+  alert.mockRestore();
+});
+
+test('native assistant proposes notes and writes only after explicit review', async () => {
+  const f = fixture();
+  f.workspace.applyAssistantProposal = jest.fn(async () => {});
+  await render(
+    wrap(
+      <AssistantScreen
+        workspace={f.workspace}
+        day={f.day}
+        onTripCreated={() => {}}
+        onOpenData={() => {}}
+      />,
+    ),
+  );
+  await waitFor(() => expect(screen.queryAllByText('Recovering draft…')).toHaveLength(0));
+  await fireEvent.changeText(
+    screen.getByLabelText('Message to assistant'),
+    'Observation: Fresh wind loading.',
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'Process notes' }));
+  await waitFor(() => expect(screen.getByText('Review proposed changes')).toBeTruthy());
+  expect(f.workspace.applyAssistantProposal).not.toHaveBeenCalled();
+  await fireEvent.press(screen.getByRole('button', { name: 'Save reviewed changes' }));
+  await waitFor(() =>
+    expect(f.workspace.applyAssistantProposal).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actions: [
+          expect.objectContaining({
+            scope: 'community',
+            command: expect.objectContaining({ type: 'ObservationRecorded' }),
+          }),
+        ],
+      }),
+      f.day.id,
+    ),
+  );
+});
+test('native assistant protects pending form edits instead of silently replacing them', async () => {
+  const f = fixture();
+  f.records.set(`user-1:community-1:${f.day.id}:briefing:0`, {
+    revision: 1,
+    value: { objective: 'Unsaved manual plan' },
+    updatedAt: '',
+  });
+  await render(
+    wrap(
+      <AssistantScreen
+        workspace={f.workspace}
+        day={f.day}
+        onTripCreated={() => {}}
+        onOpenData={() => {}}
+      />,
+    ),
+  );
+  await waitFor(() => expect(screen.queryAllByText('Recovering draft…')).toHaveLength(0));
+  await fireEvent.changeText(
+    screen.getByLabelText('Message to assistant'),
+    'Our objective is the ridge.',
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'Process notes' }));
+  await waitFor(() => expect(screen.getByText('Clarify your notes')).toBeTruthy());
+  expect(screen.queryByRole('button', { name: 'Save reviewed changes' })).toBeNull();
   expect(f.command).not.toHaveBeenCalled();
 });

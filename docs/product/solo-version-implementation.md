@@ -1,8 +1,10 @@
 # Solo version — Implemented behavior and limits
 
-Status: Local implementation on `feat/solo-daily-process`; not deployed
+Status: Solo local implementation; deployment verification depends on the target environment
 
 ## Available
+
+- Assistant-first home on web and native, with Trip data in a desktop side panel or a mobile drawer/view. Supported notes become explicit, reviewable offline proposals before domain events are saved.
 
 - React/TypeScript PWA built with Vite, with desktop and touch-sized mobile layouts.
 - Username onboarding, stable local identity, multiple local community workspaces, separate personal/community PouchDB databases.
@@ -44,3 +46,23 @@ See [ADR 0002](../architecture/decisions/0002-solo-event-journals-and-react-ui.m
 The PWA works in a normal resizable browser window, installed standalone mode, and browser-supported fullscreen. The fullscreen control is shown only when supported; installation and fullscreen are optional. Safe-area spacing supports mobile displays. Storage settings show browser quota/persistence information when available; native settings show available disk space. Back up saved records before clearing data or uninstalling. See the [real-device checklist](../device-testing-checklist.md) for pending hardware verification.
 
 Native and mobile PWA follow the [shared mobile experience](../architecture/mobile-experience.md), including the same daily destinations and route/export placement. Desktop retains every destination with a wider layout.
+
+## Profile and community settings
+
+The header Settings button opens Profile, Selected community, My communities, and Backup & restore. Usernames and new community IDs normalize while typing: lowercase ASCII letters/numbers and hyphens, with spaces converted to hyphens and other punctuation removed. Community names are separate display values and retain capitalization, spaces and punctuation. A new community ID is suggested from its name until explicitly edited. Existing IDs remain unchanged.
+
+Settings supports community creation, listing, selection, name updates and confirmed deletion. IDs are read-only after creation. Duplicate IDs are rejected before writing a new membership. Deleting a community removes it from active use and blocks further work; its journal and attachments remain in full backup history, and its ID stays reserved. Deleting the last community leaves profile/settings available so another can be created. Renaming never moves trips or changes their community ID.
+
+These remain local-only settings: no password, server or collaboration is implied.
+
+## Assistant-first interaction
+
+The main screen accepts typed text or text dictated through the operating-system keyboard. Trip data exposes every existing form, route upload, recording, approval, submission, closing and settings feature. Desktop can show the assistant beside data; mobile uses a Back to assistant button.
+
+The current assistant is a deterministic English phrase processor, not a general-purpose language model. Examples cover explicit trip dates, objectives, ordered plans/hazards, change triggers, mindset, hazard assessments, observations, private reflections and complete five-topic debriefs. Unsupported sentences ask for clarification and write nothing. Incomplete debriefs require more detail or direct form editing. Plans and hazards are never inferred from missing information.
+
+Process notes produces a proposal; Save reviewed changes is the separate write action. Domain validation still applies. Proposals carry community/user/day context and base revisions. Changed data rejects a stale proposal before saving; interrupted saves can retry their own event IDs without duplicating recorded actions. Unsaved manual form drafts block assistant changes to those same sections. Plan approval, report submission, day closing, deletion and sharing are not assistant write actions.
+
+Assistant conversations and pending proposals are private local draft data and are excluded from portable backups. Accepted observations retain their entered text in the community journal; private reflection actions write only to the user journal. New observations default to entry time and can be corrected in Trip data.
+
+Typed capture and text processing work without connectivity. Keyboard dictation is supplied by the device; offline availability depends on the OS, keyboard, language packs and user settings. The app does not ship an offline speech model or receive original audio from keyboard dictation. Original recording capture remains in Trip data. No cloud AI or transcription call is made by the assistant.

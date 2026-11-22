@@ -1,3 +1,4 @@
+import { validateIdentifier } from './identifiers.js';
 import { briefingPlans } from './plans.js';
 // State/events are JSON data; this clone also works on Hermes without structuredClone.
 const copyJson = (value) => JSON.parse(JSON.stringify(value));
@@ -105,6 +106,10 @@ function validatePlans(plans) {
 const payloadKeys = {
   ProfileConfigured: ['username'],
   CommunityAdded: ['id', 'name'],
+  CommunityUpdated: ['id', 'name'],
+  CommunityRenamed: ['name'],
+  CommunityDeleted: [],
+  CommunityRemoved: ['id'],
   ReflectionSaved: ['dayId', 'communityId', 'text'],
   CommunityCreated: ['name'],
   TripCreated: ['id', 'title', 'startDate', 'endDate', 'timeZone'],
@@ -166,7 +171,11 @@ function identifier(value) {
   )
     throw new Error('Invalid record identifier');
 }
+const identityEventTypes = new Set(['ProfileConfigured', 'CommunityAdded', 'CommunityCreated']);
 export function makeEvent(state, command, context) {
+  return buildEvent(state, command, context);
+}
+function buildEvent(state, command, context, legacyIdentity = false) {
   const { actorId, scopeId, now, eventId } = context;
   required(actorId, 'Actor');
   required(scopeId, 'Database scope');
@@ -185,11 +194,24 @@ export function makeEvent(state, command, context) {
   if (state.profile !== undefined) {
     if (scopeId !== actorId) throw new Error('Personal database scope must match its user');
     if (type === 'ProfileConfigured') {
-      required(payload.username, 'Username');
-      if (payload.username.length > 80) throw new Error('Username must be at most 80 characters');
+      if (legacyIdentity) {
+        required(payload.username, 'Username');
+        if (payload.username.length > 80) throw new Error('Username must be at most 80 characters');
+      } else validateIdentifier(payload.username, 'Username', 80);
     } else if (type === 'CommunityAdded') {
-      required(payload.id, 'Community ID');
+      if (!legacyIdentity) validateIdentifier(payload.id, 'Community ID');
       required(payload.name, 'Community name');
+      if (!legacyIdentity && state.communities.some((c) => c.id === payload.id))
+        throw new Error('Community ID already exists');
+    } else if (type === 'CommunityRemoved') {
+      if (!state.communities.some((c) => c.id === payload.id && !c.removedAt))
+        throw new Error('Choose an active community');
+    } else if (type === 'CommunityUpdated') {
+      required(payload.name, 'Community name');
+      if (payload.name.length > 100)
+        throw new Error('Community name must be at most 100 characters');
+      if (!state.communities.some((c) => c.id === payload.id && !c.removedAt))
+        throw new Error('Choose an existing community');
     } else if (type === 'ReflectionSaved') {
       required(payload.dayId, 'Day ID');
       required(payload.communityId, 'Community ID');
@@ -202,9 +224,18 @@ export function makeEvent(state, command, context) {
   } else {
     if (type !== 'CommunityCreated' && (!state.community || state.community.ownerId !== actorId))
       throw new Error('This community belongs to another local profile');
+    if (state.community?.deletedAt && type !== 'CommunityCreated')
+      throw new Error('Community has been deleted');
     if (type === 'CommunityCreated') {
       if (state.community) throw new Error('Community already exists');
+      if (!legacyIdentity) validateIdentifier(scopeId, 'Community ID');
       required(payload.name, 'Community name');
+    } else if (type === 'CommunityDeleted') {
+      // Retain the journal and attachments as backup history.
+    } else if (type === 'CommunityRenamed') {
+      required(payload.name, 'Community name');
+      if (payload.name.length > 100)
+        throw new Error('Community name must be at most 100 characters');
     } else if (type === 'TripCreated') {
       required(payload.id, 'Trip ID');
       required(payload.title, 'Trip name');
@@ -330,7 +361,7 @@ export function makeEvent(state, command, context) {
   }
   return {
     id: eventId,
-    version: 1,
+    version: identityEventTypes.has(type) ? 2 : 1,
     type,
     scopeId,
     actorId,
@@ -345,6 +376,8 @@ export function applyCommunity(state, event) {
   const day = p.dayId && next.days[p.dayId];
   if (event.type === 'CommunityCreated')
     next.community = { id: event.scopeId, name: p.name, ownerId: event.actorId };
+  else if (event.type === 'CommunityDeleted') next.community.deletedAt = event.recordedAt;
+  else if (event.type === 'CommunityRenamed') next.community.name = p.name.trim();
   else if (event.type === 'TripCreated') {
     next.trips[p.id] = { ...p, leaderId: event.actorId };
     for (const date of datesBetween(p.startDate, p.endDate)) {
@@ -440,6 +473,14 @@ export function applyUser(state, event) {
   else if (event.type === 'CommunityAdded') {
     if (!next.communities.some((c) => c.id === p.id))
       next.communities.push({ id: p.id, name: p.name });
+  } else if (event.type === 'CommunityRemoved') {
+    next.communities = next.communities.map((c) =>
+      c.id === p.id ? { ...c, removedAt: event.recordedAt } : c,
+    );
+  } else if (event.type === 'CommunityUpdated') {
+    next.communities = next.communities.map((c) =>
+      c.id === p.id ? { ...c, name: p.name.trim() } : c,
+    );
   } else if (event.type === 'ReflectionSaved')
     next.reflections[`${p.communityId}:${p.dayId}`] = { text: p.text, updatedAt: event.recordedAt };
   else throw new Error('Unsupported personal event');
@@ -451,7 +492,12 @@ export function replay(events, scope = 'community') {
   const ids = new Map();
   let owner, scopeId;
   for (const event of events) {
-    if (!event || event.version !== 1 || typeof event.id !== 'string' || !event.payload)
+    if (
+      !event ||
+      !(event.version === 1 || (event.version === 2 && identityEventTypes.has(event.type))) ||
+      typeof event.id !== 'string' ||
+      !event.payload
+    )
       throw new Error('Unsupported event schema');
     if (ids.has(event.id)) {
       if (ids.get(event.id) !== JSON.stringify(event))
@@ -464,10 +510,11 @@ export function replay(events, scope = 'community') {
     }
     if (event.actorId !== owner || event.scopeId !== scopeId)
       throw new Error('Unexpected event ownership');
-    const validated = makeEvent(
+    const validated = buildEvent(
       state,
       { type: event.type, payload: event.payload },
       { actorId: event.actorId, scopeId: event.scopeId, now: event.recordedAt, eventId: event.id },
+      event.version === 1,
     );
     state = scope === 'user' ? applyUser(state, validated) : applyCommunity(state, validated);
     ids.set(event.id, JSON.stringify(event));

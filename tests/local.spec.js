@@ -5,6 +5,7 @@ async function setup(page, name = 'Alex') {
   await page.getByLabel('Your username').fill(name);
   await page.getByLabel('Community name').fill('Mountain community');
   await page.getByRole('button', { name: 'Create my workspace' }).click();
+  await page.getByRole('button', { name: 'Trip data', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'My trips', exact: true })).toBeVisible();
 }
 async function trip(page, name = 'Ridge traverse', start = '2026-11-14', end = start) {
@@ -168,6 +169,7 @@ test('GPX import, scoped export, and full backup restore retain offline evidence
   await restored
     .getByLabel('Or restore a local backup')
     .setInputFiles({ name: 'backup.json', mimeType: 'application/json', buffer: backup });
+  await restored.getByRole('button', { name: 'Trip data', exact: true }).click();
   await expect(
     restored.getByRole('heading', { name: 'Ridge traverse', exact: true }),
   ).toBeVisible();
@@ -387,4 +389,158 @@ test('ordered plans add, reorder, remove and recover offline without implicit ap
   await page.getByRole('button', { name: 'Save briefing draft', exact: true }).click();
   await expect(page.getByText('Plan approved', { exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Approve my plan', exact: true })).toBeEnabled();
+});
+
+test('profile and community settings normalize IDs and support create, update, list and delete offline', async ({
+  page,
+  context,
+}) => {
+  await page.goto('/');
+  await page.getByLabel('Your username', { exact: true }).fill('Alex Smith!');
+  await expect(page.getByLabel('Your username', { exact: true })).toHaveValue('alex-smith');
+  await page.getByLabel('Community name', { exact: true }).fill('Alpine Friends');
+  await expect(page.getByLabel('Community ID', { exact: true })).toHaveValue('alpine-friends');
+  await page.getByLabel('Community ID', { exact: true }).fill('My Club!');
+  await expect(page.getByLabel('Community ID', { exact: true })).toHaveValue('my-club');
+  await page.getByLabel('Community name', { exact: true }).fill('Alpine Friends Club');
+  await expect(page.getByLabel('Community ID', { exact: true })).toHaveValue('my-club');
+  await page.getByRole('button', { name: 'Create my workspace', exact: true }).click();
+  await page.getByRole('button', { name: 'Trip data', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'My trips', exact: true })).toBeVisible();
+  await trip(page, 'Keep this trip');
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await expect(page.getByLabel('Selected community ID', { exact: true })).toHaveValue('my-club');
+  const userId = await page.getByLabel('User ID', { exact: true }).inputValue();
+  await page.getByLabel('Username', { exact: true }).fill('New User!');
+  await page.getByRole('button', { name: 'Update username', exact: true }).click();
+  await page.getByLabel('Selected community name', { exact: true }).fill('Renamed Mountain Club');
+  await page.getByRole('button', { name: 'Save community', exact: true }).click();
+  await expect(page.getByLabel('Local community', { exact: true })).toHaveValue('my-club');
+  await expect(page.getByLabel('Selected community ID', { exact: true })).toHaveValue('my-club');
+  await expect(page.getByRole('heading', { name: 'Keep this trip', exact: true })).toBeVisible();
+  await page.getByLabel('New local community', { exact: true }).fill('Second Community');
+  await expect(page.getByLabel('Community ID', { exact: true })).toHaveValue('second-community');
+  await page.getByLabel('Community ID', { exact: true }).fill('MY Club');
+  await page.getByRole('button', { name: 'Create community', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('already exists');
+  await page.getByLabel('Community ID', { exact: true }).fill('second-community');
+  await page.getByRole('button', { name: 'Create community', exact: true }).click();
+  await expect(page.getByLabel('Selected community ID', { exact: true })).toHaveValue(
+    'second-community',
+  );
+  await offline(page, context);
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await expect(page.getByLabel('User ID', { exact: true })).toHaveValue(userId);
+  await expect(page.getByLabel('Username', { exact: true })).toHaveValue('new-user');
+  page.once('dialog', (dialog) => dialog.dismiss());
+  await page.getByRole('button', { name: 'Delete Second Community', exact: true }).click();
+  await expect(
+    page.getByRole('button', { name: 'Delete Second Community', exact: true }),
+  ).toBeVisible();
+  page.once('dialog', (dialog) => dialog.accept());
+  await page.getByRole('button', { name: 'Delete Second Community', exact: true }).click();
+  await expect(
+    page.getByRole('button', { name: 'Delete Second Community', exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByLabel('Selected community ID', { exact: true })).toHaveValue('my-club');
+  page.once('dialog', (dialog) => dialog.accept());
+  await page.getByRole('button', { name: 'Delete Renamed Mountain Club', exact: true }).click();
+  await expect(page.getByText('No active communities.', { exact: true })).toBeVisible();
+  await page.getByLabel('New local community', { exact: true }).fill('New Start');
+  await page.getByRole('button', { name: 'Create community', exact: true }).click();
+  await expect(page.getByLabel('Selected community ID', { exact: true })).toHaveValue('new-start');
+  const downloadPromise = page.waitForEvent('download');
+  await page
+    .getByRole('button', { name: 'Export full backup — includes private notes', exact: true })
+    .click();
+  const backup = JSON.parse(await readFile(await (await downloadPromise).path(), 'utf8'));
+  expect(JSON.stringify(backup)).toContain('Keep this trip');
+  expect(JSON.stringify(backup)).toContain('CommunityDeleted');
+});
+
+test('assistant processes offline notes only after review and keeps private reflections out of trip exports', async ({
+  page,
+  context,
+}) => {
+  await setup(page);
+  await trip(page);
+  await page.getByRole('button', { name: 'Back to assistant', exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Tell me about your day.', exact: true }),
+  ).toBeVisible();
+  await page
+    .getByLabel('Message to assistant')
+    .fill(
+      'Our objective is to explore the ridge. Plan A is the forest. Hazards for plan A: overhead exposure. Observation: Wind loading on ridge. Private reflection: I feel fatigued.',
+    );
+  await page.getByRole('button', { name: 'Process notes', exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Review proposed changes', exact: true }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Trip data', exact: true }).click();
+  await page.getByRole('button', { name: 'Observations', exact: false }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Wind loading on ridge', exact: true }),
+  ).toHaveCount(0);
+  await page.getByRole('button', { name: 'Back to assistant', exact: true }).click();
+  await page.getByRole('button', { name: 'Save reviewed changes', exact: true }).click();
+  await expect(page.getByText('Reviewed notes saved.', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Trip data', exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Wind loading on ridge', exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole('navigation', { name: 'Daily workflow' })
+    .getByRole('button', { name: 'Briefing', exact: false })
+    .click();
+  await expect(page.getByLabel('Objective for the day', { exact: true })).toHaveValue(
+    'to explore the ridge',
+  );
+  await expect(page.getByLabel('My private reflection')).toHaveValue('I feel fatigued.');
+  await expect(page.getByRole('button', { name: 'Approve my plan', exact: true })).toBeEnabled();
+  await page.getByRole('button', { name: 'Routes & exports', exact: false }).click();
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export day — public data only', exact: true }).click();
+  const exported = await readFile(await (await downloadPromise).path(), 'utf8');
+  expect(exported).not.toContain('fatigued');
+  expect(exported).toContain('Wind loading');
+  await offline(page, context);
+  await page.getByRole('button', { name: 'Back to assistant', exact: true }).click();
+  await page.getByLabel('Message to assistant').fill('Close the day.');
+  await page.getByRole('button', { name: 'Process notes', exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Clarify your notes', exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Save reviewed changes', exact: true }),
+  ).toHaveCount(0);
+});
+test('assistant pending trip proposal recovers offline and creates multiple operational days', async ({
+  page,
+  context,
+}) => {
+  await setup(page);
+  await page.getByRole('button', { name: 'Back to assistant', exact: true }).click();
+  await page
+    .getByLabel('Message to assistant')
+    .fill('Create a trip called Assistant traverse from 2026-11-24 to 2026-11-26.');
+  await page.getByRole('button', { name: 'Process notes', exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Review proposed changes', exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText('Draft saved on this device. Not submitted or approved.', { exact: true }),
+  ).toBeVisible();
+  await offline(page, context);
+  await expect(
+    page.getByRole('button', { name: 'Save reviewed changes', exact: true }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Save reviewed changes', exact: true }).click();
+  await page.getByRole('button', { name: 'Trip data', exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Assistant traverse', exact: true }),
+  ).toBeVisible();
+  await expect(page.getByLabel('Operational day').locator('option')).toHaveCount(3);
+  await page.getByRole('button', { name: 'Back to assistant', exact: true }).click();
+  await expect(page.getByLabel('Message to assistant')).toBeVisible();
 });

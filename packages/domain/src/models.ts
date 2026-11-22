@@ -126,19 +126,21 @@ export interface ViewConfig {
   views: { briefing: FormDefinition; debrief: FormDefinition };
 }
 export interface CommunityState {
-  community: { id: string; name: string; ownerId: string } | null;
+  community: { id: string; name: string; ownerId: string; deletedAt?: string } | null;
   trips: Record<string, Trip>;
   days: Record<string, OperationalDay>;
   revision: number;
 }
 export interface UserState {
   profile: { id: string; username: string } | null;
-  communities: { id: string; name: string }[];
+  communities: { id: string; name: string; removedAt?: string }[];
   reflections: Record<string, { text: string; updatedAt: string }>;
   revision: number;
 }
 export type CommunityCommand =
   | { type: 'CommunityCreated'; payload: { name: string } }
+  | { type: 'CommunityRenamed'; payload: { name: string } }
+  | { type: 'CommunityDeleted'; payload: Record<string, never> }
   | { type: 'TripCreated'; payload: Trip }
   | { type: 'TripMoved'; payload: { sourceId: string; targetId: string; confirmed: boolean } }
   | { type: 'BriefingSaved'; payload: Briefing & { dayId: string } }
@@ -156,11 +158,13 @@ export type CommunityCommand =
 export type UserCommand =
   | { type: 'ProfileConfigured'; payload: { username: string } }
   | { type: 'CommunityAdded'; payload: { id: string; name: string } }
+  | { type: 'CommunityUpdated'; payload: { id: string; name: string } }
+  | { type: 'CommunityRemoved'; payload: { id: string } }
   | { type: 'ReflectionSaved'; payload: { dayId: string; communityId: string; text: string } };
 export type Command = CommunityCommand | UserCommand;
 export interface DomainEvent {
   id: string;
-  version: 1;
+  version: 1 | 2;
   type: Command['type'];
   scopeId: string;
   actorId: string;

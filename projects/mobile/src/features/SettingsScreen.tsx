@@ -1,3 +1,6 @@
+import { CommunitySettings } from './CommunitySettings';
+import { IdentifierField } from '../components/IdentityFields';
+import { normalizeIdentifier } from '@open-mountain/domain';
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
@@ -6,14 +9,19 @@ import type { ReadyWorkspace } from '../useWorkspace';
 import { shareJSON } from '../nativeStorage';
 import { Button, Card, Field, Heading, Note, styles } from '../components/Controls';
 export function SettingsScreen({ workspace }: { workspace: ReadyWorkspace }) {
-  const { data, busy, run, personalCommand, addCommunity, storage } = workspace;
-  const [username, setUsername] = useState(data.personal.profile!.username),
-    [community, setCommunity] = useState('');
+  const { data, busy, run, personalCommand, storage } = workspace;
+  const [username, setUsername] = useState(normalizeIdentifier(data.personal.profile!.username));
   return (
     <View style={styles.section}>
       <Card>
-        <Heading>Local identity</Heading>
-        <Field label="Username" value={username} onChangeText={setUsername} maxLength={80} />
+        <Heading>Profile</Heading>
+        <Field label="User ID" value={data.userId} editable={false} />
+        <IdentifierField
+          label="Username"
+          value={username}
+          onChangeText={setUsername}
+          maxLength={80}
+        />
         <Button
           title="Update username"
           disabled={busy}
@@ -24,17 +32,12 @@ export function SettingsScreen({ workspace }: { workspace: ReadyWorkspace }) {
             )
           }
         />
-        <Field label="New local community" value={community} onChangeText={setCommunity} />
-        <Button
-          title="Create community"
-          disabled={busy}
-          onPress={() => void run(() => addCommunity(community.trim()), 'Community created.')}
-        />
         <Note>
           Independent local copy. No account, password, PIN, API, AI, or synchronization. Private
           notes live in your user database, not the community database.
         </Note>
       </Card>
+      <CommunitySettings workspace={workspace} />
       <Card>
         <Heading>Backup & restore</Heading>
         <Note>{`Device space available: ${(Paths.availableDiskSpace / 1048576).toFixed(0)} MB. Export before uninstalling or clearing app data. Autosaved text drafts are local recovery data, not part of portable backups; save records first.`}</Note>
@@ -57,7 +60,7 @@ export function SettingsScreen({ workspace }: { workspace: ReadyWorkspace }) {
                 data.userId,
                 data.personal.communities.map((c) => c.id),
               );
-              await shareJSON('open-mountain-native-backup.json', backup);
+              await shareJSON('backcountry-ops-native-backup.json', backup);
             }, 'Backup is ready in the share sheet.')
           }
         />

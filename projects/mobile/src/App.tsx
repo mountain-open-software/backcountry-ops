@@ -1,8 +1,10 @@
+import { AssistantScreen } from './features/AssistantScreen';
+import { IdentifierField, CommunityFields } from './components/IdentityFields';
 import { DailyNavigation } from './components/DailyNavigation';
 import { PaperProvider } from 'react-native-paper';
 import { type DailyScreen, tokens } from '@open-mountain/design-system';
 import { nativeTheme } from './theme';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -33,10 +35,13 @@ const today = () => {
 };
 function WorkspaceApp() {
   const workspace = useWorkspace();
+  const [dataOpen, setDataOpen] = useState(false);
+  const scroll = useRef<React.ComponentRef<typeof ScrollView>>(null);
   const { data, loading, busy, error, message, run, createProfile, command, refresh, storage } =
     workspace;
   const [username, setUsername] = useState(''),
-    [community, setCommunity] = useState('My mountain community');
+    [community, setCommunity] = useState('My mountain community'),
+    [communityId, setCommunityId] = useState('my-mountain-community');
   const [tripName, setTripName] = useState(''),
     [start, setStart] = useState(today),
     [end, setEnd] = useState(today),
@@ -46,6 +51,9 @@ function WorkspaceApp() {
     [tab, setTab] = useState<DailyScreen>('briefing'),
     [settings, setSettings] = useState(false),
     [moveTarget, setMoveTarget] = useState('');
+  useEffect(() => {
+    scroll.current?.scrollTo({ y: 0, animated: false });
+  }, [settings, dataOpen]);
   const { width } = useWindowDimensions();
   const trips = Object.values(data?.state.trips || {}).filter((t) => !t.movedTo),
     trip = trips.find((t) => t.id === tripId) || trips[0];
@@ -82,21 +90,29 @@ function WorkspaceApp() {
       <Card>
         <Heading>Set up your local profile</Heading>
         <Note>Solo operation, on this device. No server or password required.</Note>
-        <Field
+        <IdentifierField
           label="Your username"
           value={username}
           onChangeText={setUsername}
           maxLength={80}
           autoCapitalize="none"
         />
-        <Field label="Local community name" value={community} onChangeText={setCommunity} />
+        <CommunityFields
+          nameLabel="Community name"
+          name={community}
+          id={communityId}
+          onChange={(name, id) => {
+            setCommunity(name);
+            setCommunityId(id);
+          }}
+        />
         <Button
           title="Create my workspace"
           primary
           disabled={busy}
           onPress={() =>
             void run(
-              () => createProfile(username.trim(), community.trim()),
+              () => createProfile(username, community.trim(), communityId),
               'Your native workspace is ready.',
             )
           }
@@ -119,31 +135,35 @@ function WorkspaceApp() {
         />
       </Card>
     </View>
+  ) : settings ? (
+    <SettingsScreen key={data.userId} workspace={ready} />
   ) : (
     <View style={styles.section}>
-      <Text style={local.hero}>Make a plan.{`\n`}Keep a field record.</Text>
+      <Heading>Trip data</Heading>
       <Note>{data.personal.profile!.username} · Solo · local only</Note>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={local.chips}
       >
-        {data.personal.communities.map((c) => (
-          <Button
-            key={c.id}
-            title={c.name}
-            primary={data.communityId === c.id}
-            disabled={busy}
-            onPress={() => {
-              setTripId('');
-              setDayId('');
-              void run(() => refresh(c.id));
-            }}
-          />
-        ))}
+        {data.personal.communities
+          .filter((c) => !c.removedAt)
+          .map((c) => (
+            <Button
+              key={c.id}
+              title={c.name}
+              primary={data.communityId === c.id}
+              disabled={busy}
+              onPress={() => {
+                setTripId('');
+                setDayId('');
+                void run(() => refresh(c.id));
+              }}
+            />
+          ))}
       </ScrollView>
-      <View style={width >= 900 ? local.wide : styles.section}>
-        <View style={width >= 900 ? local.sidebar : undefined}>
+      <View style={styles.section}>
+        <View>
           <Card>
             <Heading>My trips</Heading>
             {trips.map((t) => (
@@ -186,14 +206,14 @@ function WorkspaceApp() {
                 <Button
                   title="Create trip"
                   primary
-                  disabled={busy}
+                  disabled={busy || !data.communityId}
                   onPress={() => void createTrip()}
                 />
               </View>
             )}
           </Card>
         </View>
-        <View style={width >= 900 ? local.content : styles.section}>
+        <View style={styles.section}>
           {!day ? (
             <Card>
               <Heading>Room for your next adventure</Heading>
@@ -242,7 +262,7 @@ function WorkspaceApp() {
                     title="Export day — public data only"
                     onPress={() =>
                       void run(() =>
-                        shareJSON(`open-mountain-${day.date}.json`, {
+                        shareJSON(`backcountry-ops-${day.date}.json`, {
                           version: 2,
                           trip,
                           day,
@@ -305,11 +325,6 @@ function WorkspaceApp() {
           )}
         </View>
       </View>
-      <Button
-        title={settings ? 'Hide profile & backups' : 'Profile & local backups'}
-        onPress={() => setSettings(!settings)}
-      />
-      {settings && <SettingsScreen key={data.userId} workspace={ready} />}
     </View>
   );
   return (
@@ -319,10 +334,29 @@ function WorkspaceApp() {
         style={local.safe}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={local.page}>
+        <ScrollView
+          ref={scroll}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={local.page}
+        >
           <View style={local.header}>
-            <Text style={local.brand}>△ OPEN MOUNTAIN</Text>
+            <Text style={local.brand}>△ BACKCOUNTRY OPS</Text>
             <Text style={styles.small}>Solo · local only</Text>
+            {data && (
+              <Button
+                title={dataOpen ? 'Assistant' : 'Trip data'}
+                onPress={() => setDataOpen((v) => !v)}
+              />
+            )}
+            {data && (
+              <Button
+                title={settings ? 'Back to trips' : 'Settings'}
+                onPress={() => {
+                  setDataOpen(true);
+                  setSettings(!settings);
+                }}
+              />
+            )}
           </View>
           {Boolean(error) && (
             <View accessibilityRole="alert" style={local.error}>
@@ -334,7 +368,45 @@ function WorkspaceApp() {
               <Text style={{ color: colors.green }}>{message}</Text>
             </View>
           )}
-          {body}
+          {data && !loading ? (
+            <View
+              style={
+                width >= 900
+                  ? { flexDirection: 'row', gap: 20, alignItems: 'flex-start' }
+                  : styles.section
+              }
+            >
+              {(!dataOpen || width >= 900) && (
+                <View
+                  style={width >= 900 ? { flex: 1, minWidth: 0 } : { width: '100%', minWidth: 0 }}
+                >
+                  <AssistantScreen
+                    key={`${data.communityId}:${day?.id || 'planning'}`}
+                    workspace={ready}
+                    day={day}
+                    trip={trip}
+                    onTripCreated={(id) => {
+                      setTripId(id);
+                      setDayId('');
+                    }}
+                    onOpenData={() => {
+                      setDataOpen(true);
+                      setSettings(false);
+                    }}
+                  />
+                </View>
+              )}
+              {dataOpen && (
+                <View
+                  style={width >= 900 ? { flex: 1, minWidth: 0 } : { width: '100%', minWidth: 0 }}
+                >
+                  {body}
+                </View>
+              )}
+            </View>
+          ) : (
+            body
+          )}
           <Note>No API · No sync · AI not configured</Note>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -355,6 +427,7 @@ const local = StyleSheet.create({
   page: { padding: 18, gap: 22, width: '100%', maxWidth: 1300, alignSelf: 'center' },
   header: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     gap: 12,
     alignItems: 'center',

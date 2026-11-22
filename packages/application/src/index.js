@@ -18,3 +18,5 @@ export function requireMembership(documents, userId, organizationId) {
 }
 export { createWorkspace } from './workspace.js';
 export { createDraftSession } from './drafts.js';
+
+export { proposeAssistantUpdate, assistantExamples } from './assistant.js';
