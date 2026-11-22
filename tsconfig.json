@@ -6,5 +6,5 @@
     "resolveJsonModule": true, "esModuleInterop": true, "skipLibCheck": true,
     "types": ["vite/client", "node"]
   },
-  "include": ["projects/pwa/src", "packages/*/src/*.ts"]
+  "include": ["projects/pwa/src", "packages/*/src/*.ts", "projects/pwa/cloudflare.config.ts"]
 }

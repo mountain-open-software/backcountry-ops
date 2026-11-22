@@ -22,7 +22,9 @@
     "check:mobile": "npm run typecheck -w @open-mountain/mobile && npm run build:mobile",
     "design:generate": "node tools/generate-design-css.mjs",
     "check:design": "node tools/generate-design-css.mjs --check",
-    "test:native-ui": "npm run test:ui -w @open-mountain/mobile"
+    "test:native-ui": "npm run test:ui -w @open-mountain/mobile",
+    "deploy:pwa": "npm run build && npm run deploy -w @open-mountain/pwa",
+    "check:cloudflare": "npm run build && npm run deploy:check -w @open-mountain/pwa"
   },
   "engines": {
     "node": "^22.18.0 || ^24.3.0 || >=26.0.0"

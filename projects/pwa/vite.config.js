@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig({
-  base: './',
+  base: '/',
   build: {rollupOptions: {
     // Client-component directives are irrelevant in this client-only Vite SPA.
     onwarn(warning, warn) {if (warning.code === 'MODULE_LEVEL_DIRECTIVE' && warning.message.includes('use client')) return; warn(warning);},

@@ -19,7 +19,7 @@ const errors = [];
 async function files(directory) {
   const result = [];
   for (const entry of await readdir(directory, { withFileTypes: true })) {
-    if (['node_modules', 'dist', '.git'].includes(entry.name)) continue;
+    if (['node_modules', 'dist', '.git', '.cloudflare', '.wrangler'].includes(entry.name)) continue;
     const target = path.join(directory, entry.name);
     if (entry.isDirectory()) result.push(...await files(target));
     else if (/\.(?:js|jsx|mjs|cjs|ts|tsx)$/.test(entry.name)) result.push(target);
